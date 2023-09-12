@@ -38,8 +38,9 @@ def get_version() -> str:
     This was lovingly collected and adapted from
     https://github.com/pypa/virtualenv/blob/12.1.1/setup.py#L67.
     """
-    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]", src_file, re.M)
-    if version_match:
+    if version_match := re.search(
+        r"^__version__ = ['\"]([^'\"]*)['\"]", src_file, re.M
+    ):
         return version_match.group(1)
     msg = "Unable to find version string."
     raise RuntimeError(msg)
