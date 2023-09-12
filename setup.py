@@ -37,9 +37,9 @@ def get_version():
     https://github.com/pypa/virtualenv/blob/12.1.1/setup.py#L67.
     """
 
-    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
-                              src_file, re.M)
-    if version_match:
+    if version_match := re.search(
+        r"^__version__ = ['\"]([^'\"]*)['\"]", src_file, re.M
+    ):
         return version_match.group(1)
     raise RuntimeError("Unable to find version string.")
 
@@ -63,7 +63,7 @@ with open('docs/HISTORY.rst') as history_file:
 with open('requirements.txt') as file_requirements:
     requirements = file_requirements.read().splitlines()
 
-settings = dict()
+settings = {}
 settings.update(
     name='es2csv',
     version=version,

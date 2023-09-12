@@ -52,7 +52,7 @@ class Es2csv:
         self.scroll_time = '30m'
 
         self.csv_headers = list(META_FIELDS) if self.opts.meta_fields else []
-        self.tmp_file = '{}.tmp'.format(opts.output_file)
+        self.tmp_file = f'{opts.output_file}.tmp'
 
     @retry(elasticsearch.exceptions.ConnectionError, tries=TIMES_TO_TRY)
     def create_connection(self):
@@ -70,7 +70,9 @@ class Es2csv:
         else:
             indexes = [index for index in indexes if self.es_conn.indices.exists(index)]
             if not indexes:
-                print('Any of index(es) {} does not exist in {}.'.format(', '.join(self.opts.index_prefixes), self.opts.url))
+                print(
+                    f"Any of index(es) {', '.join(self.opts.index_prefixes)} does not exist in {self.opts.url}."
+                )
                 exit(1)
         self.opts.index_prefixes = indexes
 
@@ -205,32 +207,35 @@ class Es2csv:
         tmp_file.close()
 
     def write_to_csv(self):
+        if self.num_results <= 0:
+            return
+        self.num_results = sum(
+            1 for _ in codecs.open(self.tmp_file, mode='r', encoding='utf-8')
+        )
         if self.num_results > 0:
-            self.num_results = sum(1 for line in codecs.open(self.tmp_file, mode='r', encoding='utf-8'))
-            if self.num_results > 0:
-                output_file = codecs.open(self.opts.output_file, mode='a', encoding='utf-8')
-                csv_writer = csv.DictWriter(output_file, fieldnames=self.csv_headers)
-                csv_writer.writeheader()
-                timer = 0
-                widgets = ['Write to csv ',
-                           progressbar.Bar(left='[', marker='#', right=']'),
-                           progressbar.FormatLabel(' [%(value)i/%(max)i] ['),
-                           progressbar.Percentage(),
-                           progressbar.FormatLabel('] [%(elapsed)s] ['),
-                           progressbar.ETA(), '] [',
-                           progressbar.FileTransferSpeed(unit='lines'), ']'
-                           ]
-                bar = progressbar.ProgressBar(widgets=widgets, maxval=self.num_results).start()
+            output_file = codecs.open(self.opts.output_file, mode='a', encoding='utf-8')
+            csv_writer = csv.DictWriter(output_file, fieldnames=self.csv_headers)
+            csv_writer.writeheader()
+            widgets = ['Write to csv ',
+                       progressbar.Bar(left='[', marker='#', right=']'),
+                       progressbar.FormatLabel(' [%(value)i/%(max)i] ['),
+                       progressbar.Percentage(),
+                       progressbar.FormatLabel('] [%(elapsed)s] ['),
+                       progressbar.ETA(), '] [',
+                       progressbar.FileTransferSpeed(unit='lines'), ']'
+                       ]
+            bar = progressbar.ProgressBar(widgets=widgets, maxval=self.num_results).start()
 
-                for line in codecs.open(self.tmp_file, mode='r', encoding='utf-8'):
-                    timer += 1
-                    bar.update(timer)
-                    csv_writer.writerow(json.loads(line))
-                output_file.close()
-                bar.finish()
-            else:
-                print('There is no docs with selected field(s): {}.'.format(','.join(self.opts.fields)))
-            os.remove(self.tmp_file)
+            for timer, line in enumerate(codecs.open(self.tmp_file, mode='r', encoding='utf-8'), start=1):
+                bar.update(timer)
+                csv_writer.writerow(json.loads(line))
+            output_file.close()
+            bar.finish()
+        else:
+            print(
+                f"There is no docs with selected field(s): {','.join(self.opts.fields)}."
+            )
+        os.remove(self.tmp_file)
 
     def clean_scroll_ids(self):
         try:
