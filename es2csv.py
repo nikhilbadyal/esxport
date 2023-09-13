@@ -259,7 +259,8 @@ class Es2csv:
                 ]
                 bar = progressbar.ProgressBar(widgets=widgets, maxval=self.num_results).start()
 
-                for timer, line in enumerate(Path(self.tmp_file).open(mode="r", encoding="utf-8"), start=1):
+                lines = list(Path(self.tmp_file).open(mode="r", encoding="utf-8"))
+                for timer, line in enumerate(lines, start=1):
                     bar.update(timer)
                     csv_writer.writerow(json.loads(line))
                 bar.finish()
