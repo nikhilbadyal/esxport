@@ -185,7 +185,7 @@ class Es2csv:
                     self.scroll_ids.append(res["_scroll_id"])
 
                 if not res["hits"]["hits"]:
-                    logger.i("Scroll[{}] expired(multiple reads?). Saving loaded data.".format(res["_scroll_id"]))
+                    logger.info("Scroll[{}] expired(multiple reads?). Saving loaded data.".format(res["_scroll_id"]))
                     break
                 for hit in res["hits"]["hits"]:
                     total_lines += 1
