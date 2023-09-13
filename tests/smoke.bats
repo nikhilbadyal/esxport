@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 
-DOCS_COUNT=$(cat /data/tests/es_data/docs.json | wc -l)
+DOCS_COUNT=$(cat /data/tests/es_data/docs.ndjson | wc -l)
 OUT_FILE=/data/out.csv
 
 @test "prints usage instructions" {
