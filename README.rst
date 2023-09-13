@@ -41,7 +41,8 @@ Usage
   -q, --query QUERY                        Query string in Lucene syntax.               [required]
   -o, --output-file FILE                   CSV file location.                           [required]
   -u, --url URL                            Elasticsearch host URL. Default is http://localhost:9200.
-  -a, --auth                               Elasticsearch basic authentication in the form of username:password.
+  -U, --user USER                          Elasticsearch basic authentication user.
+  -p, --password password                  Elasticsearch basic authentication password.
   -i, --index-prefixes INDEX [INDEX ...]   Index name prefix(es). Default is ['logstash-*'].
   -D, --doc-types DOC_TYPE [DOC_TYPE ...]  Document type(s).
   -t, --tags TAGS [TAGS ...]               Query tags.

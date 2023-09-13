@@ -27,6 +27,15 @@ def main() -> None:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("-q", "--query", dest="query", type=str, required=True, help="Query string in Lucene syntax.")
     p.add_argument(
+        "-o",
+        "--output-file",
+        dest="output_file",
+        type=str,
+        required=True,
+        metavar="FILE",
+        help="CSV file location.",
+    )
+    p.add_argument(
         "-u",
         "--url",
         dest="url",
@@ -70,15 +79,6 @@ def main() -> None:
         help="Document type(s).",
     )
     p.add_argument("-t", "--tags", dest="tags", type=str, nargs="+", help="Query tags.")
-    p.add_argument(
-        "-o",
-        "--output-file",
-        dest="output_file",
-        type=str,
-        required=True,
-        metavar="FILE",
-        help="CSV file location.",
-    )
     p.add_argument(
         "-f",
         "--fields",
