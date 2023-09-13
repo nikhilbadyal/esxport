@@ -93,14 +93,8 @@ class Es2csv:
                 sys.exit(1)
         self.opts.index_prefixes = indexes
 
-    @retry(elasticsearch.exceptions.ConnectionError, tries=TIMES_TO_TRY)
-    def search_query(self: Self) -> Any:
-        """Prepare search query string."""
-
-        @retry(elasticsearch.exceptions.ConnectionError, tries=TIMES_TO_TRY)
-        def next_scroll(scroll_id: Any) -> Any:
-            return self.es_conn.scroll(scroll=self.scroll_time, scroll_id=scroll_id)
-
+    def prepare_search_query(self: Self) -> dict[str, Any]:
+        """Prepare search query."""
         search_args = {
             "index": ",".join(self.opts.index_prefixes),
             "scroll": self.scroll_time,
@@ -148,7 +142,17 @@ class Es2csv:
             )
             logger.debug("Output field(s): {}.".format(", ".join(self.opts.fields)))
             logger.debug("Sorting by: {}.".format(", ".join(self.opts.sort)))
+        return search_args
 
+    @retry(elasticsearch.exceptions.ConnectionError, tries=TIMES_TO_TRY)
+    def search_query(self: Self) -> Any:
+        """Prepare search query string."""
+
+        @retry(elasticsearch.exceptions.ConnectionError, tries=TIMES_TO_TRY)
+        def next_scroll(scroll_id: Any) -> Any:
+            return self.es_conn.scroll(scroll=self.scroll_time, scroll_id=scroll_id)
+
+        search_args = self.prepare_search_query()
         res = self.es_conn.search(**search_args)
         self.num_results = res["hits"]["total"]["value"]
 
@@ -232,7 +236,6 @@ class Es2csv:
                 if "_source" in hit and len(hit["_source"]) > 0:
                     to_keyvalue_pairs(hit["_source"])
                     tmp_file.write(f"{json.dumps(out)}\n")
-        tmp_file.close()
 
     def write_to_csv(self: Self) -> None:
         """Write to csv file."""
