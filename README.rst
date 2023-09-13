@@ -30,8 +30,7 @@ Usage
 -----
 .. code-block:: bash
 
- $ es2csv [-h] -q QUERY -o FILE [-u URL] [-U user ] -p Password [-i INDEX [INDEX ...]]
-          [-D DOC_TYPE [DOC_TYPE ...]] [-t TAGS [TAGS ...]]
+ $ es2csv [-h] -q QUERY -o FILE [-u URL] [-U user ] -p Password [-i INDEX [INDEX ...]] [-t TAGS [TAGS ...]]
           [-f FIELDS [FIELDS ...]] [-S FIELDS [FIELDS ...]] [-d DELIMITER]
           [-m INTEGER] [-s INTEGER] [-k] [-r] [-e] [--verify-certs]
           [--ca-certs CA_CERTS] [--client-cert CLIENT_CERT]
@@ -44,7 +43,6 @@ Usage
   -U, --user USER                          Elasticsearch basic authentication user.
   -p, --password password                  Elasticsearch basic authentication password. [required]
   -i, --index-prefixes INDEX [INDEX ...]   Index name prefix(es). Default is ['logstash-*'].
-  -D, --doc-types DOC_TYPE [DOC_TYPE ...]  Document type(s).
   -t, --tags TAGS [TAGS ...]               Query tags.
   -f, --fields FIELDS [FIELDS ...]         List of selected fields in output. Default is ['_all'].
   -S, --sort FIELDS [FIELDS ...]           List of <field>:<direction> pairs to sort on. Default is [].

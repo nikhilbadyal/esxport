@@ -110,9 +110,6 @@ class Es2csv:
         if self.opts.sort:
             search_args["sort"] = ",".join(self.opts.sort)
 
-        if self.opts.doc_types:
-            search_args["doc_type"] = self.opts.doc_types
-
         if self.opts.query.startswith("@"):
             query_file = self.opts.query[1:]
             if Path(query_file).exists():

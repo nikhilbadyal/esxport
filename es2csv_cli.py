@@ -69,15 +69,6 @@ def main() -> None:
         metavar="INDEX",
         help="Index name prefix(es). Default is %(default)s.",
     )
-    p.add_argument(
-        "-D",
-        "--doc-types",
-        dest="doc_types",
-        type=str,
-        nargs="+",
-        metavar="DOC_TYPE",
-        help="Document type(s).",
-    )
     p.add_argument("-t", "--tags", dest="tags", type=str, nargs="+", help="Query tags.")
     p.add_argument(
         "-f",

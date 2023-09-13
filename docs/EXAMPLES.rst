@@ -10,7 +10,6 @@ Arguments
 `-u, --url <#url>`_ URL                                       Elasticsearch host URL. Default is "http://localhost:9200".
 `-a, --auth <#auth>`_                                         Elasticsearch basic authentication in the form of username:password.
 `-i, --index-prefixes <#index-prefixes>`_ INDEX [INDEX ...]   Index name prefix(es). Default is ['logstash-\*'].
-`-D, --doc-types <#doc-types>`_ DOC_TYPE [DOC_TYPE ...]       Document type(s).
 `-t, --tags <#tags>`_ TAGS [TAGS ...]                         Query tags.
 `-f, --fields <#fields>`_ FIELDS [FIELDS ...]                 List of selected fields in output. Default is ['_all'].
 `-s, --sort <#sort>`_ FIELDS [FIELDS ...]                     List of <field>:<direction> pairs to sort on. Default is [].
