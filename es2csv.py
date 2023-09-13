@@ -1,6 +1,5 @@
 #!/usr/bin/python
 """Main export module."""
-import codecs
 import contextlib
 import csv
 import json
@@ -117,7 +116,7 @@ class Es2csv:
         if self.opts.query.startswith("@"):
             query_file = self.opts.query[1:]
             if Path(query_file).exists():
-                with codecs.open(query_file, mode="r", encoding="utf-8") as f:
+                with Path(query_file).open(mode="r", encoding="utf-8") as f:
                     self.opts.query = f.read()
             else:
                 logger.error(f"No such file: {query_file}.")
@@ -161,9 +160,6 @@ class Es2csv:
             logger.debug(json.dumps(res.raw, ensure_ascii=False).encode("utf8"))
 
         if self.num_results > 0:
-            codecs.open(self.opts.output_file, mode="w", encoding="utf-8").close()
-            codecs.open(self.tmp_file, mode="w", encoding="utf-8").close()
-
             hit_list = []
             total_lines = 0
 
@@ -233,7 +229,7 @@ class Es2csv:
                 except Exception:
                     out[header] = source
 
-        with codecs.open(self.tmp_file, mode="a", encoding="utf-8") as tmp_file:
+        with Path(self.tmp_file).open(mode="a", encoding="utf-8") as tmp_file:
             for hit in hit_list:
                 out = {field: hit[field] for field in META_FIELDS} if self.opts.meta_fields else {}
                 if "_source" in hit and len(hit["_source"]) > 0:
@@ -245,9 +241,9 @@ class Es2csv:
         """Write to csv file."""
         if self.num_results <= 0:
             return
-        self.num_results = sum(1 for _ in codecs.open(self.tmp_file, mode="r", encoding="utf-8"))
+        self.num_results = sum(1 for _ in Path(self.tmp_file).open(mode="r", encoding="utf-8"))
         if self.num_results > 0:
-            output_file = codecs.open(self.opts.output_file, mode="a", encoding="utf-8")
+            output_file = Path(self.opts.output_file).open(mode="a", encoding="utf-8")
             csv_writer = csv.DictWriter(output_file, fieldnames=self.csv_headers)
             csv_writer.writeheader()
             widgets = [
@@ -263,7 +259,7 @@ class Es2csv:
             ]
             bar = progressbar.ProgressBar(widgets=widgets, maxval=self.num_results).start()
 
-            for timer, line in enumerate(codecs.open(self.tmp_file, mode="r", encoding="utf-8"), start=1):
+            for timer, line in enumerate(Path(self.tmp_file).open(mode="r", encoding="utf-8"), start=1):
                 bar.update(timer)
                 csv_writer.writerow(json.loads(line))
             output_file.close()
