@@ -199,43 +199,14 @@ class Es2csv:
             self.flush_to_file(hit_list)
             bar.finish()
 
-    def flush_to_file(self: Self, hit_list: Any) -> None:
+    def flush_to_file(self: Self, hit_list: list[dict[str, Any]]) -> None:
         """Write data to file."""
-
-        def to_keyvalue_pairs(source: Any, ancestors: Any = None, header_delimeter: str = ".") -> Any:
-            if ancestors is None:
-                ancestors = []
-
-            def is_list(arg: Any) -> bool:
-                return isinstance(arg, list)
-
-            def is_dict(arg: Any) -> bool:
-                return isinstance(arg, dict)
-
-            if is_dict(source):
-                for key in source:
-                    to_keyvalue_pairs(source[key], [*ancestors, key])
-
-            elif is_list(source):
-                if self.opts.kibana_nested:
-                    [to_keyvalue_pairs(item, ancestors) for item in source]
-                else:
-                    [to_keyvalue_pairs(item, [*ancestors, str(index)]) for index, item in enumerate(source)]
-            else:
-                header = header_delimeter.join(ancestors)
-                if header not in self.csv_headers:
-                    self.csv_headers.append(header)
-                try:
-                    out[header] = f"{out[header]}{self.opts.delimiter}{source}"
-                except Exception:
-                    out[header] = source
-
         with Path(self.tmp_file).open(mode="a", encoding="utf-8") as tmp_file:
             for hit in hit_list:
-                out = {field: hit[field] for field in META_FIELDS} if self.opts.meta_fields else {}
-                if "_source" in hit and len(hit["_source"]) > 0:
-                    to_keyvalue_pairs(hit["_source"])
-                    tmp_file.write(f"{json.dumps(out)}\n")
+                data = hit["_source"]
+                data.pop("_meta", None)
+                tmp_file.write(json.dumps(data))
+                tmp_file.write("\n")
 
     def write_to_csv(self: Self) -> None:
         """Write to csv file."""
@@ -243,6 +214,9 @@ class Es2csv:
             return
         with Path(self.tmp_file).open(encoding="utf-8") as file:
             self.num_results = sum(1 for _ in file)
+        with Path(self.tmp_file).open() as f:
+            first_line = json.loads(f.readline().strip("\n"))
+            self.csv_headers = first_line.keys()
         if self.num_results > 0:
             with Path(self.opts.output_file).open(mode="a", encoding="utf-8") as output_file:
                 csv_writer = csv.DictWriter(output_file, fieldnames=self.csv_headers)
