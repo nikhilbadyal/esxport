@@ -30,8 +30,8 @@ Usage
 -----
 .. code-block:: bash
 
- $ es2csv [-h] -q QUERY [-u URL] [-a AUTH] [-i INDEX [INDEX ...]]
-          [-D DOC_TYPE [DOC_TYPE ...]] [-t TAGS [TAGS ...]] -o FILE
+ $ es2csv [-h] -q QUERY -o FILE [-u URL] [-U user ] -p Password [-i INDEX [INDEX ...]]
+          [-D DOC_TYPE [DOC_TYPE ...]] [-t TAGS [TAGS ...]]
           [-f FIELDS [FIELDS ...]] [-S FIELDS [FIELDS ...]] [-d DELIMITER]
           [-m INTEGER] [-s INTEGER] [-k] [-r] [-e] [--verify-certs]
           [--ca-certs CA_CERTS] [--client-cert CLIENT_CERT]
@@ -42,7 +42,7 @@ Usage
   -o, --output-file FILE                   CSV file location.                           [required]
   -u, --url URL                            Elasticsearch host URL. Default is http://localhost:9200.
   -U, --user USER                          Elasticsearch basic authentication user.
-  -p, --password password                  Elasticsearch basic authentication password.
+  -p, --password password                  Elasticsearch basic authentication password. [required]
   -i, --index-prefixes INDEX [INDEX ...]   Index name prefix(es). Default is ['logstash-*'].
   -D, --doc-types DOC_TYPE [DOC_TYPE ...]  Document type(s).
   -t, --tags TAGS [TAGS ...]               Query tags.
