@@ -29,7 +29,7 @@ def read_file(*paths: Any) -> str:
 
 
 src_file = read_file("es2csv_cli.py")
-url = "https://github.com/taraslayshchuk/es2csv"
+url = "https://github.com/nikhilbadyal/es2csv"
 
 
 def get_version() -> str:
