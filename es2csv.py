@@ -145,25 +145,46 @@ class Es2csv:
         return search_args
 
     @retry(elasticsearch.exceptions.ConnectionError, tries=TIMES_TO_TRY)
+    def next_scroll(self: Self, scroll_id: str) -> Any:
+        """Scroll to the next page."""
+        return self.es_conn.scroll(scroll=self.scroll_time, scroll_id=scroll_id)
+
+    def write_to_temp_file(self: Self, res: Any, bar: Any) -> None:
+        """Write data to temp file."""
+        total_lines = 0
+        hit_list = []
+
+        while total_lines != self.num_results:
+            if res["_scroll_id"] not in self.scroll_ids:
+                self.scroll_ids.append(res["_scroll_id"])
+
+            if not res["hits"]["hits"]:
+                logger.info("Scroll[{}] expired(multiple reads?). Saving loaded data.".format(res["_scroll_id"]))
+                break
+            for hit in res["hits"]["hits"]:
+                total_lines += 1
+                bar.update(total_lines)
+                hit_list.append(hit)
+                if len(hit_list) == FLUSH_BUFFER:
+                    self.flush_to_file(hit_list)
+                    hit_list = []
+                if self.opts.max_results and total_lines == self.opts.max_results:
+                    self.flush_to_file(hit_list)
+                    logger.info(f"Hit max result limit: {self.opts.max_results} records")
+                    return
+            res = self.next_scroll(res["_scroll_id"])
+        self.flush_to_file(hit_list)
+
+    @retry(elasticsearch.exceptions.ConnectionError, tries=TIMES_TO_TRY)
     def search_query(self: Self) -> Any:
         """Prepare search query string."""
-
-        @retry(elasticsearch.exceptions.ConnectionError, tries=TIMES_TO_TRY)
-        def next_scroll(scroll_id: Any) -> Any:
-            return self.es_conn.scroll(scroll=self.scroll_time, scroll_id=scroll_id)
-
         search_args = self.prepare_search_query()
         res = self.es_conn.search(**search_args)
         self.num_results = res["hits"]["total"]["value"]
 
         logger.info(f"Found {self.num_results} results.")
-        if self.opts.debug_mode:
-            logger.debug(json.dumps(res.raw, ensure_ascii=False).encode("utf8"))
 
         if self.num_results > 0:
-            hit_list = []
-            total_lines = 0
-
             widgets = [
                 "Run query ",
                 progressbar.Bar(left="[", marker="#", right="]"),
@@ -173,30 +194,10 @@ class Es2csv:
                 progressbar.ETA(),
                 "] [",
                 progressbar.FileTransferSpeed(unit="docs"),
-                "]",
+                "]\n",
             ]
             bar = progressbar.ProgressBar(widgets=widgets, maxval=self.num_results).start()
-
-            while total_lines != self.num_results:
-                if res["_scroll_id"] not in self.scroll_ids:
-                    self.scroll_ids.append(res["_scroll_id"])
-
-                if not res["hits"]["hits"]:
-                    logger.info("Scroll[{}] expired(multiple reads?). Saving loaded data.".format(res["_scroll_id"]))
-                    break
-                for hit in res["hits"]["hits"]:
-                    total_lines += 1
-                    bar.update(total_lines)
-                    hit_list.append(hit)
-                    if len(hit_list) == FLUSH_BUFFER:
-                        self.flush_to_file(hit_list)
-                        hit_list = []
-                    if self.opts.max_results and total_lines == self.opts.max_results:
-                        self.flush_to_file(hit_list)
-                        logger.info(f"Hit max result limit: {self.opts.max_results} records")
-                        return
-                res = next_scroll(res["_scroll_id"])
-            self.flush_to_file(hit_list)
+            self.write_to_temp_file(res, bar)
             bar.finish()
 
     def flush_to_file(self: Self, hit_list: list[dict[str, Any]]) -> None:
