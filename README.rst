@@ -14,7 +14,7 @@ Quick Look Demo
 Requirements
 ------------
 | This tool should be used with Elasticsearch 8.x version.
-| You also need `Python 3.11.x <https://www.python.org/downloads/>`_ and `pip <https://pip.pypa.io/en/stable/installing/>`_.
+| You also need `Python 3.11.x <https://www.python.org/downloads/>`_ and `pip <https://pip.pypa.io/en/stable/installation/>`_.
 
 Installation
 ------------
