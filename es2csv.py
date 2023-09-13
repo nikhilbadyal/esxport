@@ -1,3 +1,4 @@
+#!/usr/bin/python
 """Main export module."""
 import codecs
 import contextlib
@@ -5,12 +6,14 @@ import csv
 import json
 import sys
 import time
+from collections.abc import Callable
 from functools import wraps
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Self, TypeVar
+from typing import Any, Self, TypeVar
 
 import elasticsearch
 import progressbar
+from loguru import logger
 
 FLUSH_BUFFER = 1000  # Chunk of docs to flush in temp file
 CONNECTION_TIMEOUT = 120
@@ -27,20 +30,20 @@ def retry(ExceptionToCheck: Any, tries: int = TIMES_TO_TRY, delay: int = RETRY_D
 
     def deco_retry(f: Any) -> Any:
         @wraps(f)
-        def f_retry(*args: Any, **kwargs: Dict[Any, Any]) -> Any:
+        def f_retry(*args: Any, **kwargs: dict[Any, Any]) -> Any:
             mtries = tries
             while mtries > 0:
                 try:
                     return f(*args, **kwargs)
                 except ExceptionToCheck as e:
-                    print(e)
-                    print(f"Retrying in {delay} seconds ...")
+                    logger.error(e)
+                    logger.info(f"Retrying in {delay} seconds ...")
                     time.sleep(delay)
                     mtries -= 1
             try:
                 return f(*args, **kwargs)
             except ExceptionToCheck as e:
-                print(f"Fatal Error: {e}")
+                logger.exception(f"Fatal Error: {e}")
                 sys.exit(1)
 
         return f_retry
@@ -55,7 +58,7 @@ class Es2csv:
         self.opts = opts
 
         self.num_results = 0
-        self.scroll_ids: List[str] = []
+        self.scroll_ids: list[str] = []
         self.scroll_time = "30m"
 
         self.csv_headers = list(META_FIELDS) if self.opts.meta_fields else []
@@ -85,15 +88,15 @@ class Es2csv:
         else:
             indexes_status = self.es_conn.indices.exists(index=indexes)
             if not indexes_status:
-                print(
-                    f'Any of index(es) {", ".join(self.opts.index_prefixes)} does not exist in {self.opts.url}.'
+                logger.error(
+                    f'Any of index(es) {", ".join(self.opts.index_prefixes)} does not exist in {self.opts.url}.',
                 )
                 sys.exit(1)
         self.opts.index_prefixes = indexes
 
     @retry(elasticsearch.exceptions.ConnectionError, tries=TIMES_TO_TRY)
     def search_query(self: Self) -> Any:
-        """"Prepare search query string."""
+        """Prepare search query string."""
 
         @retry(elasticsearch.exceptions.ConnectionError, tries=TIMES_TO_TRY)
         def next_scroll(scroll_id: Any) -> Any:
@@ -117,13 +120,13 @@ class Es2csv:
                 with codecs.open(query_file, mode="r", encoding="utf-8") as f:
                     self.opts.query = f.read()
             else:
-                print(f"No such file: {query_file}.")
+                logger.error(f"No such file: {query_file}.")
                 sys.exit(1)
         if self.opts.raw_query:
             try:
                 query = json.loads(self.opts.query)
             except ValueError as e:
-                print(f"Invalid JSON syntax in query. {e}")
+                logger.exception(f"Invalid JSON syntax in query. {e}")
                 sys.exit(1)
             search_args["body"] = query
         else:
@@ -139,23 +142,23 @@ class Es2csv:
             self.csv_headers.extend([str(field, "utf-8") for field in self.opts.fields if "*" not in field])
 
         if self.opts.debug_mode:
-            print("Using these indices: {}.".format(", ".join(self.opts.index_prefixes)))
-            print(
+            logger.debug("Using these indices: {}.".format(", ".join(self.opts.index_prefixes)))
+            logger.debug(
                 "Query[{0[0]}]: {0[1]}.".format(
                     ("Query DSL", json.dumps(query, ensure_ascii=False).encode("utf8"))
                     if self.opts.raw_query
-                    else ("Lucene", query)
-                )
+                    else ("Lucene", query),
+                ),
             )
-            print("Output field(s): {}.".format(", ".join(self.opts.fields)))
-            print("Sorting by: {}.".format(", ".join(self.opts.sort)))
+            logger.debug("Output field(s): {}.".format(", ".join(self.opts.fields)))
+            logger.debug("Sorting by: {}.".format(", ".join(self.opts.sort)))
 
         res = self.es_conn.search(**search_args)
         self.num_results = res["hits"]["total"]["value"]
 
-        print(f"Found {self.num_results} results.")
+        logger.info(f"Found {self.num_results} results.")
         if self.opts.debug_mode:
-            print(json.dumps(res.raw, ensure_ascii=False).encode("utf8"))
+            logger.debug(json.dumps(res.raw, ensure_ascii=False).encode("utf8"))
 
         if self.num_results > 0:
             codecs.open(self.opts.output_file, mode="w", encoding="utf-8").close()
@@ -182,7 +185,7 @@ class Es2csv:
                     self.scroll_ids.append(res["_scroll_id"])
 
                 if not res["hits"]["hits"]:
-                    print("Scroll[{}] expired(multiple reads?). Saving loaded data.".format(res["_scroll_id"]))
+                    logger.i("Scroll[{}] expired(multiple reads?). Saving loaded data.".format(res["_scroll_id"]))
                     break
                 for hit in res["hits"]["hits"]:
                     total_lines += 1
@@ -193,7 +196,7 @@ class Es2csv:
                         hit_list = []
                     if self.opts.max_results and total_lines == self.opts.max_results:
                         self.flush_to_file(hit_list)
-                        print(f"Hit max result limit: {self.opts.max_results} records")
+                        logger.info(f"Hit max result limit: {self.opts.max_results} records")
                         return
                 res = next_scroll(res["_scroll_id"])
             self.flush_to_file(hit_list)
@@ -239,12 +242,10 @@ class Es2csv:
         tmp_file.close()
 
     def write_to_csv(self: Self) -> None:
-        """"Write to csv file."""
+        """Write to csv file."""
         if self.num_results <= 0:
             return
-        self.num_results = sum(
-            1 for _ in codecs.open(self.tmp_file, mode="r", encoding="utf-8")
-        )
+        self.num_results = sum(1 for _ in codecs.open(self.tmp_file, mode="r", encoding="utf-8"))
         if self.num_results > 0:
             output_file = codecs.open(self.opts.output_file, mode="a", encoding="utf-8")
             csv_writer = csv.DictWriter(output_file, fieldnames=self.csv_headers)
@@ -268,8 +269,8 @@ class Es2csv:
             output_file.close()
             bar.finish()
         else:
-            print(
-                f'There is no docs with selected field(s): {",".join(self.opts.fields)}.'
+            logger.info(
+                f'There is no docs with selected field(s): {",".join(self.opts.fields)}.',
             )
         Path(self.tmp_file).unlink()
 

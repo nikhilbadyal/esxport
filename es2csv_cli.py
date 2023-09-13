@@ -35,7 +35,12 @@ def main() -> None:
         help="Elasticsearch host URL. Default is %(default)s.",
     )
     p.add_argument(
-        "-U", "--user", dest="user", type=str, default="elastic", help="Elasticsearch basic authentication user."
+        "-U",
+        "--user",
+        dest="user",
+        type=str,
+        default="elastic",
+        help="Elasticsearch basic authentication user.",
     )
     p.add_argument(
         "-p",
@@ -56,11 +61,23 @@ def main() -> None:
         help="Index name prefix(es). Default is %(default)s.",
     )
     p.add_argument(
-        "-D", "--doc-types", dest="doc_types", type=str, nargs="+", metavar="DOC_TYPE", help="Document type(s)."
+        "-D",
+        "--doc-types",
+        dest="doc_types",
+        type=str,
+        nargs="+",
+        metavar="DOC_TYPE",
+        help="Document type(s).",
     )
     p.add_argument("-t", "--tags", dest="tags", type=str, nargs="+", help="Query tags.")
     p.add_argument(
-        "-o", "--output-file", dest="output_file", type=str, required=True, metavar="FILE", help="CSV file location."
+        "-o",
+        "--output-file",
+        dest="output_file",
+        type=str,
+        required=True,
+        metavar="FILE",
+        help="CSV file location.",
     )
     p.add_argument(
         "-f",
@@ -108,10 +125,18 @@ def main() -> None:
         help="Scroll size for each batch of results. Default is %(default)s.",
     )
     p.add_argument(
-        "-k", "--kibana-nested", dest="kibana_nested", action="store_true", help="Format nested fields in Kibana style."
+        "-k",
+        "--kibana-nested",
+        dest="kibana_nested",
+        action="store_true",
+        help="Format nested fields in Kibana style.",
     )
     p.add_argument(
-        "-r", "--raw-query", dest="raw_query", action="store_true", help="Switch query format in the Query DSL."
+        "-r",
+        "--raw-query",
+        dest="raw_query",
+        action="store_true",
+        help="Switch query format in the Query DSL.",
     )
     p.add_argument("-e", "--meta-fields", dest="meta_fields", action="store_true", help="Add meta-fields in output.")
     p.add_argument(

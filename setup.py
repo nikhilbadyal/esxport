@@ -39,7 +39,9 @@ def get_version() -> str:
     https://github.com/pypa/virtualenv/blob/12.1.1/setup.py#L67.
     """
     if version_match := re.search(
-        r"^__version__ = ['\"]([^'\"]*)['\"]", src_file, re.M
+        r"^__version__ = ['\"]([^'\"]*)['\"]",
+        src_file,
+        re.M,
     ):
         return version_match.group(1)
     msg = "Unable to find version string."
