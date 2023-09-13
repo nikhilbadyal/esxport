@@ -243,27 +243,26 @@ class Es2csv:
             return
         self.num_results = sum(1 for _ in Path(self.tmp_file).open(mode="r", encoding="utf-8"))
         if self.num_results > 0:
-            output_file = Path(self.opts.output_file).open(mode="a", encoding="utf-8")
-            csv_writer = csv.DictWriter(output_file, fieldnames=self.csv_headers)
-            csv_writer.writeheader()
-            widgets = [
-                "Write to csv ",
-                progressbar.Bar(left="[", marker="#", right="]"),
-                progressbar.FormatLabel(" [%(value)i/%(max)i] ["),
-                progressbar.Percentage(),
-                progressbar.FormatLabel("] [%(elapsed)s] ["),
-                progressbar.ETA(),
-                "] [",
-                progressbar.FileTransferSpeed(unit="lines"),
-                "]",
-            ]
-            bar = progressbar.ProgressBar(widgets=widgets, maxval=self.num_results).start()
+            with Path(self.opts.output_file).open(mode="a", encoding="utf-8") as output_file:
+                csv_writer = csv.DictWriter(output_file, fieldnames=self.csv_headers)
+                csv_writer.writeheader()
+                widgets = [
+                    "Write to csv ",
+                    progressbar.Bar(left="[", marker="#", right="]"),
+                    progressbar.FormatLabel(" [%(value)i/%(max)i] ["),
+                    progressbar.Percentage(),
+                    progressbar.FormatLabel("] [%(elapsed)s] ["),
+                    progressbar.ETA(),
+                    "] [",
+                    progressbar.FileTransferSpeed(unit="lines"),
+                    "]",
+                ]
+                bar = progressbar.ProgressBar(widgets=widgets, maxval=self.num_results).start()
 
-            for timer, line in enumerate(Path(self.tmp_file).open(mode="r", encoding="utf-8"), start=1):
-                bar.update(timer)
-                csv_writer.writerow(json.loads(line))
-            output_file.close()
-            bar.finish()
+                for timer, line in enumerate(Path(self.tmp_file).open(mode="r", encoding="utf-8"), start=1):
+                    bar.update(timer)
+                    csv_writer.writerow(json.loads(line))
+                bar.finish()
         else:
             logger.info(
                 f'There is no docs with selected field(s): {",".join(self.opts.fields)}.',
