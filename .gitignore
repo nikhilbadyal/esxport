@@ -8,3 +8,5 @@ build
 *.csv
 *.crt
 .venv
+*.tmp
+*query.json
