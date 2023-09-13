@@ -241,7 +241,8 @@ class Es2csv:
         """Write to csv file."""
         if self.num_results <= 0:
             return
-        self.num_results = sum(1 for _ in Path(self.tmp_file).open(mode="r", encoding="utf-8"))
+        with Path(self.tmp_file).open(encoding="utf-8") as file:
+            self.num_results = sum(1 for _ in file)
         if self.num_results > 0:
             with Path(self.opts.output_file).open(mode="a", encoding="utf-8") as output_file:
                 csv_writer = csv.DictWriter(output_file, fieldnames=self.csv_headers)
@@ -259,10 +260,11 @@ class Es2csv:
                 ]
                 bar = progressbar.ProgressBar(widgets=widgets, maxval=self.num_results).start()
 
-                lines = list(Path(self.tmp_file).open(mode="r", encoding="utf-8"))
-                for timer, line in enumerate(lines, start=1):
-                    bar.update(timer)
-                    csv_writer.writerow(json.loads(line))
+                with Path(self.tmp_file).open(encoding="utf-8") as file:
+                    for timer, line in enumerate(file, start=1):
+                        bar.update(timer)
+                        csv_writer.writerow(json.loads(line))
+
                 bar.finish()
         else:
             logger.info(
