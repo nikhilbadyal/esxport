@@ -218,7 +218,7 @@ class Es2csv:
             with Path(self.tmp_file).open() as f:
                 first_line = json.loads(f.readline().strip("\n"))
                 self.csv_headers = first_line.keys()
-            with Path(self.opts.output_file).open(mode="a", encoding="utf-8") as output_file:
+            with Path(self.opts.output_file).open(mode="w", encoding="utf-8") as output_file:
                 csv_writer = csv.DictWriter(output_file, fieldnames=self.csv_headers, delimiter=self.opts.delimiter)
                 csv_writer.writeheader()
                 bar = tqdm(
