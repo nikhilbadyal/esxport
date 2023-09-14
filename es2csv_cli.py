@@ -21,7 +21,7 @@ def print_version(ctx: Context, _: Parameter, value: bool) -> None:  # noqa: FBT
     ctx.exit()
 
 
-@click.command("es2csv-cli", context_settings={"show_default": True})
+@click.command(context_settings={"show_default": True})
 @click.option(
     "-q",
     "--query",
