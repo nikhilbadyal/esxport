@@ -14,6 +14,8 @@ import elasticsearch
 from loguru import logger
 from tqdm import tqdm
 
+import cli_options
+
 FLUSH_BUFFER = 1000  # Chunk of docs to flush in temp file
 CONNECTION_TIMEOUT = 120
 TIMES_TO_TRY = 3
@@ -57,7 +59,7 @@ def retry(
 class Es2csv:
     """Main class."""
 
-    def __init__(self: Self, opts: Any) -> None:
+    def __init__(self: Self, opts: cli_options.CliOptions) -> None:
         self.opts = opts
 
         self.num_results = 0
@@ -109,14 +111,6 @@ class Es2csv:
         if self.opts.sort:
             search_args["sort"] = ",".join(self.opts.sort)
 
-        if self.opts.query.startswith("@"):
-            query_file = self.opts.query[1:]
-            if Path(query_file).exists():
-                with Path(query_file).open(mode="r", encoding="utf-8") as f:
-                    self.opts.query = f.read()
-            else:
-                logger.error(f"No such file: {query_file}.")
-                sys.exit(1)
         if self.opts.raw_query:
             try:
                 query = json.loads(self.opts.query)
