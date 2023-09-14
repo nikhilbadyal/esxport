@@ -60,12 +60,6 @@ def print_version(ctx: Context, _: Parameter, value: bool) -> None:  # noqa: FBT
 )
 @click.option("-i", "--index-prefixes", required=True, multiple=True, help="Index name prefix(es).")
 @click.option(
-    "-t",
-    "--tags",
-    multiple=True,
-    help="Query tags.",
-)
-@click.option(
     "-f",
     "--fields",
     default=["_all"],
@@ -153,7 +147,6 @@ def main(  # noqa: PLR0913
     user: str,
     password: str,
     index_prefixes: str,
-    tags: str,
     fields: str,
     sort: str,
     delimiter: str,
