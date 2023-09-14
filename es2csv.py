@@ -175,7 +175,7 @@ class Es2csv:
 
         def add_meta_fields() -> None:
             if self.opts.meta_fields:
-                for fields in META_FIELDS:
+                for fields in self.opts.meta_fields:
                     data[fields] = hit.get(fields, None)
 
         with Path(self.tmp_file).open(mode="a", encoding="utf-8") as tmp_file:

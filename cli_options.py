@@ -29,7 +29,7 @@ class CliOptions(object):
         self.delimiter = myclass_kwargs["delimiter"]
         self.max_results = int(myclass_kwargs["max_results"])
         self.scroll_size = int(myclass_kwargs["scroll_size"])
-        self.meta_fields: bool = myclass_kwargs["meta_fields"]
+        self.meta_fields: list[str] = list(myclass_kwargs["meta_fields"])
         self.verify_certs: bool = myclass_kwargs["verify_certs"]
         self.ca_certs = myclass_kwargs["ca_certs"]
         self.client_cert = myclass_kwargs["ca_certs"]

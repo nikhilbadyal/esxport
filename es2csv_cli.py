@@ -75,7 +75,6 @@ def print_version(ctx: Context, _: Parameter, value: bool) -> None:  # noqa: FBT
     "-S",
     "--sort",
     multiple=True,
-    metavar="FIELDS",
     help="List of <field>:<direction> pairs to sort on.",
 )
 @click.option(
@@ -107,7 +106,9 @@ def print_version(ctx: Context, _: Parameter, value: bool) -> None:  # noqa: FBT
 @click.option(
     "-e",
     "--meta-fields",
-    is_flag=True,
+    type=click.Choice(es2csv.META_FIELDS),
+    default=[],
+    multiple=True,
     help="Add meta-fields in output.",
 )
 @click.option(
