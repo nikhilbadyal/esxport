@@ -101,6 +101,31 @@ class Es2csv:
                 sys.exit(1)
         self.opts.index_prefixes = indexes
 
+    def _validate_fields(self: Self) -> None:
+        """Validate fields."""
+        all_fields_dict: dict[str, list[str]] = {}
+        indices_names = list(self.opts.index_prefixes)
+        all_expected_fields = self.opts.fields.copy()
+        for sort_query in self.opts.sort:
+            sort_key = next(iter(sort_query.keys()))
+            parts = sort_key.split(".")
+            sort_param = parts[0] if len(parts) > 0 else sort_key
+            all_expected_fields.append(sort_param)
+        if "_all" in all_expected_fields:
+            all_expected_fields.remove("_all")
+
+        for index in indices_names:
+            response: dict[str, Any] = self.es_conn.indices.get_mapping(index=index)
+            all_fields_dict[index] = []
+            for field in response[index]["mappings"]["properties"]:
+                all_fields_dict[index].append(field)
+        all_es_fields = {value for values_list in all_fields_dict.values() for value in values_list}
+
+        for element in all_expected_fields:
+            if element not in all_es_fields:
+                logger.error(f"Fields {element} doesn't exist in any index.")
+                sys.exit(1)
+
     def prepare_search_query(self: Self) -> dict[str, Any]:
         """Prepare search query."""
         search_args = {
@@ -115,7 +140,7 @@ class Es2csv:
 
         if "_all" not in self.opts.fields:
             search_args["_source_include"] = ",".join(self.opts.fields)
-            self.csv_headers.extend([str(field, "utf-8") for field in self.opts.fields if "*" not in field])
+            self.csv_headers.extend([field for field in self.opts.fields if "*" not in field])
 
         if self.opts.debug:
             logger.debug("Using these indices: {}.".format(", ".join(self.opts.index_prefixes)))
@@ -161,6 +186,7 @@ class Es2csv:
     @retry(elasticsearch.exceptions.ConnectionError, tries=TIMES_TO_TRY)
     def search_query(self: Self) -> Any:
         """Prepare search query string."""
+        self._validate_fields()
         search_args = self.prepare_search_query()
         res = self.es_conn.search(**search_args)
         self.num_results = res["hits"]["total"]["value"]
@@ -196,7 +222,7 @@ class Es2csv:
                 csv_writer = csv.DictWriter(output_file, fieldnames=self.csv_headers, delimiter=self.opts.delimiter)
                 csv_writer.writeheader()
                 bar = tqdm(
-                    desc=self.tmp_file,
+                    desc=self.opts.output_file,
                     total=self.rows_written,
                     unit="docs",
                     colour="green",

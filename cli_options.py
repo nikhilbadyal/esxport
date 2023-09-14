@@ -1,6 +1,5 @@
 """CLII options."""
 import json
-from pathlib import Path
 from typing import Any, Self
 
 # noinspection PyPackageRequirements
@@ -19,12 +18,12 @@ class CliOptions:
         myclass_kwargs: dict[str, Any],
     ) -> None:
         self.query: dict[str, Any] = myclass_kwargs["query"]
-        self.output_file: Path = Path(myclass_kwargs["output_file"])
+        self.output_file = myclass_kwargs["output_file"]
         self.url = myclass_kwargs["url"]
         self.user = myclass_kwargs["user"]
         self.password = myclass_kwargs["password"]
         self.index_prefixes = myclass_kwargs["index_prefixes"]
-        self.fields = myclass_kwargs["fields"]
+        self.fields: list[str] = list(myclass_kwargs["fields"])
         self.sort: list[dict[str, str]] = myclass_kwargs["sort"]
         self.delimiter = myclass_kwargs["delimiter"]
         self.max_results = int(myclass_kwargs["max_results"])
