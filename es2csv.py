@@ -111,7 +111,7 @@ class Es2csv:
             "body": self.opts.query,
         }
         if self.opts.sort:
-            search_args["sort"] = ",".join(self.opts.sort)
+            search_args["sort"] = self.opts.sort
 
         if "_all" not in self.opts.fields:
             search_args["_source_include"] = ",".join(self.opts.fields)
@@ -121,7 +121,7 @@ class Es2csv:
             logger.debug("Using these indices: {}.".format(", ".join(self.opts.index_prefixes)))
             logger.debug(f"Query {self.opts.query}")
             logger.debug("Output field(s): {}.".format(", ".join(self.opts.fields)))
-            logger.debug("Sorting by: {}.".format(", ".join(self.opts.sort)))
+            logger.debug(f"Sorting by: {self.opts.sort}.")
         return search_args
 
     @retry(elasticsearch.exceptions.ConnectionError, tries=TIMES_TO_TRY)

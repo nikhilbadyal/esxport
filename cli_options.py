@@ -25,7 +25,7 @@ class CliOptions:
         self.password = myclass_kwargs["password"]
         self.index_prefixes = myclass_kwargs["index_prefixes"]
         self.fields = myclass_kwargs["fields"]
-        self.sort = myclass_kwargs["sort"]
+        self.sort: list[dict[str, str]] = myclass_kwargs["sort"]
         self.delimiter = myclass_kwargs["delimiter"]
         self.max_results = int(myclass_kwargs["max_results"])
         self.scroll_size = int(myclass_kwargs["scroll_size"])
