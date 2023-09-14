@@ -167,7 +167,7 @@ def main(  # noqa: PLR0913
     client_key: str,
     debug: str,
 ) -> None:
-    """Main function."""
+    """Elastic Search to CSV Exporter."""
     kwargs: dict[str, Any] = {k: v for k, v in locals().items() if k != "self"}
     cli_options = CliOptions(kwargs)
     es = es2csv.Es2csv(cli_options)
