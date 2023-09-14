@@ -139,7 +139,7 @@ class Es2csv:
             search_args["sort"] = self.opts.sort
 
         if "_all" not in self.opts.fields:
-            search_args["_source_include"] = ",".join(self.opts.fields)
+            search_args["_source_includes"] = ",".join(self.opts.fields)
             self.csv_headers.extend([field for field in self.opts.fields if "*" not in field])
 
         if self.opts.debug:
