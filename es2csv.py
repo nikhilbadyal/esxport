@@ -24,7 +24,11 @@ F = TypeVar("F", bound=Callable[..., Any])
 
 
 # Retry decorator for functions with exceptions
-def retry(ExceptionToCheck: Any, tries: int = TIMES_TO_TRY, delay: int = RETRY_DELAY) -> Callable[[F], F]:
+def retry(
+    exception_to_check: type[BaseException],
+    tries: int = TIMES_TO_TRY,
+    delay: int = RETRY_DELAY,
+) -> Callable[[F], F]:
     """Retryn connection."""
 
     def deco_retry(f: Any) -> Any:
@@ -34,14 +38,14 @@ def retry(ExceptionToCheck: Any, tries: int = TIMES_TO_TRY, delay: int = RETRY_D
             while mtries > 0:
                 try:
                     return f(*args, **kwargs)
-                except ExceptionToCheck as e:
+                except exception_to_check as e:
                     logger.error(e)
                     logger.info(f"Retrying in {delay} seconds ...")
                     time.sleep(delay)
                     mtries -= 1
             try:
                 return f(*args, **kwargs)
-            except ExceptionToCheck as e:
+            except exception_to_check as e:
                 logger.exception(f"Fatal Error: {e}")
                 sys.exit(1)
 
