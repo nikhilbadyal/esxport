@@ -20,7 +20,7 @@ FLUSH_BUFFER = 1000  # Chunk of docs to flush in temp file
 CONNECTION_TIMEOUT = 120
 TIMES_TO_TRY = 3
 RETRY_DELAY = 60
-META_FIELDS = ["_id", "_index", "_score", "_type"]
+META_FIELDS = ["_id", "_index", "_score"]
 
 F = TypeVar("F", bound=Callable[..., Any])
 
@@ -186,7 +186,7 @@ class Es2csv:
                 first_line = json.loads(f.readline().strip("\n"))
                 self.csv_headers = first_line.keys()
             with Path(self.opts.output_file).open(mode="a", encoding="utf-8") as output_file:
-                csv_writer = csv.DictWriter(output_file, fieldnames=self.csv_headers)
+                csv_writer = csv.DictWriter(output_file, fieldnames=self.csv_headers, delimiter=self.opts.delimiter)
                 csv_writer.writeheader()
                 bar = tqdm(
                     desc=self.tmp_file,
