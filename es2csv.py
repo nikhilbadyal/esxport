@@ -11,8 +11,8 @@ from pathlib import Path
 from typing import Any, Self, TypeVar
 
 import elasticsearch
-import progressbar
 from loguru import logger
+from tqdm import tqdm
 
 FLUSH_BUFFER = 1000  # Chunk of docs to flush in temp file
 CONNECTION_TIMEOUT = 120
@@ -149,12 +149,19 @@ class Es2csv:
         """Scroll to the next page."""
         return self.es_conn.scroll(scroll=self.scroll_time, scroll_id=scroll_id)
 
-    def write_to_temp_file(self: Self, res: Any, bar: Any) -> None:
+    def write_to_temp_file(self: Self, res: Any) -> None:
         """Write data to temp file."""
         total_lines = 0
         hit_list = []
+        total_size = int(min(self.opts.max_results, self.num_results))
+        bar = tqdm(
+            desc=self.tmp_file,
+            total=total_size,
+            unit="docs",
+            colour="green",
+        )
 
-        while total_lines != self.num_results:
+        while total_lines != total_size:
             if res["_scroll_id"] not in self.scroll_ids:
                 self.scroll_ids.append(res["_scroll_id"])
 
@@ -163,16 +170,13 @@ class Es2csv:
                 break
             for hit in res["hits"]["hits"]:
                 total_lines += 1
-                bar.update(total_lines)
+                bar.update(1)
                 hit_list.append(hit)
                 if len(hit_list) == FLUSH_BUFFER:
                     self.flush_to_file(hit_list)
                     hit_list = []
-                if self.opts.max_results and total_lines == self.opts.max_results:
-                    self.flush_to_file(hit_list)
-                    logger.info(f"Hit max result limit: {self.opts.max_results} records")
-                    return
             res = self.next_scroll(res["_scroll_id"])
+        bar.close()
         self.flush_to_file(hit_list)
 
     @retry(elasticsearch.exceptions.ConnectionError, tries=TIMES_TO_TRY)
@@ -185,20 +189,7 @@ class Es2csv:
         logger.info(f"Found {self.num_results} results.")
 
         if self.num_results > 0:
-            widgets = [
-                "Run query ",
-                progressbar.Bar(left="[", marker="#", right="]"),
-                progressbar.FormatLabel(" [%(value)i/%(max)i] ["),
-                progressbar.Percentage(),
-                progressbar.FormatLabel("] [%(elapsed)s] ["),
-                progressbar.ETA(),
-                "] [",
-                progressbar.FileTransferSpeed(unit="docs"),
-                "]\n",
-            ]
-            bar = progressbar.ProgressBar(widgets=widgets, maxval=self.num_results).start()
-            self.write_to_temp_file(res, bar)
-            bar.finish()
+            self.write_to_temp_file(res)
 
     def flush_to_file(self: Self, hit_list: list[dict[str, Any]]) -> None:
         """Write data to file."""
@@ -222,25 +213,18 @@ class Es2csv:
             with Path(self.opts.output_file).open(mode="a", encoding="utf-8") as output_file:
                 csv_writer = csv.DictWriter(output_file, fieldnames=self.csv_headers)
                 csv_writer.writeheader()
-                widgets = [
-                    "Write to csv ",
-                    progressbar.Bar(left="[", marker="#", right="]"),
-                    progressbar.FormatLabel(" [%(value)i/%(max)i] ["),
-                    progressbar.Percentage(),
-                    progressbar.FormatLabel("] [%(elapsed)s] ["),
-                    progressbar.ETA(),
-                    "] [",
-                    progressbar.FileTransferSpeed(unit="lines"),
-                    "]",
-                ]
-                bar = progressbar.ProgressBar(widgets=widgets, maxval=self.num_results).start()
-
+                bar = tqdm(
+                    desc=self.tmp_file,
+                    total=self.num_results,
+                    unit="docs",
+                    colour="green",
+                )
                 with Path(self.tmp_file).open(encoding="utf-8") as file:
-                    for timer, line in enumerate(file, start=1):
-                        bar.update(timer)
+                    for _timer, line in enumerate(file, start=1):
+                        bar.update(1)
                         csv_writer.writerow(json.loads(line))
 
-                bar.finish()
+                bar.close()
         else:
             logger.info(
                 f'There is no docs with selected field(s): {",".join(self.opts.fields)}.',
