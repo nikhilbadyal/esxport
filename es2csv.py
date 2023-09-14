@@ -66,7 +66,7 @@ class Es2csv:
         self.scroll_ids: list[str] = []
         self.scroll_time = "30m"
 
-        self.csv_headers = list(META_FIELDS) if self.opts.meta_fields else []
+        self.csv_headers: list[str] = []
         self.tmp_file = f"{opts.output_file}.tmp"
         self.rows_written = 0
 
@@ -140,7 +140,6 @@ class Es2csv:
 
         if "_all" not in self.opts.fields:
             search_args["_source_includes"] = ",".join(self.opts.fields)
-            self.csv_headers.extend([field for field in self.opts.fields if "*" not in field])
 
         if self.opts.debug:
             logger.debug("Using these indices: {}.".format(", ".join(self.opts.index_prefixes)))
