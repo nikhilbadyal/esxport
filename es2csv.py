@@ -62,6 +62,7 @@ class Es2csv:
 
         self.csv_headers = list(META_FIELDS) if self.opts.meta_fields else []
         self.tmp_file = f"{opts.output_file}.tmp"
+        self.rows_written = 0
 
     @retry(elasticsearch.exceptions.ConnectionError, tries=TIMES_TO_TRY)
     def create_connection(self: Self) -> None:
@@ -151,7 +152,6 @@ class Es2csv:
 
     def write_to_temp_file(self: Self, res: Any) -> None:
         """Write data to temp file."""
-        total_lines = 0
         hit_list = []
         total_size = int(min(self.opts.max_results, self.num_results))
         bar = tqdm(
@@ -161,7 +161,7 @@ class Es2csv:
             colour="green",
         )
 
-        while total_lines != total_size:
+        while self.rows_written != total_size:
             if res["_scroll_id"] not in self.scroll_ids:
                 self.scroll_ids.append(res["_scroll_id"])
 
@@ -169,7 +169,7 @@ class Es2csv:
                 logger.info("Scroll[{}] expired(multiple reads?). Saving loaded data.".format(res["_scroll_id"]))
                 break
             for hit in res["hits"]["hits"]:
-                total_lines += 1
+                self.rows_written += 1
                 bar.update(1)
                 hit_list.append(hit)
                 if len(hit_list) == FLUSH_BUFFER:
@@ -202,20 +202,16 @@ class Es2csv:
 
     def write_to_csv(self: Self) -> None:
         """Write to csv file."""
-        if self.num_results <= 0:
-            return
-        with Path(self.tmp_file).open(encoding="utf-8") as file:
-            self.num_results = sum(1 for _ in file)
         with Path(self.tmp_file).open() as f:
             first_line = json.loads(f.readline().strip("\n"))
             self.csv_headers = first_line.keys()
-        if self.num_results > 0:
+        if self.rows_written > 0:
             with Path(self.opts.output_file).open(mode="a", encoding="utf-8") as output_file:
                 csv_writer = csv.DictWriter(output_file, fieldnames=self.csv_headers)
                 csv_writer.writeheader()
                 bar = tqdm(
                     desc=self.tmp_file,
-                    total=self.num_results,
+                    total=self.rows_written,
                     unit="docs",
                     colour="green",
                 )
