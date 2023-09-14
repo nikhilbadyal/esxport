@@ -16,7 +16,6 @@ Arguments
 `-d, --delimiter <#delimiter>`_ DELIMITER                     Delimiter to use in CSV file. Default is ",".
 `-m, --max <#max>`_ INTEGER                                   Maximum number of results to return. Default is 0.
 -s, --scroll-size INTEGER                                     Scroll size for each batch of results. Default is 100.
-`-k, --kibana-nested <#kibana-nested>`_                       Format nested fields in Kibana style.
 `-e, --meta-fields <#meta-fields>`_                           Add meta-fields in output.
 `--verify-certs <#verify-certs>`_                             Verify SSL certificates. Default is False.
 `--ca-certs CA_CERTS <#ca-certs>`_                            Location of CA bundle.
@@ -208,55 +207,6 @@ Retrieve 2000 results in just 2 requests (two scrolls 1000 each):
 .. code-block:: bash
 
   $ es2csv -m 2000 -s 1000 -q '*' -i twitter -o database.csv
-
-kibana-nested
--------------
-Changing nested columns output format to Kibana style like
-
-.. code-block:: bash
-
-  $ es2csv -k -q '*' -i twitter -o database.csv
-
-An JSON document example
-
-.. code-block:: json
-
-  {
-    "title": "Nest eggs",
-    "body":  "Making your money work...",
-    "tags":  [ "cash", "shares" ],
-    "comments": [
-      {
-        "name":    "John Smith",
-        "comment": "Great article",
-        "age":     28,
-        "stars":   4,
-        "date":    "2014-09-01"
-      },
-      {
-        "name":    "Alice White",
-        "comment": "More like this please",
-        "age":     31,
-        "stars":   5,
-        "date":    "2014-10-22"
-      }
-    ]
-  }
-
-A CSV file in Kibana style format
-
-.. code-block:: csv
-
-  body,comments.age,comments.comment,comments.date,comments.name,comments.stars,tags,title
-  Making your money work...,"28,31","Great article,More like this please","2014-09-01,2014-10-22","John Smith,Alice White","4,5","cash,shares",Nest eggs
-
-A CSV file in default format
-
-.. code-block:: csv
-
-  body,comments.0.age,comments.0.comment,comments.0.date,comments.0.name,comments.0.stars,comments.1.age,comments.1.comment,comments.1.date,comments.1.name,comments.1.stars,tags.0,tags.1,title
-  Making your money work...,28,Great article,2014-09-01,John Smith,4,31,More like this please,2014-10-22,Alice White,5,cash,shares,Nest eggs
-
 
 meta-fields
 -----------

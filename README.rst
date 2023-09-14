@@ -49,7 +49,6 @@ Usage
   -d, --delimiter DELIMITER                Delimiter to use in CSV file. Default is ",".
   -m, --max INTEGER                        Maximum number of results to return. Default is 0.
   -s, --scroll-size INTEGER                Scroll size for each batch of results. Default is 100.
-  -k, --kibana-nested                      Format nested fields in Kibana style.
   -e, --meta-fields                        Add meta-fields in output.
   --verify-certs                           Verify SSL certificates. Default is False.
   --ca-certs CA_CERTS                      Location of CA bundle.

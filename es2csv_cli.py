@@ -94,12 +94,6 @@ def print_version(ctx: Context, _: Parameter, value: bool) -> None:  # noqa: FBT
     help="Scroll size for each batch of results.",
 )
 @click.option(
-    "-k",
-    "--kibana-nested",
-    is_flag=True,
-    help="Format nested fields in Kibana style.",
-)
-@click.option(
     "-e",
     "--meta-fields",
     type=click.Choice(es2csv.META_FIELDS),
@@ -152,7 +146,6 @@ def main(  # noqa: PLR0913
     delimiter: str,
     max_results: str,
     scroll_size: str,
-    kibana_nested: str,
     meta_fields: str,
     verify_certs: str,
     ca_certs: str,
