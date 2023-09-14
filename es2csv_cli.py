@@ -31,7 +31,7 @@ def print_version(ctx: Context, _: Parameter, value: bool) -> None:  # noqa: FBT
 @click.option(
     "-o",
     "--output-file",
-    type=click.Path(exists=True),
+    type=click.Path(),
     required=True,
     help="CSV file location.",
 )
@@ -87,7 +87,7 @@ def print_version(ctx: Context, _: Parameter, value: bool) -> None:  # noqa: FBT
 @click.option(
     "-m",
     "--max-results",
-    default=0,
+    default=10,
     type=int,
     help="Maximum number of results to return.",
 )
@@ -103,12 +103,6 @@ def print_version(ctx: Context, _: Parameter, value: bool) -> None:  # noqa: FBT
     "--kibana-nested",
     is_flag=True,
     help="Format nested fields in Kibana style.",
-)
-@click.option(
-    "-r",
-    "--raw-query",
-    is_flag=True,
-    help="Switch query format in the Query DSL.",
 )
 @click.option(
     "-e",
@@ -163,7 +157,6 @@ def main(  # noqa: PLR0913
     max_results: str,
     scroll_size: str,
     kibana_nested: str,
-    raw_query: str,
     meta_fields: str,
     verify_certs: str,
     ca_certs: str,

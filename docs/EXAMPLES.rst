@@ -5,7 +5,7 @@ Arguments
 ============================================================  ====================================================================
                          Argument                                                        Description
 ============================================================  ====================================================================
-`-q, --query <#query>`_ QUERY                                 Query string in Lucene syntax.               [required]
+`-q, --query <#query>`_ QUERY                                 Query string in Query DSL syntax.               [required]
 `-o, --output-file <#output-file>`_ FILE                      CSV file location.                           [required]
 `-u, --url <#url>`_ URL                                       Elasticsearch host URL. Default is "http://localhost:9200".
 `-a, --auth <#auth>`_                                         Elasticsearch basic authentication in the form of username:password.
@@ -17,7 +17,6 @@ Arguments
 `-m, --max <#max>`_ INTEGER                                   Maximum number of results to return. Default is 0.
 -s, --scroll-size INTEGER                                     Scroll size for each batch of results. Default is 100.
 `-k, --kibana-nested <#kibana-nested>`_                       Format nested fields in Kibana style.
-`-r, --raw-query <#raw-query>`_                               Switch query format in the Query DSL.
 `-e, --meta-fields <#meta-fields>`_                           Add meta-fields in output.
 `--verify-certs <#verify-certs>`_                             Verify SSL certificates. Default is False.
 `--ca-certs CA_CERTS <#ca-certs>`_                            Location of CA bundle.
@@ -258,19 +257,6 @@ A CSV file in default format
   body,comments.0.age,comments.0.comment,comments.0.date,comments.0.name,comments.0.stars,comments.1.age,comments.1.comment,comments.1.date,comments.1.name,comments.1.stars,tags.0,tags.1,title
   Making your money work...,28,Great article,2014-09-01,John Smith,4,31,More like this please,2014-10-22,Alice White,5,cash,shares,Nest eggs
 
-raw-query
----------
-Query DSL syntax
-
-.. code-block:: bash
-
-  $ es2csv -r -q '{"query": {"match": {"user": "John"}}}' -o database.csv
-
-Very long queries can be read from file
-
-.. code-block:: bash
-
-  $ es2csv -r -q @'~/query string file.json' -o database.csv
 
 meta-fields
 -----------

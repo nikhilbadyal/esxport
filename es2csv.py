@@ -83,6 +83,7 @@ class Es2csv:
             client_key=self.opts.client_key,
         )
         es.cluster.health()
+        # noinspection PyAttributeOutsideInit
         self.es_conn = es
 
     @retry(elasticsearch.exceptions.ConnectionError, tries=TIMES_TO_TRY)
@@ -107,38 +108,18 @@ class Es2csv:
             "scroll": self.scroll_time,
             "size": self.opts.scroll_size,
             "terminate_after": self.opts.max_results,
+            "body": self.opts.query,
         }
         if self.opts.sort:
             search_args["sort"] = ",".join(self.opts.sort)
-
-        if self.opts.raw_query:
-            try:
-                query = json.loads(self.opts.query)
-            except ValueError as e:
-                logger.exception(f"Invalid JSON syntax in query. {e}")
-                sys.exit(1)
-            search_args["body"] = query
-        else:
-            query = (
-                self.opts.query
-                if not self.opts.tags
-                else "{} AND tags: ({})".format(self.opts.query, " AND ".join(self.opts.tags))
-            )
-            search_args["q"] = query
 
         if "_all" not in self.opts.fields:
             search_args["_source_include"] = ",".join(self.opts.fields)
             self.csv_headers.extend([str(field, "utf-8") for field in self.opts.fields if "*" not in field])
 
-        if self.opts.debug_mode:
+        if self.opts.debug:
             logger.debug("Using these indices: {}.".format(", ".join(self.opts.index_prefixes)))
-            logger.debug(
-                "Query[{0[0]}]: {0[1]}.".format(
-                    ("Query DSL", json.dumps(query, ensure_ascii=False).encode("utf8"))
-                    if self.opts.raw_query
-                    else ("Lucene", query),
-                ),
-            )
+            logger.debug(f"Query {self.opts.query}")
             logger.debug("Output field(s): {}.".format(", ".join(self.opts.fields)))
             logger.debug("Sorting by: {}.".format(", ".join(self.opts.sort)))
         return search_args
@@ -200,10 +181,10 @@ class Es2csv:
 
     def write_to_csv(self: Self) -> None:
         """Write to csv file."""
-        with Path(self.tmp_file).open() as f:
-            first_line = json.loads(f.readline().strip("\n"))
-            self.csv_headers = first_line.keys()
         if self.rows_written > 0:
+            with Path(self.tmp_file).open() as f:
+                first_line = json.loads(f.readline().strip("\n"))
+                self.csv_headers = first_line.keys()
             with Path(self.opts.output_file).open(mode="a", encoding="utf-8") as output_file:
                 csv_writer = csv.DictWriter(output_file, fieldnames=self.csv_headers)
                 csv_writer.writeheader()
