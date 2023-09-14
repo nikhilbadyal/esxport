@@ -172,10 +172,17 @@ class Es2csv:
 
     def flush_to_file(self: Self, hit_list: list[dict[str, Any]]) -> None:
         """Write data to file."""
+
+        def add_meta_fields() -> None:
+            if self.opts.meta_fields:
+                for fields in META_FIELDS:
+                    data[fields] = hit.get(fields, None)
+
         with Path(self.tmp_file).open(mode="a", encoding="utf-8") as tmp_file:
             for hit in hit_list:
                 data = hit["_source"]
                 data.pop("_meta", None)
+                add_meta_fields()
                 tmp_file.write(json.dumps(data))
                 tmp_file.write("\n")
 
