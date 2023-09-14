@@ -10,6 +10,7 @@ __version__ = "5.5.2"
 
 import es2csv
 from cli_options import CliOptions
+from click_custom import sort
 
 
 def print_version(ctx: Context, _: Parameter, value: bool) -> None:  # noqa: FBT001
@@ -74,6 +75,7 @@ def print_version(ctx: Context, _: Parameter, value: bool) -> None:  # noqa: FBT
 @click.option(
     "-S",
     "--sort",
+    type=sort,
     multiple=True,
     help="List of <field>:<direction> pairs to sort on.",
 )

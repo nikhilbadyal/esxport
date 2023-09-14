@@ -52,7 +52,7 @@ def get_description() -> str:
     """Get the description of the package."""
     try:
         return src_file.split("\n")[2].split(":")[1].strip()
-    except Exception as e:
+    except (AttributeError, IndexError) as e:
         msg = "Unable to find description string."
         raise RuntimeError(msg) from e
 
