@@ -40,7 +40,7 @@ def print_version(ctx: Context, _: Parameter, value: bool) -> None:  # noqa: FBT
     "--url",
     type=URL,
     required=False,
-    default="http://localhost:9200",
+    default="https://localhost:9200",
     help="Elasticsearch host URL.",
 )
 @click.option(
