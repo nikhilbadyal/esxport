@@ -10,6 +10,7 @@ from src import esxport
 from src.__init__ import __version__
 from src.click_opt.cli_options import CliOptions
 from src.click_opt.click_custom import sort
+from src.esxport import ElasticsearchClient
 
 
 def print_version(ctx: Context, _: Parameter, value: bool) -> None:  # noqa: FBT001
@@ -156,7 +157,8 @@ def main(  # noqa: PLR0913
     """Elastic Search to CSV Exporter."""
     kwargs: dict[str, Any] = {k: v for k, v in locals().items() if k != "self"}
     cli_options = CliOptions(kwargs)
-    es = esxport.EsXport(cli_options)
+    client = ElasticsearchClient(cli_options)
+    es = esxport.EsXport(cli_options, client)
     es.create_connection()
     es.check_indexes()
     es.search_query()
