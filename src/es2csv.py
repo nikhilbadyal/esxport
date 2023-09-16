@@ -115,7 +115,7 @@ class Es2csv:
             all_expected_fields.remove("_all")
 
         for index in indices_names:
-            response: dict[str, Any] = self.es_conn.indices.get_mapping(index=index)
+            response: dict[str, Any] = self.es_conn.indices.get_mapping(index=index).raw
             all_fields_dict[index] = []
             for field in response[index]["mappings"]["properties"]:
                 all_fields_dict[index].append(field)
@@ -241,4 +241,4 @@ class Es2csv:
     def clean_scroll_ids(self: Self) -> None:
         """Clean up scroll."""
         with contextlib.suppress(Exception):
-            self.es_conn.clear_scroll(body=",".join(self.scroll_ids))
+            self.es_conn.clear_scroll(scroll_id="_all")

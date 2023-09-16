@@ -61,7 +61,7 @@ repos:
           - '--strict'
           - "--config=pyproject.toml"
           - "--no-namespace-packages"
-        additional_dependencies: [ click ]
+        additional_dependencies: [ click,elasticsearch ]
 
 ci:
     autofix_commit_msg: |

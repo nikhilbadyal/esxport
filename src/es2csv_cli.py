@@ -63,14 +63,14 @@ def print_version(ctx: Context, _: Parameter, value: bool) -> None:  # noqa: FBT
     "--fields",
     default=["_all"],
     multiple=True,
-    help="List of selected fields in output.",
+    help="List of _source fields to present be in output.",
 )
 @click.option(
     "-S",
     "--sort",
     type=sort,
     multiple=True,
-    help="List of <field>:<direction> pairs to sort on.",
+    help="List of fields to sort on in form <field>:<direction>",
 )
 @click.option(
     "-d",
@@ -131,6 +131,7 @@ def print_version(ctx: Context, _: Parameter, value: bool) -> None:  # noqa: FBT
 @click.option(
     "--debug",
     is_flag=True,
+    default=False,
     help="Debug mode on.",
 )
 def main(  # noqa: PLR0913
