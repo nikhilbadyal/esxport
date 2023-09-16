@@ -15,6 +15,7 @@ from loguru import logger
 from tqdm import tqdm
 
 from src.click_opt.cli_options import CliOptions
+from src.exceptions import IndexNotFoundError
 
 FLUSH_BUFFER = 1000  # Chunk of docs to flush in temp file
 CONNECTION_TIMEOUT = 120
@@ -130,10 +131,10 @@ class EsXport(object):
         else:
             indexes_status = self.es_client.indices_exists(index=indexes)
             if not indexes_status:
-                logger.error(
-                    f'Any of index(es) {", ".join(self.opts.index_prefixes)} does not exist in {self.opts.url}.',
+                msg = f"Any of index(es) {', '.join(self.opts.index_prefixes)} does not exist in {self.opts.url}."
+                raise IndexNotFoundError(
+                    msg,
                 )
-                sys.exit(1)
         self.opts.index_prefixes = indexes
 
     def _validate_fields(self: Self) -> None:
