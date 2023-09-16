@@ -74,10 +74,6 @@ class ElasticsearchClient:
             client_key=cli_options.client_key,
         )
 
-    def cluster_health(self: Self) -> None:
-        """Get cluster health."""
-        self.client.cluster.health()
-
     def indices_exists(self: Self, index: str) -> bool:
         """Check if a given index exists."""
         return bool(self.client.indices.exists(index=index))
@@ -116,14 +112,7 @@ class EsXport(object):
         self.es_client = es_client
 
     @retry(ConnectionError, tries=TIMES_TO_TRY)
-    def create_connection(self: Self) -> None:
-        """Create a connection with ElasticSearch."""
-        self.es_client.cluster_health()
-        # noinspection PyAttributeOutsideInit
-        self.es_conn = self.es_client
-
-    @retry(ConnectionError, tries=TIMES_TO_TRY)
-    def check_indexes(self: Self) -> None:
+    def _check_indexes(self: Self) -> None:
         """Check if input indexes exist."""
         indexes = self.opts.index_prefixes
         if "_all" in indexes:
@@ -161,7 +150,7 @@ class EsXport(object):
                 logger.error(f"Fields {element} doesn't exist in any index.")
                 sys.exit(1)
 
-    def prepare_search_query(self: Self) -> None:
+    def _prepare_search_query(self: Self) -> None:
         """Prepares search query from input."""
         self.search_args = {
             "index": ",".join(self.opts.index_prefixes),
@@ -187,7 +176,7 @@ class EsXport(object):
         """Paginate to the next page."""
         return self.es_client.scroll(scroll=self.scroll_time, scroll_id=scroll_id)
 
-    def write_to_temp_file(self: Self, res: Any) -> None:
+    def _write_to_temp_file(self: Self, res: Any) -> None:
         """Write to temp file."""
         hit_list = []
         total_size = int(min(self.opts.max_results, self.num_results))
@@ -210,26 +199,26 @@ class EsXport(object):
                 bar.update(1)
                 hit_list.append(hit)
                 if len(hit_list) == FLUSH_BUFFER:
-                    self.flush_to_file(hit_list)
+                    self._flush_to_file(hit_list)
                     hit_list = []
             res = self.next_scroll(res["_scroll_id"])
         bar.close()
-        self.flush_to_file(hit_list)
+        self._flush_to_file(hit_list)
 
     @retry(ConnectionError, tries=TIMES_TO_TRY)
     def search_query(self: Self) -> Any:
         """Search the index."""
         self._validate_fields()
-        self.prepare_search_query()
+        self._prepare_search_query()
         res = self.es_client.search(**self.search_args)
         self.num_results = res["hits"]["total"]["value"]
 
         logger.info(f"Found {self.num_results} results.")
 
         if self.num_results > 0:
-            self.write_to_temp_file(res)
+            self._write_to_temp_file(res)
 
-    def flush_to_file(self: Self, hit_list: list[dict[str, Any]]) -> None:
+    def _flush_to_file(self: Self, hit_list: list[dict[str, Any]]) -> None:
         """Flush the search results to a temporary file."""
 
         def add_meta_fields() -> None:
@@ -245,7 +234,7 @@ class EsXport(object):
                 tmp_file.write(json.dumps(data))
                 tmp_file.write("\n")
 
-    def write_to_csv(self: Self) -> None:
+    def _write_to_csv(self: Self) -> None:
         """Write content to CSV file."""
         if self.rows_written > 0:
             with Path(self.tmp_file).open() as f:
@@ -272,7 +261,14 @@ class EsXport(object):
             )
         Path(self.tmp_file).unlink()
 
-    def clean_scroll_ids(self: Self) -> None:
+    def _clean_scroll_ids(self: Self) -> None:
         """Clear all scroll ids."""
         with contextlib.suppress(Exception):
             self.es_client.clear_scroll(scroll_id="_all")
+
+    def export(self: Self) -> None:
+        """Export the data."""
+        self._check_indexes()
+        self.search_query()
+        self._write_to_csv()
+        self._clean_scroll_ids()

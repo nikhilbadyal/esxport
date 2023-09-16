@@ -159,11 +159,7 @@ def main(  # noqa: PLR0913
     cli_options = CliOptions(kwargs)
     client = ElasticsearchClient(cli_options)
     es = esxport.EsXport(cli_options, client)
-    es.create_connection()
-    es.check_indexes()
-    es.search_query()
-    es.write_to_csv()
-    es.clean_scroll_ids()
+    es.export()
 
 
 if __name__ == "__main__":
