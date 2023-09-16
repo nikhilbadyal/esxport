@@ -60,8 +60,8 @@ class EsXport:
     """Main class."""
 
     def __init__(self: Self, opts: cli_options.CliOptions) -> None:
+        self.search_args: dict[str, Any] = {}
         self.opts = opts
-
         self.num_results = 0
         self.scroll_ids: list[str] = []
         self.scroll_time = "30m"
@@ -126,9 +126,9 @@ class EsXport:
                 logger.error(f"Fields {element} doesn't exist in any index.")
                 sys.exit(1)
 
-    def prepare_search_query(self: Self) -> dict[str, Any]:
+    def prepare_search_query(self: Self) -> None:
         """Prepare search query."""
-        search_args = {
+        self.search_args = {
             "index": ",".join(self.opts.index_prefixes),
             "scroll": self.scroll_time,
             "size": self.opts.scroll_size,
@@ -136,17 +136,16 @@ class EsXport:
             "body": self.opts.query,
         }
         if self.opts.sort:
-            search_args["sort"] = self.opts.sort
+            self.search_args["sort"] = self.opts.sort
 
         if "_all" not in self.opts.fields:
-            search_args["_source_includes"] = ",".join(self.opts.fields)
+            self.search_args["_source_includes"] = ",".join(self.opts.fields)
 
         if self.opts.debug:
             logger.debug("Using these indices: {}.".format(", ".join(self.opts.index_prefixes)))
             logger.debug(f"Query {self.opts.query}")
             logger.debug("Output field(s): {}.".format(", ".join(self.opts.fields)))
             logger.debug(f"Sorting by: {self.opts.sort}.")
-        return search_args
 
     @retry(elasticsearch.exceptions.ConnectionError, tries=TIMES_TO_TRY)
     def next_scroll(self: Self, scroll_id: str) -> Any:
@@ -186,8 +185,8 @@ class EsXport:
     def search_query(self: Self) -> Any:
         """Prepare search query string."""
         self._validate_fields()
-        search_args = self.prepare_search_query()
-        res = self.es_conn.search(**search_args)
+        self.prepare_search_query()
+        res = self.es_conn.search(**self.search_args)
         self.num_results = res["hits"]["total"]["value"]
 
         logger.info(f"Found {self.num_results} results.")
