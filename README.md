@@ -1,4 +1,4 @@
-# es2csv
+# EsXport
 
 An adept Python CLI utility designed for querying Elasticsearch and exporting result as a CSV file.
 
@@ -14,13 +14,13 @@ Installation
 From source:
 
 ```bash
-pip install git+https://github.com/nikhilbadyal/es2csv.git
+pip install git+https://github.com/nikhilbadyal/esxport.git
 ```
 Usage
 -----
 
 ```bash
-es2csv --help
+esxport --help
 ```
 
 Arguments

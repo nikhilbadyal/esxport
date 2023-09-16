@@ -1,3 +1,3 @@
-"""Es2csv CLi."""
+"""EsXport CLi."""
 
 __version__ = "8.9.0"

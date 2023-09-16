@@ -56,7 +56,7 @@ def retry(
     return deco_retry
 
 
-class Es2csv:
+class EsXport:
     """Main class."""
 
     def __init__(self: Self, opts: cli_options.CliOptions) -> None:

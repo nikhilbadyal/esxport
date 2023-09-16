@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "es2csv"
+name = "esxport"
 dynamic = ["version"]
 description = "An adept Python CLI utility designed for querying Elasticsearch and exporting result as a CSV file."
 readme = {file = "README.md", content-type = "text/markdown"}
@@ -41,10 +41,10 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/nikhilbadyal/es2csv"
-Repository = "https://github.com/nikhilbadyal/es2csv.git"
+Homepage = "https://github.com/nikhilbadyal/esxport"
+Repository = "https://github.com/nikhilbadyal/esxport.git"
 [project.scripts]
-es2csv = "src.es2csv_cli:main"
+esxport = "src.esxport_cli:main"
 
 
 [tool.hatch.version]

@@ -37,7 +37,7 @@ query
 Searching on **http://localhost:9200**, by default
 
 ```bash
-es2csv_cli -q '{"query": {"match_all": {}}}' -i index_name -o index_name.csv
+esxport -q '{"query": {"match_all": {}}}' -i index_name -o index_name.csv
 ```
 
 output-file
@@ -45,7 +45,7 @@ output-file
 Save to **database.csv** file
 
 ```bash
-es2csv_cli -q '{"query": {"match_all": {}}}' -i index_name -o database.csv
+esxport -q '{"query": {"match_all": {}}}' -i index_name -o database.csv
 ```
 
 index-prefixes
@@ -53,7 +53,7 @@ index-prefixes
 Search in **top-secrets** index
 
 ```bash
-es2csv_cli -q '{"query": {"match_all": {}}}' -i top-secrets -o database.csv
+esxport -q '{"query": {"match_all": {}}}' -i top-secrets -o database.csv
 ```
 
 url
@@ -61,7 +61,7 @@ url
 On custom Elasticsearch host, **my.es.com**
 
 ```bash
-es2csv_cli -q '{"query": {"match_all": {}}}' -i index_name -o database.csv -u https://my.es.com
+esxport -q '{"query": {"match_all": {}}}' -i index_name -o database.csv -u https://my.es.com
 ```
 
 user
@@ -69,7 +69,7 @@ user
 Authorization with custom, **crawler** user
 
 ```bash
-es2csv_cli -q '{"query": {"match_all": {}}}' -i index_name -o database.csv -U crawler
+esxport -q '{"query": {"match_all": {}}}' -i index_name -o database.csv -U crawler
 ```
 
 password
@@ -77,7 +77,7 @@ password
 Authorization with explicit password, **mountains**
 
 ```bash
-es2csv_cli -q '{"query": {"match_all": {}}}' -i index_name -o database.csv -p mountains
+esxport -q '{"query": {"match_all": {}}}' -i index_name -o database.csv -p mountains
 ```
 
 fields
@@ -85,13 +85,13 @@ fields
 Selecting some fields, what you are interesting in, if you don't need all of them (query run faster)
 
 ```bash
-es2csv_cli -q '{"query": {"match_all": {}}}' -i index_name -o database.csv -f coolField
+esxport -q '{"query": {"match_all": {}}}' -i index_name -o database.csv -f coolField
 ```
 
 Selecting all fields, (default behaviour)
 
 ```bash
-es2csv_cli -q '{"query": {"match_all": {}}}' -i index_name -o database.csv -f _all
+esxport -q '{"query": {"match_all": {}}}' -i index_name -o database.csv -f _all
 ```
 
 sort
@@ -99,7 +99,7 @@ sort
 Sorting by fields, in order what you are interesting in.
 
 ```bash
-es2csv_cli -q '{"query": {"match_all": {}}}' -i index_name -o database.csv -S coolField:desc
+esxport -q '{"query": {"match_all": {}}}' -i index_name -o database.csv -S coolField:desc
 ```
 
 delimiter
@@ -107,7 +107,7 @@ delimiter
 Changing column delimiter in CSV file, by default ','
 
 ```bash
-es2csv_cli -q '{"query": {"match_all": {}}}' -i index_name -o database.csv -d ';'
+esxport -q '{"query": {"match_all": {}}}' -i index_name -o database.csv -d ';'
 ```
 
 max
@@ -115,7 +115,7 @@ max
 Max results count
 
 ```bash
-es2csv_cli -q '{"query": {"match_all": {}}}' -i index_name -o database.csv -m 1000
+esxport -q '{"query": {"match_all": {}}}' -i index_name -o database.csv -m 1000
 ```
 
 scroll-size
@@ -123,7 +123,7 @@ scroll-size
 Retrieve 2000 results in just 2 requests (two scrolls 1000 each):
 
 ```bash
-es2csv_cli -q '{"query": {"match_all": {}}}' -i index_name -o database.csv -m 2000 -S 1000
+esxport -q '{"query": {"match_all": {}}}' -i index_name -o database.csv -m 2000 -S 1000
 ```
 
 meta-fields
@@ -131,7 +131,7 @@ meta-fields
 Selecting meta-fields: _id, _index, _score, _type
 
 ```bash
-es2csv_cli -q '{"query": {"match_all": {}}}' -i index_name -o database.csv -e _id
+esxport -q '{"query": {"match_all": {}}}' -i index_name -o database.csv -e _id
 ```
 
 verify-certs
@@ -139,7 +139,7 @@ verify-certs
 With enabled SSL certificate verification (off by default)
 
 ```bash
-es2csv_cli -q '{"query": {"match_all": {}}}' -i index_name -o database.csv --verify-certs
+esxport -q '{"query": {"match_all": {}}}' -i index_name -o database.csv --verify-certs
 ```
 
 ca-certs
@@ -147,7 +147,7 @@ ca-certs
 With your own certificate authority bundle, client cert and cert key
 
 ```bash
-es2csv_cli -q '{"query": {"match_all": {}}}' -i index_name -o database.csv --ca-certs ca.crt --client-cert client.
+esxport -q '{"query": {"match_all": {}}}' -i index_name -o database.csv --ca-certs ca.crt --client-cert client.
 cert --client-key cert.key
 ```
 
@@ -156,7 +156,7 @@ version
 Show the version and exit
 
 ```bash
-es2csv_cli -v
+esxport -v
 ```
 
 debug
@@ -164,7 +164,7 @@ debug
 Run the tool in debug mode
 
 ```bash
-es2csv_cli -q '{"query": {"match_all": {}}}' -i index_name -o database.csv --debug
+esxport -q '{"query": {"match_all": {}}}' -i index_name -o database.csv --debug
 ```
 
 debug
@@ -172,5 +172,5 @@ debug
 Show help message
 
 ```bash
-es2csv_cli --help
+esxport --help
 ```

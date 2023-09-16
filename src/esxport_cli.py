@@ -6,7 +6,7 @@ import click
 from click import Context, Parameter
 from click_params import JSON, URL
 
-from src import es2csv
+from src import esxport
 from src.__init__ import __version__
 from src.click_opt.cli_options import CliOptions
 from src.click_opt.click_custom import sort
@@ -16,7 +16,7 @@ def print_version(ctx: Context, _: Parameter, value: bool) -> None:  # noqa: FBT
     """Print Version information."""
     if not value or ctx.resilient_parsing:
         return
-    click.echo(f"Es2Csv Cli {__version__}")
+    click.echo(f"EsXport Cli {__version__}")
     ctx.exit()
 
 
@@ -95,7 +95,7 @@ def print_version(ctx: Context, _: Parameter, value: bool) -> None:  # noqa: FBT
 @click.option(
     "-e",
     "--meta-fields",
-    type=click.Choice(es2csv.META_FIELDS),
+    type=click.Choice(esxport.META_FIELDS),
     default=[],
     multiple=True,
     help="Add meta-fields in output.",
@@ -156,7 +156,7 @@ def main(  # noqa: PLR0913
     """Elastic Search to CSV Exporter."""
     kwargs: dict[str, Any] = {k: v for k, v in locals().items() if k != "self"}
     cli_options = CliOptions(kwargs)
-    es = es2csv.Es2csv(cli_options)
+    es = esxport.EsXport(cli_options)
     es.create_connection()
     es.check_indexes()
     es.search_query()
