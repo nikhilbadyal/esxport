@@ -56,7 +56,8 @@ select = ["ALL"]
 ignore = [
     "ANN401", #Disallow Any
     "D401", #Imperative mood
-    "RUF012" #ignore till https://github.com/astral-sh/ruff/issues/5243
+    "RUF012", #ignore till https://github.com/astral-sh/ruff/issues/5243
+    "UP004" #useless-object-inheritance
 ]
 target-version = "py311"
 fix = true
