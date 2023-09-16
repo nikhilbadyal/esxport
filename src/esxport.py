@@ -98,7 +98,7 @@ class ElasticsearchClient:
         self.client.clear_scroll(scroll_id=scroll_id)
 
 
-class EsXport:
+class EsXport(object):
     """Main class."""
 
     def __init__(self: Self, opts: CliOptions, es_client: ElasticsearchClient) -> None:
