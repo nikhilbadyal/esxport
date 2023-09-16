@@ -10,6 +10,7 @@ from src import esxport
 from src.__init__ import __version__
 from src.click_opt.cli_options import CliOptions
 from src.click_opt.click_custom import sort
+from src.constant import META_FIELDS
 from src.esxport import ElasticsearchClient
 
 
@@ -96,7 +97,7 @@ def print_version(ctx: Context, _: Parameter, value: bool) -> None:  # noqa: FBT
 @click.option(
     "-e",
     "--meta-fields",
-    type=click.Choice(esxport.META_FIELDS),
+    type=click.Choice(META_FIELDS),
     default=[],
     multiple=True,
     help="Add meta-fields in output.",

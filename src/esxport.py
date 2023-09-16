@@ -15,13 +15,8 @@ from loguru import logger
 from tqdm import tqdm
 
 from src.click_opt.cli_options import CliOptions
+from src.constant import CONNECTION_TIMEOUT, FLUSH_BUFFER, RETRY_DELAY, TIMES_TO_TRY
 from src.exceptions import IndexNotFoundError
-
-FLUSH_BUFFER = 1000  # Chunk of docs to flush in temp file
-CONNECTION_TIMEOUT = 120
-TIMES_TO_TRY = 3
-RETRY_DELAY = 60
-META_FIELDS = ["_id", "_index", "_score"]
 
 F = TypeVar("F", bound=Callable[..., Any])
 
