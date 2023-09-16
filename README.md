@@ -30,13 +30,13 @@ Options:
   -q, --query JSON                Query string in Query DSL syntax.
                                   [required]
   -o, --output-file PATH          CSV file location.  [required]
+  -i, --index-prefixes TEXT       Index name prefix(es).  [required]
   -u, --url URL                   Elasticsearch host URL.  [default:
                                   https://localhost:9200]
   -U, --user TEXT                 Elasticsearch basic authentication user.
                                   [default: elastic]
   -p, --password TEXT             Elasticsearch basic authentication password.
                                   [required]
-  -i, --index-prefixes TEXT       Index name prefix(es).  [required]
   -f, --fields TEXT               List of _source fields to present be in
                                   output.  [default: _all]
   -S, --sort ELASTIC SORT         List of fields to sort on in form

@@ -35,6 +35,7 @@ def print_version(ctx: Context, _: Parameter, value: bool) -> None:  # noqa: FBT
     required=True,
     help="CSV file location.",
 )
+@click.option("-i", "--index-prefixes", required=True, multiple=True, help="Index name prefix(es).")
 @click.option(
     "-u",
     "--url",
@@ -57,7 +58,6 @@ def print_version(ctx: Context, _: Parameter, value: bool) -> None:  # noqa: FBT
     confirmation_prompt=False,
     help="Elasticsearch basic authentication password.",
 )
-@click.option("-i", "--index-prefixes", required=True, multiple=True, help="Index name prefix(es).")
 @click.option(
     "-f",
     "--fields",
