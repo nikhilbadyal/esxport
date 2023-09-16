@@ -6,11 +6,10 @@ import click
 from click import Context, Parameter
 from click_params import JSON, URL
 
-__version__ = "5.5.2"
-
-import es2csv
-from cli_options import CliOptions
-from click_custom import sort
+from src import es2csv
+from src.__init__ import __version__
+from src.click_opt.cli_options import CliOptions
+from src.click_opt.click_custom import sort
 
 
 def print_version(ctx: Context, _: Parameter, value: bool) -> None:  # noqa: FBT001

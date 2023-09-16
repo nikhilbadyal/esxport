@@ -14,7 +14,7 @@ import elasticsearch
 from loguru import logger
 from tqdm import tqdm
 
-import cli_options
+from src.click_opt import cli_options  # :I001
 
 FLUSH_BUFFER = 1000  # Chunk of docs to flush in temp file
 CONNECTION_TIMEOUT = 120
