@@ -10,7 +10,7 @@ urllib3.disable_warnings()
 urllib3.disable_warnings(SecurityWarning)
 
 
-class CliOptions:
+class CliOptions(object):
     """CLI options."""
 
     def __init__(
