@@ -1,9 +1,8 @@
 """Main export module."""
 import contextlib
 import json
-from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Self, TypeVar
+from typing import Any, Self
 
 from elasticsearch.exceptions import ConnectionError
 from loguru import logger
@@ -15,11 +14,6 @@ from src.elastic import ElasticsearchClient
 from src.exceptions import FieldFoundError, IndexNotFoundError
 from src.utils import retry
 from src.writer import Writer
-
-F = TypeVar("F", bound=Callable[..., Any])
-
-
-# Retry decorator for functions with exceptions
 
 
 class EsXport(object):
