@@ -3,22 +3,44 @@ import csv
 import json
 from collections.abc import Callable
 from pathlib import Path
-from typing import Any, TypeVar
+from typing import Any, NotRequired, TypedDict, TypeVar, Unpack
 
 from tqdm import tqdm
 
 F = TypeVar("F", bound=Callable[..., Any])
 
 
+class WriterParams(TypedDict):
+    """Writer parameters."""
+
+    output_format: NotRequired[str]
+    delimiter: NotRequired[str]
+
+
 class Writer(object):
     """Write Data to file."""
 
     @staticmethod
-    def write_to_csv(total_records: int, out_file: str, csv_header: list[str], delimiter: str) -> None:
+    def write(
+        total_records: int,
+        out_file: str,
+        headers: list[str],
+        **kwargs: Unpack[WriterParams],
+    ) -> None:
+        """Write data to output file."""
+        output_format = kwargs.get("output_format", "csv")
+        if output_format == "csv":
+            Writer._write_to_csv(total_records, out_file, headers, str(kwargs.pop("delimiter", ",")))
+        else:
+            msg = f"Format {output_format} is not supported"
+            raise NotImplementedError(msg)
+
+    @staticmethod
+    def _write_to_csv(total_records: int, out_file: str, headers: list[str], delimiter: str) -> None:
         """Write content to CSV file."""
         temp_file = out_file + ".tmp"
         with Path(out_file).open(mode="w", encoding="utf-8") as output_file:
-            csv_writer = csv.DictWriter(output_file, fieldnames=csv_header, delimiter=delimiter)
+            csv_writer = csv.DictWriter(output_file, fieldnames=headers, delimiter=delimiter)
             csv_writer.writeheader()
             bar = tqdm(
                 desc=out_file,

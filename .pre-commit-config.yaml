@@ -61,6 +61,7 @@ repos:
           - '--strict'
           - "--config=pyproject.toml"
           - "--no-namespace-packages"
+          - "--enable-incomplete-feature=Unpack"
         additional_dependencies: [ click,elasticsearch, pytest ]
 
 ci:

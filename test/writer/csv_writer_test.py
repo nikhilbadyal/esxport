@@ -43,8 +43,8 @@ class TestWriter:
 
     def test_write_to_csv(self: Self) -> None:
         """Test write_to_csv function."""
-        delimiter = ","
-        Writer.write_to_csv(self.no_of_records, self.out_file, self.csv_header, delimiter)
+        kwargs = {"delimiter": ","}
+        Writer.write(self.no_of_records, self.out_file, self.csv_header, **kwargs)
         assert Path(self.out_file).exists(), "File does not exist"
         with Path(self.out_file).open() as file:
             reader = csv.reader(file)

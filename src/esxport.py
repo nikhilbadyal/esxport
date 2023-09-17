@@ -167,11 +167,10 @@ class EsXport(object):
     def _export(self: Self) -> None:
         """Export the data."""
         csv_headers = self._extract_csv_headers()
-        Writer.write_to_csv(
-            csv_header=csv_headers,
+        Writer.write(
+            headers=csv_headers,
             total_records=self.rows_written,
             out_file=self.opts.output_file,
-            delimiter=self.opts.delimiter,
         )
 
     def export(self: Self) -> None:
