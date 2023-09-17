@@ -1,7 +1,9 @@
 """Custom CLick types."""
+import json
 from typing import Any, Self
 
 from click import Context, Parameter, ParamType
+from click_params.miscellaneous import JsonParamType
 
 
 class FormatError(ValueError):
@@ -38,3 +40,32 @@ class Sort(ParamType):
 
 
 sort = Sort()
+
+
+class Json(JsonParamType):  # type: ignore[misc]
+    """Json Validator."""
+
+    name = "json"
+
+    def convert(self: Self, value: Any, param: Parameter, ctx: Context) -> dict[str, Any]:  # type: ignore[return]
+        """Convert input to json."""
+        try:
+            return json.loads(  # type: ignore[no-any-return]
+                value,
+                cls=self._cls,
+                object_hook=self._object_hook,
+                parse_float=self._parse_float,
+                parse_int=self._parse_int,
+                parse_constant=self._parse_constant,
+                object_pairs_hook=self._object_pairs_hook,
+                **self._kwargs,
+            )
+        except json.JSONDecodeError as exc:
+            self.fail(f"{value} is not a valid json string, caused {exc}", param, ctx)
+
+    def __repr__(self: Self) -> str:
+        """String representation of the object."""
+        return self.name.upper()
+
+
+JSON = Json()

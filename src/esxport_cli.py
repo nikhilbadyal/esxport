@@ -4,12 +4,12 @@ from typing import Any
 
 import click
 from click import Context, Parameter
-from click_params import JSON, URL
+from click_params import URL
 
 from src import esxport
 from src.__init__ import __version__
 from src.click_opt.cli_options import CliOptions
-from src.click_opt.click_custom import sort
+from src.click_opt.click_custom import JSON, sort
 from src.constant import META_FIELDS
 from src.esxport import ElasticsearchClient
 
