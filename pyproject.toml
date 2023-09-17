@@ -44,7 +44,7 @@ dependencies = [
 Homepage = "https://github.com/nikhilbadyal/esxport"
 Repository = "https://github.com/nikhilbadyal/esxport.git"
 [project.scripts]
-esxport = "src.esxport_cli:main"
+esxport = "src.esxport_cli:cli"
 
 
 [tool.hatch.version]

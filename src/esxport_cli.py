@@ -136,7 +136,7 @@ def print_version(ctx: Context, _: Parameter, value: bool) -> None:  # noqa: FBT
     default=False,
     help="Debug mode on.",
 )
-def main(  # noqa: PLR0913
+def cli(  # noqa: PLR0913
     query: str,
     output_file: Path,
     url: str,
@@ -164,4 +164,4 @@ def main(  # noqa: PLR0913
 
 
 if __name__ == "__main__":
-    main()
+    cli()
