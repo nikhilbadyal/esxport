@@ -10,3 +10,4 @@ build
 .venv
 *.tmp
 *query.json
+.coverage
