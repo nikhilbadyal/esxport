@@ -17,7 +17,6 @@ class Writer(object):
     def write_to_csv(total_records: int, out_file: str, csv_header: list[str], delimiter: str) -> None:
         """Write content to CSV file."""
         temp_file = out_file + ".tmp"
-        Path(out_file).unlink(missing_ok=True)
         with Path(out_file).open(mode="w", encoding="utf-8") as output_file:
             csv_writer = csv.DictWriter(output_file, fieldnames=csv_header, delimiter=delimiter)
             csv_writer.writeheader()
