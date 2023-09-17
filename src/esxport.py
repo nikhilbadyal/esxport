@@ -164,13 +164,13 @@ class EsXport(object):
             first_line = json.loads(f.readline().strip("\n"))
             return list(first_line.keys())
 
-    def _export(self: Self) -> None:
+    @staticmethod
+    def _export(csv_headers: list[str], rows_written: int, output_file: str) -> None:
         """Export the data."""
-        csv_headers = self._extract_csv_headers()
         Writer.write(
             headers=csv_headers,
-            total_records=self.rows_written,
-            out_file=self.opts.output_file,
+            total_records=rows_written,
+            out_file=output_file,
         )
 
     def export(self: Self) -> None:
@@ -178,4 +178,5 @@ class EsXport(object):
         self._check_indexes()
         self.search_query()
         self._clean_scroll_ids()
-        self._export()
+        csv_headers = self._extract_csv_headers()
+        self._export(csv_headers, self.rows_written, self.opts.output_file)
