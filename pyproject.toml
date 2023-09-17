@@ -102,3 +102,5 @@ parallel = true
 [tool.coverage.report]
 skip_covered = true
 skip_empty = true
+show_missing=true
+sort="-Stmts"
