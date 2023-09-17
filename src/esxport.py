@@ -1,6 +1,5 @@
 """Main export module."""
 import contextlib
-import csv
 import json
 import sys
 import time
@@ -17,6 +16,7 @@ from src.click_opt.cli_options import CliOptions
 from src.constant import FLUSH_BUFFER, RETRY_DELAY, TIMES_TO_TRY
 from src.elastic import ElasticsearchClient
 from src.exceptions import IndexNotFoundError
+from src.writer import Writer
 
 F = TypeVar("F", bound=Callable[..., Any])
 
@@ -61,8 +61,6 @@ class EsXport(object):
         self.num_results = 0
         self.scroll_ids: list[str] = []
         self.scroll_time = "30m"
-
-        self.csv_headers: list[str] = []
         self.tmp_file = f"{opts.output_file}.tmp"
         self.rows_written = 0
 
@@ -191,41 +189,26 @@ class EsXport(object):
                 tmp_file.write(json.dumps(data))
                 tmp_file.write("\n")
 
-    def _write_to_csv(self: Self) -> None:
-        """Write content to CSV file."""
-        if self.rows_written > 0:
-            with Path(self.tmp_file).open() as f:
-                first_line = json.loads(f.readline().strip("\n"))
-                self.csv_headers = first_line.keys()
-            with Path(self.opts.output_file).open(mode="w", encoding="utf-8") as output_file:
-                csv_writer = csv.DictWriter(output_file, fieldnames=self.csv_headers, delimiter=self.opts.delimiter)
-                csv_writer.writeheader()
-                bar = tqdm(
-                    desc=self.opts.output_file,
-                    total=self.rows_written,
-                    unit="docs",
-                    colour="green",
-                )
-                with Path(self.tmp_file).open(encoding="utf-8") as file:
-                    for _timer, line in enumerate(file, start=1):
-                        bar.update(1)
-                        csv_writer.writerow(json.loads(line))
-
-                bar.close()
-        else:
-            logger.info(
-                f'There is no docs with selected field(s): {",".join(self.opts.fields)}.',
-            )
-        Path(self.tmp_file).unlink()
-
     def _clean_scroll_ids(self: Self) -> None:
         """Clear all scroll ids."""
         with contextlib.suppress(Exception):
             self.es_client.clear_scroll(scroll_id="_all")
 
+    def _export(self: Self) -> None:
+        """Export the data."""
+        with Path(self.tmp_file).open() as f:
+            first_line = json.loads(f.readline().strip("\n"))
+            csv_headers = first_line.keys()
+        Writer.write_to_csv(
+            csv_header=csv_headers,
+            total_records=self.rows_written,
+            out_file=self.opts.output_file,
+            delimiter=self.opts.delimiter,
+        )
+
     def export(self: Self) -> None:
         """Export the data."""
         self._check_indexes()
         self.search_query()
-        self._write_to_csv()
         self._clean_scroll_ids()
+        self._export()
