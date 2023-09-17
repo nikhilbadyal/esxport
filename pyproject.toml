@@ -93,7 +93,7 @@ warn_unused_configs = true
 pythonpath = ["src"]
 
 [tool.pytest.ini_options]
-addopts = "--cov --ff -x --no-cov-on-fail"
+addopts = "--cov --ff -x --no-cov-on-fail --emoji -n4"
 
 [tool.coverage.run]
 branch = true
