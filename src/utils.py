@@ -1,5 +1,4 @@
 """Common utilities."""
-import sys
 import time
 from collections.abc import Callable
 from functools import wraps
@@ -8,6 +7,7 @@ from typing import Any, TypeVar
 from loguru import logger
 
 from src.constant import RETRY_DELAY, TIMES_TO_TRY
+from src.exceptions import ESConnectionError
 
 F = TypeVar("F", bound=Callable[..., Any])
 
@@ -34,8 +34,8 @@ def retry(
             try:
                 return f(*args, **kwargs)
             except exception_to_check as e:
-                logger.exception(f"Fatal Error: {e}")
-                sys.exit(1)
+                msg = f"Fatal Error: {e}"
+                raise ESConnectionError(msg) from e
 
         return f_retry
 

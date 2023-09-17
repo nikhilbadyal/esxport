@@ -1,7 +1,6 @@
 """Main export module."""
 import contextlib
 import json
-import sys
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any, Self, TypeVar
@@ -13,7 +12,7 @@ from tqdm import tqdm
 from src.click_opt.cli_options import CliOptions
 from src.constant import FLUSH_BUFFER, TIMES_TO_TRY
 from src.elastic import ElasticsearchClient
-from src.exceptions import IndexNotFoundError
+from src.exceptions import FieldFoundError, IndexNotFoundError
 from src.utils import retry
 from src.writer import Writer
 
@@ -73,8 +72,8 @@ class EsXport(object):
 
         for element in all_expected_fields:
             if element not in all_es_fields:
-                logger.error(f"Fields {element} doesn't exist in any index.")
-                sys.exit(1)
+                msg = f"Fields {element} doesn't exist in any index."
+                raise FieldFoundError(msg)
 
     def _prepare_search_query(self: Self) -> None:
         """Prepares search query from input."""
