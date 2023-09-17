@@ -20,9 +20,11 @@ class TestWriter:
     fake_data: list[dict[str, Any]] = []
 
     @staticmethod
-    def _gen_fake_json() -> None:
+    def _gen_fake_json(file_name: str = "") -> None:
         """Generate fake data."""
-        with Path(TestWriter.out_file + ".tmp").open(mode="w", encoding="utf-8") as tmp_file:
+        if not file_name:
+            file_name = TestWriter.out_file
+        with Path(file_name + ".tmp").open(mode="w", encoding="utf-8") as tmp_file:
             for _ in range(TestWriter.no_of_records):
                 cur_dict = {}
                 for key in TestWriter.csv_header:

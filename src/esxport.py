@@ -158,19 +158,24 @@ class EsXport(object):
         with contextlib.suppress(Exception):
             self.es_client.clear_scroll(scroll_id="_all")
 
-    def _extract_csv_headers(self: Self) -> list[str]:
+    def _extract_headers(self: Self) -> list[str]:
         """Extract CSV headers from the first line of the file."""
         with Path(self.tmp_file).open() as f:
             first_line = json.loads(f.readline().strip("\n"))
             return list(first_line.keys())
 
-    @staticmethod
-    def _export(csv_headers: list[str], rows_written: int, output_file: str) -> None:
+    def _export(self: Self) -> None:
         """Export the data."""
+        headers = self._extract_headers()
+        kwargs = {
+            "delimiter": self.opts.delimiter,
+            "output_format": self.opts.format,
+        }
         Writer.write(
-            headers=csv_headers,
-            total_records=rows_written,
-            out_file=output_file,
+            headers=headers,
+            total_records=self.rows_written,
+            out_file=self.opts.output_file,
+            **kwargs,
         )
 
     def export(self: Self) -> None:
@@ -178,5 +183,4 @@ class EsXport(object):
         self._check_indexes()
         self.search_query()
         self._clean_scroll_ids()
-        csv_headers = self._extract_csv_headers()
-        self._export(csv_headers, self.rows_written, self.opts.output_file)
+        self._export()
