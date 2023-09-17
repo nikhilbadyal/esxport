@@ -11,7 +11,7 @@ from src.__init__ import __version__
 from src.click_opt.cli_options import CliOptions
 from src.click_opt.click_custom import JSON, sort
 from src.constant import META_FIELDS
-from src.esxport import ElasticsearchClient
+from src.elastic import ElasticsearchClient
 
 
 def print_version(ctx: Context, _: Parameter, value: bool) -> None:  # noqa: FBT001

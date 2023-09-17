@@ -5,7 +5,8 @@ from typing import Any, Self
 from unittest.mock import patch
 
 from src.click_opt.cli_options import CliOptions
-from src.esxport import ElasticsearchClient, EsXport
+from src.elastic import ElasticsearchClient
+from src.esxport import EsXport
 
 
 @patch("src.esxport.EsXport._validate_fields")
