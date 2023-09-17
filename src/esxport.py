@@ -11,7 +11,7 @@ from tqdm import tqdm
 from src.click_opt.cli_options import CliOptions
 from src.constant import FLUSH_BUFFER, TIMES_TO_TRY
 from src.elastic import ElasticsearchClient
-from src.exceptions import FieldFoundError, IndexNotFoundError
+from src.exceptions import FieldNotFoundError, IndexNotFoundError
 from src.utils import retry
 from src.writer import Writer
 
@@ -67,7 +67,7 @@ class EsXport(object):
         for element in all_expected_fields:
             if element not in all_es_fields:
                 msg = f"Fields {element} doesn't exist in any index."
-                raise FieldFoundError(msg)
+                raise FieldNotFoundError(msg)
 
     def _prepare_search_query(self: Self) -> None:
         """Prepares search query from input."""

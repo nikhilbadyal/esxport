@@ -9,7 +9,7 @@ class IndexNotFoundError(EsXportError):
     """Index provided does not exist."""
 
 
-class FieldFoundError(EsXportError):
+class FieldNotFoundError(EsXportError):
     """Field provided does not exist."""
 
 
