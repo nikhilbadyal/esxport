@@ -24,23 +24,21 @@ class TestWriter:
         """Generate fake data."""
         if not file_name:
             file_name = TestWriter.out_file
-        with Path(file_name + ".tmp").open(mode="w", encoding="utf-8") as tmp_file:
+        with Path(f"{file_name}.tmp").open(mode="w", encoding="utf-8") as tmp_file:
             for _ in range(TestWriter.no_of_records):
-                cur_dict = {}
-                for key in TestWriter.csv_header:
-                    cur_dict[key] = fake.name()
+                cur_dict = {key: fake.name() for key in TestWriter.csv_header}
                 TestWriter.fake_data.append(cur_dict)
                 tmp_file.write(json.dumps(cur_dict))
                 tmp_file.write("\n")
 
     def setup_method(self: "TestWriter") -> None:
         """Create resources."""
-        Path(self.out_file + ".tmp").unlink(missing_ok=True)
+        Path(f"{self.out_file}.tmp").unlink(missing_ok=True)
         self._gen_fake_json()
 
     def teardown_method(self: "TestWriter") -> None:
         """Cleaer up resources."""
-        Path(self.out_file + ".tmp").unlink(missing_ok=True)
+        Path(f"{self.out_file}.tmp").unlink(missing_ok=True)
         self.fake_data = []
 
     def test_write_to_csv(self: "TestWriter") -> None:

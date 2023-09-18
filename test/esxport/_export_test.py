@@ -51,7 +51,7 @@ class TestExport:
     ) -> None:
         """Check if exception is raised when formatting is invalid."""
         test_json = {"age": 2, "bar": "foo", "hello": "world"}
-        with Path(self.out_file + ".tmp").open(mode="w", encoding="utf-8") as tmp_file:
+        with Path(f"{self.out_file}.tmp").open(mode="w", encoding="utf-8") as tmp_file:
             tmp_file.write(json.dumps(test_json))
             tmp_file.write("\n")
         keys = list(test_json.keys())
