@@ -10,7 +10,7 @@ import pytest
 
 from src.esxport import EsXport
 from src.exceptions import IndexNotFoundError
-from src.strings import index_not_found
+from src.strings import index_not_found, output_fields, sorting_by, using_indexes
 
 if TYPE_CHECKING:
     from typing_extensions import Self
@@ -155,3 +155,23 @@ class TestSearchQuery:
         es_export = EsXport(cli_options, mock_es_client)
         es_export._prepare_search_query()
         assert es_export.search_args["sort"] == random_sort
+
+    def test_debug_option(
+        self: Self,
+        _: Any,
+        mock_es_client: ElasticsearchClient,
+        cli_options: CliOptions,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """Arr, matey!.
+
+        Let's test if our search query be successful, with valid input parameters!.
+        """
+        cli_options.debug = True
+
+        es_export = EsXport(cli_options, mock_es_client)
+        es_export._prepare_search_query()
+        assert caplog.records[0].msg == using_indexes.format(indexes={", ".join(cli_options.index_prefixes)})
+        assert caplog.records[1].msg.startswith("Using query")
+        assert caplog.records[2].msg == output_fields.format(fields={", ".join(cli_options.fields)})
+        assert caplog.records[3].msg == sorting_by.format(sort=cli_options.sort)

@@ -12,7 +12,7 @@ from tqdm import tqdm
 
 from src.constant import FLUSH_BUFFER, TIMES_TO_TRY
 from src.exceptions import FieldNotFoundError, IndexNotFoundError
-from src.strings import index_not_found
+from src.strings import index_not_found, output_fields, sorting_by, using_indexes, using_query
 from src.utils import retry
 from src.writer import Writer
 
@@ -92,10 +92,11 @@ class EsXport(object):
             self.search_args["_source_includes"] = ",".join(self.opts.fields)
 
         if self.opts.debug:
-            logger.debug(f'Using these indices: {", ".join(self.opts.index_prefixes)}.')
-            logger.debug(f"Query {self.opts.query}")
-            logger.debug(f'Output field(s): {", ".join(self.opts.fields)}.')
-            logger.debug(f"Sorting by: {self.opts.sort}.")
+            logger.debug(using_indexes.format(indexes={", ".join(self.opts.index_prefixes)}))
+            query = json.dumps(self.opts.query)
+            logger.debug(using_query.format(query={query}))
+            logger.debug(output_fields.format(fields={", ".join(self.opts.fields)}))
+            logger.debug(sorting_by.format(sort=self.opts.sort))
 
     @retry(ConnectionError, tries=TIMES_TO_TRY)
     def next_scroll(self: Self, scroll_id: str) -> Any:
