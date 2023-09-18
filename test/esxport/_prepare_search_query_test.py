@@ -1,7 +1,7 @@
 """Export testing."""
 import string
 from random import choice, randint
-from typing import Any, Self
+from typing import Any
 from unittest.mock import patch
 
 from src.click_opt.cli_options import CliOptions
@@ -25,7 +25,7 @@ class TestSearchQuery:
         return randint(upper, lower)
 
     def test_index(
-        self: Self,
+        self: "TestSearchQuery",
         _: Any,
         mock_es_client: ElasticsearchClient,
         cli_options: CliOptions,
@@ -43,7 +43,7 @@ class TestSearchQuery:
         assert es_export.search_args["index"] == indexes
 
     def test_size(
-        self: Self,
+        self: "TestSearchQuery",
         _: Any,
         mock_es_client: ElasticsearchClient,
         cli_options: CliOptions,
@@ -60,7 +60,7 @@ class TestSearchQuery:
         assert es_export.search_args["size"] == page_size
 
     def test_query(
-        self: Self,
+        self: "TestSearchQuery",
         _: Any,
         mock_es_client: ElasticsearchClient,
         cli_options: CliOptions,
@@ -77,7 +77,7 @@ class TestSearchQuery:
         assert es_export.search_args["body"] == expected_query
 
     def test_terminate_after(
-        self: Self,
+        self: "TestSearchQuery",
         _: Any,
         mock_es_client: ElasticsearchClient,
         cli_options: CliOptions,
@@ -94,7 +94,7 @@ class TestSearchQuery:
         assert es_export.search_args["terminate_after"] == random_max
 
     def test_sort(
-        self: Self,
+        self: "TestSearchQuery",
         _: Any,
         mock_es_client: ElasticsearchClient,
         cli_options: CliOptions,

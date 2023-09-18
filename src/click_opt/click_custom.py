@@ -1,6 +1,6 @@
 """Custom CLick types."""
 import json
-from typing import Any, Self
+from typing import Any
 
 from click import Context, Parameter, ParamType
 from click_params.miscellaneous import JsonParamType
@@ -16,13 +16,13 @@ class Sort(ParamType):
     name = "Elastic Sort"
     _possible_sorts = ["asc", "desc"]
 
-    def _check_sort_type(self: Self, sort_order: str) -> None:
+    def _check_sort_type(self: "Sort", sort_order: str) -> None:
         """Check if sort type is correct."""
         if sort_order not in self._possible_sorts:
             msg = f"Invalid sort type {sort_order}."
             raise FormatError(msg)
 
-    def convert(self: Self, value: Any, param: Parameter | None, ctx: Context | None) -> Any:
+    def convert(self: "Sort", value: Any, param: Parameter | None, ctx: Context | None) -> Any:
         """Convert str to dict."""
         try:
             field, sort_order = value.split(":")
@@ -34,7 +34,7 @@ class Sort(ParamType):
         else:
             return {field: sort_order}
 
-    def __repr__(self: Self) -> str:
+    def __repr__(self: "Sort") -> str:
         """Return a string representation."""
         return str(self.name)
 
@@ -47,7 +47,7 @@ class Json(JsonParamType):  # type: ignore[misc]
 
     name = "json"
 
-    def convert(self: Self, value: Any, param: Parameter, ctx: Context) -> dict[str, Any]:  # type: ignore[return]
+    def convert(self: "Json", value: Any, param: Parameter, ctx: Context) -> dict[str, Any]:  # type: ignore[return]
         """Convert input to json."""
         try:
             return json.loads(  # type: ignore[no-any-return]
@@ -63,7 +63,7 @@ class Json(JsonParamType):  # type: ignore[misc]
         except json.JSONDecodeError as exc:
             self.fail(f"{value} is not a valid json string, caused {exc}", param, ctx)
 
-    def __repr__(self: Self) -> str:
+    def __repr__(self: "Json") -> str:
         """String representation of the object."""
         return self.name.upper()
 

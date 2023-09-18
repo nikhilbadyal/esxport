@@ -2,7 +2,7 @@
 import contextlib
 import json
 from pathlib import Path
-from typing import Any, Self
+from typing import Any
 
 from elasticsearch.exceptions import ConnectionError
 from loguru import logger
@@ -19,7 +19,7 @@ from src.writer import Writer
 class EsXport(object):
     """Main class."""
 
-    def __init__(self: Self, opts: CliOptions, es_client: ElasticsearchClient) -> None:
+    def __init__(self: "EsXport", opts: CliOptions, es_client: ElasticsearchClient) -> None:
         self.search_args: dict[str, Any] = {}
         self.opts = opts
         self.num_results = 0
@@ -31,7 +31,7 @@ class EsXport(object):
         self.es_client = es_client
 
     @retry(ConnectionError, tries=TIMES_TO_TRY)
-    def _check_indexes(self: Self) -> None:
+    def _check_indexes(self: "EsXport") -> None:
         """Check if input indexes exist."""
         indexes = self.opts.index_prefixes
         if "_all" in indexes:
@@ -45,7 +45,7 @@ class EsXport(object):
                 )
         self.opts.index_prefixes = indexes
 
-    def _validate_fields(self: Self) -> None:
+    def _validate_fields(self: "EsXport") -> None:
         all_fields_dict: dict[str, list[str]] = {}
         indices_names = list(self.opts.index_prefixes)
         all_expected_fields = self.opts.fields.copy()
@@ -69,7 +69,7 @@ class EsXport(object):
                 msg = f"Fields {element} doesn't exist in any index."
                 raise FieldNotFoundError(msg)
 
-    def _prepare_search_query(self: Self) -> None:
+    def _prepare_search_query(self: "EsXport") -> None:
         """Prepares search query from input."""
         self.search_args = {
             "index": ",".join(self.opts.index_prefixes),
@@ -91,11 +91,11 @@ class EsXport(object):
             logger.debug(f"Sorting by: {self.opts.sort}.")
 
     @retry(ConnectionError, tries=TIMES_TO_TRY)
-    def next_scroll(self: Self, scroll_id: str) -> Any:
+    def next_scroll(self: "EsXport", scroll_id: str) -> Any:
         """Paginate to the next page."""
         return self.es_client.scroll(scroll=self.scroll_time, scroll_id=scroll_id)
 
-    def _write_to_temp_file(self: Self, res: Any) -> None:
+    def _write_to_temp_file(self: "EsXport", res: Any) -> None:
         """Write to temp file."""
         hit_list = []
         total_size = int(min(self.opts.max_results, self.num_results))
@@ -125,7 +125,7 @@ class EsXport(object):
         self._flush_to_file(hit_list)
 
     @retry(ConnectionError, tries=TIMES_TO_TRY)
-    def search_query(self: Self) -> Any:
+    def search_query(self: "EsXport") -> Any:
         """Search the index."""
         self._validate_fields()
         self._prepare_search_query()
@@ -137,7 +137,7 @@ class EsXport(object):
         if self.num_results > 0:
             self._write_to_temp_file(res)
 
-    def _flush_to_file(self: Self, hit_list: list[dict[str, Any]]) -> None:
+    def _flush_to_file(self: "EsXport", hit_list: list[dict[str, Any]]) -> None:
         """Flush the search results to a temporary file."""
 
         def add_meta_fields() -> None:
@@ -153,18 +153,18 @@ class EsXport(object):
                 tmp_file.write(json.dumps(data))
                 tmp_file.write("\n")
 
-    def _clean_scroll_ids(self: Self) -> None:
+    def _clean_scroll_ids(self: "EsXport") -> None:
         """Clear all scroll ids."""
         with contextlib.suppress(Exception):
             self.es_client.clear_scroll(scroll_id="_all")
 
-    def _extract_headers(self: Self) -> list[str]:
+    def _extract_headers(self: "EsXport") -> list[str]:
         """Extract CSV headers from the first line of the file."""
         with Path(self.tmp_file).open() as f:
             first_line = json.loads(f.readline().strip("\n"))
             return list(first_line.keys())
 
-    def _export(self: Self) -> None:
+    def _export(self: "EsXport") -> None:
         """Export the data."""
         headers = self._extract_headers()
         kwargs = {
@@ -178,7 +178,7 @@ class EsXport(object):
             **kwargs,
         )
 
-    def export(self: Self) -> None:
+    def export(self: "EsXport") -> None:
         """Export the data."""
         self._check_indexes()
         self.search_query()

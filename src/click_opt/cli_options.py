@@ -1,6 +1,6 @@
 """CLII options."""
 import json
-from typing import Any, Self
+from typing import Any
 
 # noinspection PyPackageRequirements
 import urllib3
@@ -14,7 +14,7 @@ class CliOptions(object):
     """CLI options."""
 
     def __init__(
-        self: Self,
+        self: "CliOptions",
         myclass_kwargs: dict[str, Any],
     ) -> None:
         self.query: dict[str, Any] = myclass_kwargs["query"]
@@ -36,6 +36,6 @@ class CliOptions(object):
         self.debug: bool = myclass_kwargs["debug"]
         self.format: str = ".csv"
 
-    def __str__(self: Self) -> str:
+    def __str__(self: "CliOptions") -> str:
         """Print the class."""
         return json.dumps(self.__dict__, indent=4, default=str)

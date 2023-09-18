@@ -2,7 +2,7 @@
 import csv
 import json
 from pathlib import Path
-from typing import Any, Self
+from typing import Any
 
 from faker import Faker
 
@@ -33,17 +33,17 @@ class TestWriter:
                 tmp_file.write(json.dumps(cur_dict))
                 tmp_file.write("\n")
 
-    def setup_method(self: Self) -> None:
+    def setup_method(self: "TestWriter") -> None:
         """Create resources."""
         Path(self.out_file + ".tmp").unlink(missing_ok=True)
         self._gen_fake_json()
 
-    def teardown_method(self: Self) -> None:
+    def teardown_method(self: "TestWriter") -> None:
         """Cleaer up resources."""
         Path(self.out_file + ".tmp").unlink(missing_ok=True)
         self.fake_data = []
 
-    def test_write_to_csv(self: Self) -> None:
+    def test_write_to_csv(self: "TestWriter") -> None:
         """Test write_to_csv function."""
         kwargs = {"delimiter": ","}
         Writer.write(self.no_of_records, self.out_file, self.csv_header, **kwargs)
