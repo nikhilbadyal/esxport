@@ -3,6 +3,8 @@ on:
   push:
     branches: [master]
   pull_request:
+    branches: [master]
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -20,7 +22,7 @@ jobs:
       matrix:
         include:
           - { PYTHON_VERSION: '3.11' }
-          - { PYTHON_VERSION: '3.12 ' }
+          - { PYTHON_VERSION: '3.12' }
     steps:
       - name: "Checkout to repository"
         uses: actions/checkout@v4
@@ -34,7 +36,6 @@ jobs:
 
       - name: Display Python version
         run: python -c "import sys; print(sys.version)"
-
 
       - name: Install Requirements
         run: |
