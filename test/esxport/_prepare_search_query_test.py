@@ -8,9 +8,9 @@ from unittest.mock import patch
 
 import pytest
 
-from src.click_opt.strings import index_not_found
 from src.esxport import EsXport
 from src.exceptions import IndexNotFoundError
+from src.strings import index_not_found
 
 if TYPE_CHECKING:
     from typing_extensions import Self

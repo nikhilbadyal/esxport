@@ -10,9 +10,9 @@ from elasticsearch.exceptions import ConnectionError
 from loguru import logger
 from tqdm import tqdm
 
-from src.click_opt.strings import index_not_found
 from src.constant import FLUSH_BUFFER, TIMES_TO_TRY
 from src.exceptions import FieldNotFoundError, IndexNotFoundError
+from src.strings import index_not_found
 from src.utils import retry
 from src.writer import Writer
 

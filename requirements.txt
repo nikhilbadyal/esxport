@@ -6,6 +6,7 @@ loguru==0.7.2
 pytest==7.4.2
 pytest-cov==4.1.0
 pytest-emoji==0.2.0
+pytest-loguru==0.2.0
 pytest-md==0.2.0
 pytest-mock==3.11.1
 pytest-xdist==3.3.1
