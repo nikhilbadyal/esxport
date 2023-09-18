@@ -7,6 +7,7 @@ from unittest.mock import Mock
 import pytest
 
 from src.click_opt.cli_options import CliOptions
+from src.esxport import EsXport
 
 
 @pytest.fixture()
@@ -48,3 +49,9 @@ def mock_es_client() -> Mock:
         },
     }
     return mock_client
+
+
+@pytest.fixture()
+def esxport_obj(cli_options: CliOptions, mock_es_client: Mock) -> EsXport:
+    """Mocked EsXport class."""
+    return EsXport(cli_options, mock_es_client)

@@ -31,6 +31,7 @@ class TestExport:
         cli_options: CliOptions,
     ) -> None:
         """Checks if the method exports the data properly when given valid arguments."""
+        cli_options.output_file = "correct.csv"
         export = create_autospec(EsXport(cli_options, mock_es_client).export)
 
         export()
