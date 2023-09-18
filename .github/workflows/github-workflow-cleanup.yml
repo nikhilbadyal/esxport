@@ -1,4 +1,4 @@
-name: GitHub Cleanup
+name: GitHub Workflow Cleanup
 
 on:
   workflow_call:
@@ -10,6 +10,6 @@ on:
 jobs:
   cleanup:
     name: GitHub Cleanup
-    uses: nikhilbadyal/ghactions/.github/workflows/github-cleanup.yml@main
+    uses: nikhilbadyal/ghactions/.github/workflows/github-workflow-cleaner.yml@main
     secrets:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
