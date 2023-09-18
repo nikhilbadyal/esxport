@@ -1,9 +1,14 @@
 """Custom CLick types."""
+from __future__ import annotations
+
 import json
-from typing import Any, Self
+from typing import TYPE_CHECKING, Any
 
 from click import Context, Parameter, ParamType
 from click_params.miscellaneous import JsonParamType
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 
 class FormatError(ValueError):

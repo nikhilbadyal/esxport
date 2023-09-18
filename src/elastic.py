@@ -1,13 +1,16 @@
 """Client to interact with Elasticsearch."""
-from collections.abc import Callable
-from typing import Any, Self, TypeVar
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 
 import elasticsearch
 
-from src.click_opt.cli_options import CliOptions
 from src.constant import CONNECTION_TIMEOUT
 
-F = TypeVar("F", bound=Callable[..., Any])
+if TYPE_CHECKING:
+    from typing_extensions import Self
+
+    from src.click_opt.cli_options import CliOptions
 
 
 class ElasticsearchClient:

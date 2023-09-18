@@ -1,13 +1,12 @@
 """Write Data to file."""
+from __future__ import annotations
+
 import csv
 import json
-from collections.abc import Callable
 from pathlib import Path
-from typing import Any, NotRequired, TypedDict, TypeVar, Unpack
 
 from tqdm import tqdm
-
-F = TypeVar("F", bound=Callable[..., Any])
+from typing_extensions import NotRequired, TypedDict, Unpack
 
 
 class WriterParams(TypedDict):

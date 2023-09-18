@@ -59,7 +59,7 @@ ignore = [
     "RUF012", #ignore till https://github.com/astral-sh/ruff/issues/5243
     "UP004" #useless-object-inheritance
 ]
-target-version = "py311"
+target-version = "py38"
 fix = true
 show-fixes = true
 [tool.ruff.pydocstyle]

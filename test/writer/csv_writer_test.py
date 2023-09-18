@@ -1,12 +1,17 @@
 """File Writer Test case."""
+from __future__ import annotations
+
 import csv
 import json
 from pathlib import Path
-from typing import Any, Self
+from typing import TYPE_CHECKING, Any
 
 from faker import Faker
 
 from src.writer import Writer
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 fake = Faker("en_IN")
 
@@ -50,7 +55,7 @@ class TestWriter:
             reader = csv.reader(file)
             headers = next(reader)
             assert headers == self.csv_header, "Headers do not match"
-            csv_data = [dict(zip(headers, i, strict=True)) for i in reader]
+            csv_data = [dict(zip(headers, i)) for i in reader]
 
         assert len(csv_data) == self.no_of_records, "Record count does not match"
         assert csv_data == self.fake_data, "Generated data does not match with written data"
