@@ -112,7 +112,7 @@ class EsXport(object):
 
             if not res["hits"]["hits"]:
                 logger.info(
-                    f'Scroll[{res["_scroll_id"]}] expired(multiple reads?). Saving loaded data.'
+                    f'Scroll[{res["_scroll_id"]}] expired(multiple reads?). Saving loaded data.',
                 )
                 break
             for hit in res["hits"]["hits"]:
