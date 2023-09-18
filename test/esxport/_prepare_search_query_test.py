@@ -1,12 +1,18 @@
 """Export testing."""
+from __future__ import annotations
+
 import string
 from random import choice, randint
-from typing import Any, Self
+from typing import TYPE_CHECKING, Any
 from unittest.mock import patch
 
-from src.click_opt.cli_options import CliOptions
-from src.elastic import ElasticsearchClient
 from src.esxport import EsXport
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
+
+    from src.click_opt.cli_options import CliOptions
+    from src.elastic import ElasticsearchClient
 
 
 @patch("src.esxport.EsXport._validate_fields")

@@ -9,3 +9,4 @@ pytest-emoji==0.2.0
 pytest-md==0.2.0
 pytest-xdist==3.3.1
 tqdm==4.66.1
+typing-extensions==4.8.0

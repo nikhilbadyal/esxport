@@ -1,32 +1,34 @@
 """Common utilities."""
+from __future__ import annotations
+
 import time
-from collections.abc import Callable
 from functools import wraps
-from typing import Any, TypeVar
+from typing import Any, Callable, TypeVar
 
 from loguru import logger
 
 from src.constant import RETRY_DELAY, TIMES_TO_TRY
 from src.exceptions import ESConnectionError
 
-F = TypeVar("F", bound=Callable[..., Any])
+# Define type variable for exception class
+T_Exception = TypeVar("T_Exception", bound=BaseException)
 
 
 def retry(
-    exception_to_check: type[BaseException],
+    exception_to_check: type[T_Exception],
     tries: int = TIMES_TO_TRY,
     delay: int = RETRY_DELAY,
-) -> Callable[[F], F]:
-    """Retryn connection."""
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+    """Retry connection."""
 
-    def deco_retry(f: Any) -> Any:
+    def deco_retry(f: Callable[..., Any]) -> Callable[..., Any]:
         @wraps(f)
-        def f_retry(*args: Any, **kwargs: dict[Any, Any]) -> Any:
+        def f_retry(*args: Any, **kwargs: dict[str, Any]) -> Any:
             mtries = tries
             while mtries > 0:
                 try:
                     return f(*args, **kwargs)
-                except exception_to_check as e:
+                except exception_to_check as e:  # noqa: PERF203
                     logger.error(e)
                     logger.info(f"Retrying in {delay} seconds ...")
                     time.sleep(delay)

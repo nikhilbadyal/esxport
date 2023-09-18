@@ -1,19 +1,25 @@
 """Main export module."""
+from __future__ import annotations
+
 import contextlib
 import json
 from pathlib import Path
-from typing import Any, Self
+from typing import TYPE_CHECKING, Any
 
 from elasticsearch.exceptions import ConnectionError
 from loguru import logger
 from tqdm import tqdm
 
-from src.click_opt.cli_options import CliOptions
 from src.constant import FLUSH_BUFFER, TIMES_TO_TRY
-from src.elastic import ElasticsearchClient
 from src.exceptions import FieldNotFoundError, IndexNotFoundError
 from src.utils import retry
 from src.writer import Writer
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
+
+    from src.click_opt.cli_options import CliOptions
+    from src.elastic import ElasticsearchClient
 
 
 class EsXport(object):

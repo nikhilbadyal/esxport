@@ -1,6 +1,7 @@
 """CLI."""
-from pathlib import Path
-from typing import Any
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 
 import click
 from click import Context, Parameter
@@ -12,6 +13,9 @@ from src.click_opt.cli_options import CliOptions
 from src.click_opt.click_custom import JSON, sort
 from src.constant import META_FIELDS
 from src.elastic import ElasticsearchClient
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def print_version(ctx: Context, _: Parameter, value: bool) -> None:  # noqa: FBT001

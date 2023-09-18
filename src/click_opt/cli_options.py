@@ -1,10 +1,15 @@
 """CLII options."""
+from __future__ import annotations
+
 import json
-from typing import Any, Self
+from typing import TYPE_CHECKING, Any
 
 # noinspection PyPackageRequirements
 import urllib3
 from elastic_transport import SecurityWarning
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 urllib3.disable_warnings()
 urllib3.disable_warnings(SecurityWarning)
