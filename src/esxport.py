@@ -85,9 +85,9 @@ class EsXport(object):
             self.search_args["_source_includes"] = ",".join(self.opts.fields)
 
         if self.opts.debug:
-            logger.debug("Using these indices: {}.".format(", ".join(self.opts.index_prefixes)))
+            logger.debug(f'Using these indices: {", ".join(self.opts.index_prefixes)}.')
             logger.debug(f"Query {self.opts.query}")
-            logger.debug("Output field(s): {}.".format(", ".join(self.opts.fields)))
+            logger.debug(f'Output field(s): {", ".join(self.opts.fields)}.')
             logger.debug(f"Sorting by: {self.opts.sort}.")
 
     @retry(ConnectionError, tries=TIMES_TO_TRY)
@@ -111,7 +111,9 @@ class EsXport(object):
                 self.scroll_ids.append(res["_scroll_id"])
 
             if not res["hits"]["hits"]:
-                logger.info("Scroll[{}] expired(multiple reads?). Saving loaded data.".format(res["_scroll_id"]))
+                logger.info(
+                    f'Scroll[{res["_scroll_id"]}] expired(multiple reads?). Saving loaded data.',
+                )
                 break
             for hit in res["hits"]["hits"]:
                 self.rows_written += 1
