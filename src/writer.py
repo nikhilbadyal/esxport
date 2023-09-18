@@ -38,7 +38,7 @@ class Writer(object):
     @staticmethod
     def _write_to_csv(total_records: int, out_file: str, headers: list[str], delimiter: str) -> None:
         """Write content to CSV file."""
-        temp_file = out_file + ".tmp"
+        temp_file = f"{out_file}.tmp"
         with Path(out_file).open(mode="w", encoding="utf-8") as output_file:
             csv_writer = csv.DictWriter(output_file, fieldnames=headers, delimiter=delimiter)
             csv_writer.writeheader()
