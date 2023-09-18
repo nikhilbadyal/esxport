@@ -10,6 +10,7 @@ from elasticsearch.exceptions import ConnectionError
 from loguru import logger
 from tqdm import tqdm
 
+from src.click_opt.strings import index_not_found
 from src.constant import FLUSH_BUFFER, TIMES_TO_TRY
 from src.exceptions import FieldNotFoundError, IndexNotFoundError
 from src.utils import retry
@@ -45,7 +46,7 @@ class EsXport(object):
         else:
             indexes_status = self.es_client.indices_exists(index=indexes)
             if not indexes_status:
-                msg = f"Any of index(es) {', '.join(self.opts.index_prefixes)} does not exist in {self.opts.url}."
+                msg = index_not_found.format(", ".join(self.opts.index_prefixes), self.opts.url)
                 raise IndexNotFoundError(
                     msg,
                 )

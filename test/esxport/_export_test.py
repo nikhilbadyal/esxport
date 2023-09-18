@@ -20,6 +20,10 @@ class TestExport:
 
     csv_header = ["age", "name"]
 
+    def teardown_method(self: Self) -> None:
+        """Cleaer up resources."""
+        Path(f"{self.out_file}.tmp").unlink(missing_ok=True)
+
     def test_export_with_valid_arguments(
         self: Self,
         _: Any,

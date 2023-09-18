@@ -6,7 +6,11 @@ from random import choice, randint
 from typing import TYPE_CHECKING, Any
 from unittest.mock import patch
 
+import pytest
+
+from src.click_opt.strings import index_not_found
 from src.esxport import EsXport
+from src.exceptions import IndexNotFoundError
 
 if TYPE_CHECKING:
     from typing_extensions import Self
@@ -47,6 +51,42 @@ class TestSearchQuery:
         es_export = EsXport(cli_options, mock_es_client)
         es_export._prepare_search_query()
         assert es_export.search_args["index"] == indexes
+
+    def test_all_index(
+        self: Self,
+        _: Any,
+        mock_es_client: ElasticsearchClient,
+        cli_options: CliOptions,
+    ) -> None:
+        """Arr, matey!.
+
+        Let's test if our search query be successful, with valid input parameters!.
+        """
+        cli_options.index_prefixes = ["_all", "invalid_index"]
+
+        es_export = EsXport(cli_options, mock_es_client)
+        es_export._check_indexes()
+        assert es_export.opts.index_prefixes == ["_all"]
+
+    def test_invalid_index(
+        self: Self,
+        _: Any,
+        mock_es_client: ElasticsearchClient,
+        cli_options: CliOptions,
+    ) -> None:
+        """Arr, matey!.
+
+        Let's test if our search query be successful, with valid input parameters!.
+        """
+        cli_options.index_prefixes = ["invalid_index"]
+        es_export = EsXport(cli_options, mock_es_client)
+
+        with patch.object(es_export.es_client, "indices_exists", return_value=False):
+            with pytest.raises(IndexNotFoundError) as exc_info:
+                es_export._check_indexes()
+
+            msg = index_not_found.format("invalid_index", cli_options.url)
+            assert str(exc_info.value) == msg
 
     def test_size(
         self: Self,
