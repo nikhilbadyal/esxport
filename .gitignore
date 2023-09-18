@@ -11,3 +11,4 @@ build
 *.tmp
 *query.json
 **coverage**
+**version
