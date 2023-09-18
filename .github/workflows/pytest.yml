@@ -20,8 +20,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - { PYTHON_VERSION: '3.6' }
+          - { PYTHON_VERSION: '3.7' }
+          - { PYTHON_VERSION: '3.8' }
+          - { PYTHON_VERSION: '3.9' }
+          - { PYTHON_VERSION: '3.10' }
           - { PYTHON_VERSION: '3.11' }
-          - { PYTHON_VERSION: '3.12 ' }
+          - { PYTHON_VERSION: '3.12' }
     steps:
       - name: "Checkout to repository"
         uses: actions/checkout@v4
