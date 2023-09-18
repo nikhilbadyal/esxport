@@ -3,7 +3,7 @@ import csv
 import json
 from collections.abc import Callable
 from pathlib import Path
-from typing import Any, NotRequired, TypedDict, TypeVar, Unpack
+from typing import Any, TypedDict, TypeVar, Unpack
 
 from tqdm import tqdm
 
@@ -13,8 +13,8 @@ F = TypeVar("F", bound=Callable[..., Any])
 class WriterParams(TypedDict):
     """Writer parameters."""
 
-    output_format: NotRequired[str]
-    delimiter: NotRequired[str]
+    output_format: str | None
+    delimiter: str | None
 
 
 class Writer(object):
@@ -30,7 +30,7 @@ class Writer(object):
         """Write data to output file."""
         output_format = kwargs.get("output_format", "csv")
         if output_format == "csv":
-            Writer._write_to_csv(total_records, out_file, headers, str(kwargs.pop("delimiter", ",")))
+            Writer._write_to_csv(total_records, out_file, headers, str(kwargs.get("delimiter", ",")))
         else:
             msg = f"Format {output_format} is not supported"
             raise NotImplementedError(msg)
