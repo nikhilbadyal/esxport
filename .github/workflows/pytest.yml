@@ -50,3 +50,8 @@ jobs:
         with:
           report-title: >-
             Pytest - Python ${{ matrix.PYTHON_VERSION }}
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3.1.4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}

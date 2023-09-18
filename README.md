@@ -1,4 +1,5 @@
 # EsXport
+[![codecov](https://codecov.io/gh/nikhilbadyal/esxport/graph/badge.svg?token=zaoNlW2YXq)](https://codecov.io/gh/nikhilbadyal/esxport)
 
 An adept Python CLI utility designed for querying Elasticsearch and exporting result as a CSV file.
 
