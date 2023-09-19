@@ -93,10 +93,10 @@ warn_unused_configs = true
 pythonpath = ["src"]
 
 [tool.pytest.ini_options]
-addopts = "--cov --cov-report=xml --cov-report term-missing --ff -x --no-cov-on-fail --emoji -n4"
+addopts = "--cov --cov-report=xml --cov-report term-missing --ff -x --no-cov-on-fail --emoji -n4 -rP"
 
 [tool.coverage.run]
-branch = true
+#branch = true #https://github.com/nedbat/coveragepy/issues/605
 parallel = true
 
 [tool.coverage.report]
