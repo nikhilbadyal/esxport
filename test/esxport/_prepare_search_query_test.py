@@ -37,7 +37,7 @@ class TestSearchQuery:
     def test_index(
         self: Self,
         _: Any,
-        mock_es_client: ElasticsearchClient,
+        es_client_without_data: ElasticsearchClient,
         cli_options: CliOptions,
     ) -> None:
         """Arr, matey!.
@@ -48,14 +48,14 @@ class TestSearchQuery:
         cli_options.index_prefixes = random_strings
         indexes = ",".join(random_strings)
 
-        es_export = EsXport(cli_options, mock_es_client)
+        es_export = EsXport(cli_options, es_client_without_data)
         es_export._prepare_search_query()
         assert es_export.search_args["index"] == indexes
 
     def test_all_index(
         self: Self,
         _: Any,
-        mock_es_client: ElasticsearchClient,
+        es_client_without_data: ElasticsearchClient,
         cli_options: CliOptions,
     ) -> None:
         """Arr, matey!.
@@ -64,14 +64,14 @@ class TestSearchQuery:
         """
         cli_options.index_prefixes = ["_all", "invalid_index"]
 
-        es_export = EsXport(cli_options, mock_es_client)
+        es_export = EsXport(cli_options, es_client_without_data)
         es_export._check_indexes()
         assert es_export.opts.index_prefixes == ["_all"]
 
     def test_invalid_index(
         self: Self,
         _: Any,
-        mock_es_client: ElasticsearchClient,
+        es_client_without_data: ElasticsearchClient,
         cli_options: CliOptions,
     ) -> None:
         """Arr, matey!.
@@ -79,7 +79,7 @@ class TestSearchQuery:
         Let's test if our search query be successful, with valid input parameters!.
         """
         cli_options.index_prefixes = ["invalid_index"]
-        es_export = EsXport(cli_options, mock_es_client)
+        es_export = EsXport(cli_options, es_client_without_data)
 
         with patch.object(es_export.es_client, "indices_exists", return_value=False):
             with pytest.raises(IndexNotFoundError) as exc_info:
@@ -91,7 +91,7 @@ class TestSearchQuery:
     def test_size(
         self: Self,
         _: Any,
-        mock_es_client: ElasticsearchClient,
+        es_client_without_data: ElasticsearchClient,
         cli_options: CliOptions,
     ) -> None:
         """Arr, matey!.
@@ -101,14 +101,14 @@ class TestSearchQuery:
         page_size = randint(100, 9999)
         cli_options.scroll_size = page_size
 
-        es_export = EsXport(cli_options, mock_es_client)
+        es_export = EsXport(cli_options, es_client_without_data)
         es_export._prepare_search_query()
         assert es_export.search_args["size"] == page_size
 
     def test_query(
         self: Self,
         _: Any,
-        mock_es_client: ElasticsearchClient,
+        es_client_without_data: ElasticsearchClient,
         cli_options: CliOptions,
     ) -> None:
         """Arr, matey!.
@@ -118,14 +118,14 @@ class TestSearchQuery:
         expected_query: dict[str, Any] = {"query": {"match_all": {}}}
         cli_options.query = expected_query
 
-        es_export = EsXport(cli_options, mock_es_client)
+        es_export = EsXport(cli_options, es_client_without_data)
         es_export._prepare_search_query()
         assert es_export.search_args["body"] == expected_query
 
     def test_terminate_after(
         self: Self,
         _: Any,
-        mock_es_client: ElasticsearchClient,
+        es_client_without_data: ElasticsearchClient,
         cli_options: CliOptions,
     ) -> None:
         """Arr, matey!.
@@ -135,14 +135,14 @@ class TestSearchQuery:
         random_max = self.random_number()
         cli_options.max_results = random_max
 
-        es_export = EsXport(cli_options, mock_es_client)
+        es_export = EsXport(cli_options, es_client_without_data)
         es_export._prepare_search_query()
         assert es_export.search_args["terminate_after"] == random_max
 
     def test_sort(
         self: Self,
         _: Any,
-        mock_es_client: ElasticsearchClient,
+        es_client_without_data: ElasticsearchClient,
         cli_options: CliOptions,
     ) -> None:
         """Arr, matey!.
@@ -152,14 +152,14 @@ class TestSearchQuery:
         random_sort = [{self.random_string(): "asc"}, {self.random_string(): "desc"}]
         cli_options.sort = random_sort
 
-        es_export = EsXport(cli_options, mock_es_client)
+        es_export = EsXport(cli_options, es_client_without_data)
         es_export._prepare_search_query()
         assert es_export.search_args["sort"] == random_sort
 
     def test_debug_option(
         self: Self,
         _: Any,
-        mock_es_client: ElasticsearchClient,
+        es_client_without_data: ElasticsearchClient,
         cli_options: CliOptions,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
@@ -169,7 +169,7 @@ class TestSearchQuery:
         """
         cli_options.debug = True
 
-        es_export = EsXport(cli_options, mock_es_client)
+        es_export = EsXport(cli_options, es_client_without_data)
         es_export._prepare_search_query()
         assert caplog.records[0].msg == using_indexes.format(indexes={", ".join(cli_options.index_prefixes)})
         assert caplog.records[1].msg.startswith("Using query")

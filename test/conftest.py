@@ -38,20 +38,61 @@ def cli_options() -> CliOptions:
 
 
 @pytest.fixture()
-def mock_es_client() -> Mock:
+def es_client_without_data() -> Mock:
     """Mock ElasticSearch Client."""
     mock_client = Mock()
     mock_client.search.return_value = {
+        "_scroll_id": "abc",
         "hits": {
             "total": {
                 "value": 0,
             },
+            "hits": None,
         },
     }
     return mock_client
 
 
 @pytest.fixture()
-def esxport_obj(cli_options: CliOptions, mock_es_client: Mock) -> EsXport:
+def es_client_with_data() -> Mock:
+    """Mock ElasticSearch Client."""
+    mock_client = Mock()
+    mock_client.search.return_value = {
+        "_scroll_id": "abc",
+        "hits": {
+            "total": {
+                "value": 2,
+            },
+            "hits": [
+                {
+                    "_index": "index1",
+                    "_id": "ABC",
+                    "_score": 2,
+                    "_source": {
+                        "test_id": "ABC",
+                    },
+                },
+                {
+                    "_index": "index1",
+                    "_id": "DEF",
+                    "_score": 1,
+                    "_source": {
+                        "test_id": "DEF",
+                    },
+                },
+            ],
+        },
+    }
+    return mock_client
+
+
+@pytest.fixture()
+def esxport_obj(cli_options: CliOptions, es_client_without_data: Mock) -> EsXport:
     """Mocked EsXport class."""
-    return EsXport(cli_options, mock_es_client)
+    return EsXport(cli_options, es_client_without_data)
+
+
+@pytest.fixture()
+def esxport_obj_with_data(cli_options: CliOptions, es_client_with_data: Mock) -> EsXport:
+    """Mocked EsXport class."""
+    return EsXport(cli_options, es_client_with_data)
