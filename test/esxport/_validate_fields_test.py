@@ -1,4 +1,5 @@
 """Field Validator test cases."""
+from contextlib import nullcontext
 from unittest.mock import Mock
 
 import pytest
@@ -99,3 +100,29 @@ class TestValidateFields:
         esxport_obj.opts.sort = [{"field1": "asc"}, {"field2": "desc"}]
 
         esxport_obj._validate_fields()
+
+    def test_all_is_not_checked(self: Self, mocker: Mock, esxport_obj: EsXport) -> None:
+        """Test that _all if not checked."""
+        # Mock the get_mapping method of ElasticsearchClient to return a mapping with all expected fields
+        mocker.patch.object(
+            esxport_obj.es_client,
+            "get_mapping",
+            return_value={
+                "index1": {
+                    "mappings": {
+                        "properties": ["field1", "field2", "field3"],
+                    },
+                },
+            },
+        )
+
+        esxport_obj.opts.index_prefixes = ["index1"]
+        esxport_obj.opts.fields = ["_all", "field2", "field3"]
+
+        with nullcontext():
+            esxport_obj._validate_fields()
+
+        esxport_obj.opts.fields = ["xyz", "field2", "field3"]
+
+        with pytest.raises(FieldNotFoundError):
+            esxport_obj._validate_fields()
