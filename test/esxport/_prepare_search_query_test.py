@@ -175,3 +175,14 @@ class TestSearchQuery:
         assert caplog.records[1].msg.startswith("Using query")
         assert caplog.records[2].msg == output_fields.format(fields={", ".join(cli_options.fields)})
         assert caplog.records[3].msg == sorting_by.format(sort=cli_options.sort)
+
+    def test_custom_output_fields(
+        self: Self,
+        _: Any,
+        esxport_obj: EsXport,
+    ) -> None:
+        """Test if selection only some fields for the output works."""
+        random_strings = [self.random_string(10) for _ in range(5)]
+        esxport_obj.opts.fields = random_strings
+        esxport_obj._prepare_search_query()
+        assert esxport_obj.search_args["_source_includes"] == ",".join(random_strings)
