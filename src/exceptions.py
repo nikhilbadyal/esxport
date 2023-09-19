@@ -13,5 +13,9 @@ class FieldNotFoundError(EsXportError):
     """Field provided does not exist."""
 
 
+class MetaFieldNotFoundError(FieldNotFoundError):
+    """Meta Field provided does not exist."""
+
+
 class ESConnectionError(EsXportError):
     """Elasticsearch connection error."""

@@ -11,8 +11,8 @@ from loguru import logger
 from tqdm import tqdm
 
 from src.constant import FLUSH_BUFFER, TIMES_TO_TRY
-from src.exceptions import FieldNotFoundError, IndexNotFoundError
-from src.strings import index_not_found, output_fields, sorting_by, using_indexes, using_query
+from src.exceptions import FieldNotFoundError, IndexNotFoundError, MetaFieldNotFoundError
+from src.strings import index_not_found, meta_field_not_found, output_fields, sorting_by, using_indexes, using_query
 from src.utils import retry
 from src.writer import Writer
 
@@ -151,8 +151,11 @@ class EsXport(object):
 
         def add_meta_fields() -> None:
             if self.opts.meta_fields:
-                for fields in self.opts.meta_fields:
-                    data[fields] = hit.get(fields, None)
+                for field in self.opts.meta_fields:
+                    try:
+                        data[field] = hit[field]
+                    except KeyError as e:  # noqa: PERF203
+                        raise MetaFieldNotFoundError(meta_field_not_found.format(field=field)) from e
 
         with Path(f"{self.opts.output_file}.tmp").open(mode="a", encoding="utf-8") as tmp_file:
             for hit in hit_list:
