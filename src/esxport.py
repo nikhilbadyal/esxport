@@ -8,12 +8,12 @@ from typing import TYPE_CHECKING, Any
 
 from elasticsearch.exceptions import ConnectionError
 from loguru import logger
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 from tqdm import tqdm
 
 from src.constant import FLUSH_BUFFER, TIMES_TO_TRY
 from src.exceptions import FieldNotFoundError, IndexNotFoundError, MetaFieldNotFoundError
 from src.strings import index_not_found, meta_field_not_found, output_fields, sorting_by, using_indexes, using_query
-from src.utils import retry
 from src.writer import Writer
 
 if TYPE_CHECKING:
@@ -36,7 +36,12 @@ class EsXport(object):
 
         self.es_client = es_client
 
-    @retry(ConnectionError, tries=TIMES_TO_TRY)
+    @retry(
+        wait=wait_exponential(2),
+        stop=stop_after_attempt(TIMES_TO_TRY),
+        reraise=True,
+        retry=retry_if_exception_type(ConnectionError),
+    )
     def _check_indexes(self: Self) -> None:
         """Check if input indexes exist."""
         indexes = self.opts.index_prefixes
@@ -97,7 +102,12 @@ class EsXport(object):
             logger.debug(output_fields.format(fields={", ".join(self.opts.fields)}))
             logger.debug(sorting_by.format(sort=self.opts.sort))
 
-    @retry(ConnectionError, tries=TIMES_TO_TRY)
+    @retry(
+        wait=wait_exponential(2),
+        stop=stop_after_attempt(TIMES_TO_TRY),
+        reraise=True,
+        retry=retry_if_exception_type(ConnectionError),
+    )
     def next_scroll(self: Self, scroll_id: str) -> Any:
         """Paginate to the next page."""
         return self.es_client.scroll(scroll=self.scroll_time, scroll_id=scroll_id)
@@ -133,7 +143,12 @@ class EsXport(object):
         bar.close()
         self._flush_to_file(hit_list)
 
-    @retry(ConnectionError, tries=TIMES_TO_TRY)
+    @retry(
+        wait=wait_exponential(2),
+        stop=stop_after_attempt(TIMES_TO_TRY),
+        reraise=True,
+        retry=retry_if_exception_type(ConnectionError),
+    )
     def search_query(self: Self) -> Any:
         """Search the index."""
         self._validate_fields()

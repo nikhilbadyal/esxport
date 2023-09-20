@@ -62,7 +62,7 @@ repos:
           - "--config=pyproject.toml"
           - "--no-namespace-packages"
           - "--enable-incomplete-feature=Unpack"
-        additional_dependencies: [ click,elasticsearch, pytest ]
+        additional_dependencies: [ click,elasticsearch, pytest,tenacity  ]
 
 ci:
     autofix_commit_msg: |
