@@ -32,7 +32,6 @@ class EsXport(object):
         self.num_results = 0
         self.scroll_ids: list[str] = []
         self.scroll_time = "30m"
-        self.tmp_file = f"{opts.output_file}.tmp"
         self.rows_written = 0
 
         self.es_client = es_client
@@ -108,7 +107,7 @@ class EsXport(object):
         hit_list = []
         total_size = int(min(self.opts.max_results, self.num_results))
         bar = tqdm(
-            desc=self.tmp_file,
+            desc=f"{self.opts.output_file}.tmp",
             total=total_size,
             unit="docs",
             colour="green",
@@ -155,7 +154,7 @@ class EsXport(object):
                 for fields in self.opts.meta_fields:
                     data[fields] = hit.get(fields, None)
 
-        with Path(self.tmp_file).open(mode="a", encoding="utf-8") as tmp_file:
+        with Path(f"{self.opts.output_file}.tmp").open(mode="a", encoding="utf-8") as tmp_file:
             for hit in hit_list:
                 data = hit["_source"]
                 data.pop("_meta", None)
@@ -170,7 +169,7 @@ class EsXport(object):
 
     def _extract_headers(self: Self) -> list[str]:
         """Extract CSV headers from the first line of the file."""
-        with Path(self.tmp_file).open() as f:
+        with Path(f"{self.opts.output_file}.tmp").open() as f:
             first_line = json.loads(f.readline().strip("\n"))
             return list(first_line.keys())
 
