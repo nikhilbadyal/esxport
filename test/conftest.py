@@ -83,6 +83,18 @@ def es_client_with_data() -> Mock:
             ],
         },
     }
+    mock_client.get_mapping.return_value = {
+        "index1": {
+            "mappings": {
+                "properties": ["test_id"],
+            },
+        },
+        "index2": {
+            "mappings": {
+                "properties": ["field1", "field2", "field3"],
+            },
+        },
+    }
     return mock_client
 
 
