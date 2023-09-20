@@ -2,8 +2,10 @@
 from __future__ import annotations
 
 import csv
+import inspect
 import json
 from pathlib import Path
+from test.esxport._export_test import TestExport
 from typing import TYPE_CHECKING, Any
 
 from faker import Faker
@@ -19,16 +21,13 @@ fake = Faker("en_IN")
 class TestWriter:
     """File Writer Test case."""
 
-    out_file = "test.csv"
     no_of_records = 10
     csv_header = ["age", "name"]
     fake_data: list[dict[str, Any]] = []
 
     @staticmethod
-    def _gen_fake_json(file_name: str = "") -> None:
+    def _gen_fake_json(file_name: str) -> None:
         """Generate fake data."""
-        if not file_name:
-            file_name = TestWriter.out_file
         with Path(f"{file_name}.tmp").open(mode="w", encoding="utf-8") as tmp_file:
             for _ in range(TestWriter.no_of_records):
                 cur_dict = {key: fake.name() for key in TestWriter.csv_header}
@@ -36,22 +35,20 @@ class TestWriter:
                 tmp_file.write(json.dumps(cur_dict))
                 tmp_file.write("\n")
 
-    def setup_method(self: Self) -> None:
+    @staticmethod
+    def setup_data(file_name: str) -> None:
         """Create resources."""
-        Path(f"{self.out_file}.tmp").unlink(missing_ok=True)
-        self._gen_fake_json()
-
-    def teardown_method(self: Self) -> None:
-        """Cleaer up resources."""
-        Path(f"{self.out_file}.tmp").unlink(missing_ok=True)
-        self.fake_data = []
+        Path(f"{file_name}.tmp").unlink(missing_ok=True)
+        TestWriter._gen_fake_json(file_name)
 
     def test_write_to_csv(self: Self) -> None:
         """Test write_to_csv function."""
+        out_file = f"{inspect.stack()[0].function}.csv"
+        TestWriter.setup_data(out_file)
         kwargs = {"delimiter": ","}
-        Writer.write(self.no_of_records, self.out_file, self.csv_header, **kwargs)
-        assert Path(self.out_file).exists(), "File does not exist"
-        with Path(self.out_file).open() as file:
+        Writer.write(self.no_of_records, out_file, self.csv_header, **kwargs)
+        assert Path(out_file).exists(), "File does not exist"
+        with Path(out_file).open() as file:
             reader = csv.reader(file)
             headers = next(reader)
             assert headers == self.csv_header, "Headers do not match"
@@ -59,3 +56,5 @@ class TestWriter:
 
         assert len(csv_data) == self.no_of_records, "Record count does not match"
         assert csv_data == self.fake_data, "Generated data does not match with written data"
+
+        TestExport.rm_export_file(f"{inspect.stack()[0].function}.csv")
