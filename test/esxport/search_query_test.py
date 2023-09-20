@@ -84,3 +84,18 @@ class TestVSearchQuery:
         )
         with pytest.raises(MetaFieldNotFoundError):
             esxport_obj_with_data.search_query()
+
+    def test_data_is_flused_on_buffer_hit(
+        self: Self,
+        esxport_obj_with_data: EsXport,
+    ) -> None:
+        """Test that invalid meta fields raised exception."""
+        data = esxport_obj_with_data.es_client.search()
+        no_of_records = data["hits"]["total"]["value"]
+        flush_size = 1
+        with patch.object(esxport_obj_with_data, "_flush_to_file") as mock_flush_to_file, patch(
+            "src.esxport.FLUSH_BUFFER",
+            flush_size,
+        ):
+            esxport_obj_with_data.search_query()
+            assert mock_flush_to_file.call_count == no_of_records / flush_size + 1
