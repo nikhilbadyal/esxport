@@ -39,7 +39,7 @@ class CliOptions(object):
         self.client_cert = myclass_kwargs["ca_certs"]
         self.client_key = myclass_kwargs["ca_certs"]
         self.debug: bool = myclass_kwargs["debug"]
-        self.format: str = ".csv"
+        self.format: str = "csv"
 
     def __str__(self: Self) -> str:
         """Print the class."""
