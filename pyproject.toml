@@ -105,3 +105,6 @@ skip_empty = true
 show_missing=true
 sort="-Stmts"
 omit = ["test/**"]
+exclude_lines = [
+    'if TYPE_CHECKING:'
+    ]
