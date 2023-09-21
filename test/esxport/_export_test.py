@@ -22,6 +22,11 @@ class TestExport:
         """Cleaer up resources."""
         Path(f"{file_name}.tmp").unlink(missing_ok=True)
 
+    @staticmethod
+    def rm_csv_export_file(file_name: str) -> None:
+        """Cleaer up resources."""
+        Path(file_name).unlink(missing_ok=True)
+
     def test_export_with_valid_arguments(
         self: Self,
         _: Any,
