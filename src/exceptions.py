@@ -19,3 +19,7 @@ class MetaFieldNotFoundError(FieldNotFoundError):
 
 class ESConnectionError(EsXportError):
     """Elasticsearch connection error."""
+
+
+class ScrollExpiredError(EsXportError):
+    """When scroll expires."""

@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any
 import elasticsearch
 
 from src.constant import CONNECTION_TIMEOUT
+from src.exceptions import ScrollExpiredError
 
 if TYPE_CHECKING:
     from typing_extensions import Self
@@ -44,7 +45,11 @@ class ElasticsearchClient:
 
     def scroll(self: Self, scroll: str, scroll_id: str) -> Any:
         """Paginated the search results."""
-        return self.client.scroll(scroll=scroll, scroll_id=scroll_id)
+        try:
+            return self.client.scroll(scroll=scroll, scroll_id=scroll_id)
+        except elasticsearch.NotFoundError as e:
+            msg = f"Scroll {scroll_id} expired."
+            raise ScrollExpiredError(msg) from e
 
     def clear_scroll(self: Self, scroll_id: str) -> None:
         """Remove all scrolls."""
