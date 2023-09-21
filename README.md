@@ -7,7 +7,7 @@ An adept Python CLI utility designed for querying Elasticsearch and exporting re
 Requirements
 ------------
 1. This tool should be used with Elasticsearch 8.x version.
-2. You also need `Python 3.11.x`.
+2. You also need >= `Python 3.8.x`.
 
 Installation
 ------------
