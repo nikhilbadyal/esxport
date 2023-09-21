@@ -10,7 +10,7 @@ import pytest
 from typing_extensions import Self
 
 from src.esxport import EsXport
-from src.exceptions import MetaFieldNotFoundError
+from src.exceptions import MetaFieldNotFoundError, ScrollExpiredError
 
 
 class TestVSearchQuery:
@@ -99,3 +99,18 @@ class TestVSearchQuery:
         ):
             esxport_obj_with_data.search_query()
             assert mock_flush_to_file.call_count == no_of_records / flush_size + 1
+
+    def test_function_exits_when_scroll_expire(self: Self, mocker: Mock, esxport_obj_with_data: EsXport) -> None:
+        """Test function exist when scroll expires."""
+        esxport_obj_with_data.opts.output_file = f"{inspect.stack()[0].function}.csv"
+        flush_size = 1
+        mocker.patch.object(
+            esxport_obj_with_data.es_client,
+            "scroll",
+            side_effect=ScrollExpiredError("abc"),
+        )
+        with patch("src.esxport.FLUSH_BUFFER", flush_size), patch.object(esxport_obj_with_data, "num_results", 4):
+            esxport_obj_with_data.search_query()
+            assert Path(f"{esxport_obj_with_data.opts.output_file}.tmp").exists() is True
+            assert Path(esxport_obj_with_data.opts.output_file).exists() is False
+            TestExport.rm_export_file(f"{inspect.stack()[0].function}.csv")

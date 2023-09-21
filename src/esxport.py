@@ -127,9 +127,6 @@ class EsXport(object):
                 if res["_scroll_id"] not in self.scroll_ids:
                     self.scroll_ids.append(res["_scroll_id"])
 
-                if not res["hits"]["hits"]:
-                    logger.error("Scroll expired(multiple reads?). Saving loaded data.")
-                    break
                 for hit in res["hits"]["hits"]:
                     self.rows_written += 1
                     bar.update(1)
