@@ -12,7 +12,7 @@ from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_ex
 from tqdm import tqdm
 
 from src.constant import FLUSH_BUFFER, TIMES_TO_TRY
-from src.exceptions import FieldNotFoundError, IndexNotFoundError, MetaFieldNotFoundError
+from src.exceptions import FieldNotFoundError, IndexNotFoundError, MetaFieldNotFoundError, ScrollExpiredError
 from src.strings import index_not_found, meta_field_not_found, output_fields, sorting_by, using_indexes, using_query
 from src.writer import Writer
 
@@ -122,26 +122,27 @@ class EsXport(object):
             unit="docs",
             colour="green",
         )
+        try:
+            while self.rows_written != total_size:
+                if res["_scroll_id"] not in self.scroll_ids:
+                    self.scroll_ids.append(res["_scroll_id"])
 
-        while self.rows_written != total_size:
-            if res["_scroll_id"] not in self.scroll_ids:
-                self.scroll_ids.append(res["_scroll_id"])
-
-            if not res["hits"]["hits"]:
-                logger.info(
-                    f'Scroll[{res["_scroll_id"]}] expired(multiple reads?). Saving loaded data.',
-                )
-                break
-            for hit in res["hits"]["hits"]:
-                self.rows_written += 1
-                bar.update(1)
-                hit_list.append(hit)
-                if len(hit_list) == FLUSH_BUFFER:
-                    self._flush_to_file(hit_list)
-                    hit_list = []
-            res = self.next_scroll(res["_scroll_id"])
-        bar.close()
-        self._flush_to_file(hit_list)
+                if not res["hits"]["hits"]:
+                    logger.error("Scroll expired(multiple reads?). Saving loaded data.")
+                    break
+                for hit in res["hits"]["hits"]:
+                    self.rows_written += 1
+                    bar.update(1)
+                    hit_list.append(hit)
+                    if len(hit_list) == FLUSH_BUFFER:
+                        self._flush_to_file(hit_list)
+                        hit_list = []
+                res = self.next_scroll(res["_scroll_id"])
+        except ScrollExpiredError:
+            logger.error("Scroll expired(multiple reads?). Saving loaded data.")
+        finally:
+            bar.close()
+            self._flush_to_file(hit_list)
 
     @retry(
         wait=wait_exponential(2),
