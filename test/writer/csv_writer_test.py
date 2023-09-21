@@ -57,4 +57,4 @@ class TestWriter:
         assert len(csv_data) == self.no_of_records, "Record count does not match"
         assert csv_data == self.fake_data, "Generated data does not match with written data"
 
-        TestExport.rm_export_file(f"{inspect.stack()[0].function}.csv")
+        TestExport.rm_csv_export_file(out_file)

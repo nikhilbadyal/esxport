@@ -44,7 +44,7 @@ class TestVSearchQuery:
 
     def test_data_flused_when_results_are_non_zero1(self: Self, mocker: Mock, esxport_obj_with_data: EsXport) -> None:
         """Test that export is not called if no of records are zero."""
-        self.out_file = esxport_obj_with_data.opts.output_file
+        esxport_obj_with_data.opts.output_file = f"{inspect.stack()[0].function}.csv"
         mocker.patch.object(
             esxport_obj_with_data,
             "_validate_fields",
@@ -67,6 +67,7 @@ class TestVSearchQuery:
         with Path(f"{inspect.stack()[0].function}.csv.tmp").open() as f:
             first_line = json.loads(f.readline().strip("\n"))
             assert first_line.keys() == esxport_obj_with_data.es_client.search()["hits"]["hits"][0]["_source"].keys()
+            TestExport.rm_export_file(f"{inspect.stack()[0].function}.csv")
 
     def test_invalid_meta_fields_raises_exception(
         self: Self,
@@ -74,7 +75,7 @@ class TestVSearchQuery:
         esxport_obj_with_data: EsXport,
     ) -> None:
         """Test that invalid meta fields raised exception."""
-        self.out_file = esxport_obj_with_data.opts.output_file
+        esxport_obj_with_data.opts.output_file = f"{inspect.stack()[0].function}.csv"
         random_strings = [TestSearchQuery.random_string(10) for _ in range(5)]
         esxport_obj_with_data.opts.meta_fields = random_strings
         mocker.patch.object(
@@ -84,6 +85,7 @@ class TestVSearchQuery:
         )
         with pytest.raises(MetaFieldNotFoundError):
             esxport_obj_with_data.search_query()
+        TestExport.rm_export_file(f"{inspect.stack()[0].function}.csv")
 
     def test_data_is_flused_on_buffer_hit(
         self: Self,
