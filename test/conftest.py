@@ -1,6 +1,7 @@
 """Conftest for Pytest."""
 from __future__ import annotations
 
+import sys
 from typing import Any
 from unittest.mock import Mock
 
@@ -108,3 +109,10 @@ def esxport_obj(cli_options: CliOptions, es_client_without_data: Mock) -> EsXpor
 def esxport_obj_with_data(cli_options: CliOptions, es_client_with_data: Mock) -> EsXport:
     """Mocked EsXport class."""
     return EsXport(cli_options, es_client_with_data)
+
+
+@pytest.fixture(autouse=True)
+def _capture_wrap() -> None:
+    """Avoid https://github.com/pytest-dev/pytest/issues/5502."""
+    sys.stderr.close = lambda *args: None  # type: ignore[method-assign] #noqa: ARG005
+    sys.stdout.close = lambda *args: None  # type: ignore[method-assign] #noqa: ARG005
