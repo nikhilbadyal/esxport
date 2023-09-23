@@ -4,6 +4,7 @@ elasticsearch==8.9.0
 Faker==19.6.2
 loguru==0.7.2
 pytest==7.4.2
+pytest-click==1.1.0
 pytest-cov==4.1.0
 pytest-emoji==0.2.0
 pytest-loguru==0.2.0
