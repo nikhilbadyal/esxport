@@ -1,7 +1,9 @@
 """Click CLI test cases."""
 import inspect
+import json
 from pathlib import Path
 from test.esxport._export_test import TestExport
+from test.esxport._prepare_search_query_test import TestSearchQuery
 from unittest.mock import patch
 
 from click.testing import CliRunner
@@ -9,6 +11,7 @@ from typing_extensions import Self
 
 from src.esxport import EsXport
 from src.esxport_cli import cli
+from src.strings import invalid_query_format, invalid_sort_format
 
 args = {
     "q": '{"query":{"match_all":{}}}',
@@ -16,6 +19,8 @@ args = {
     "i": "index1",
 }
 usage_error_code = 2
+random_pass = "password\n"  # noqa: S105
+export_module = "src.esxport.EsXport"
 
 
 # noinspection PyTypeChecker
@@ -46,7 +51,7 @@ class TestCli:
     def test_mandatory(self: Self, cli_runner: CliRunner, esxport_obj_with_data: EsXport) -> None:
         """Test Index param is mandatory."""
         esxport_obj_with_data.opts.output_file = f"{inspect.stack()[0].function}.csv"
-        with patch("src.esxport.EsXport", return_value=esxport_obj_with_data):
+        with patch(export_module, return_value=esxport_obj_with_data):
             result = cli_runner.invoke(
                 cli,
                 ["-q", args["q"], "-o", args["o"], "-i", args["i"]],
@@ -58,3 +63,68 @@ class TestCli:
             lines = len(fp.readlines())
             assert lines == esxport_obj_with_data.es_client.search()["hits"]["total"]["value"] + 1  # 1 for header
         TestExport.rm_csv_export_file(esxport_obj_with_data.opts.output_file)
+
+    def test_sort_type(self: Self, cli_runner: CliRunner, esxport_obj_with_data: EsXport) -> None:
+        """Test sort type is asc or desc."""
+        esxport_obj_with_data.opts.output_file = f"{inspect.stack()[0].function}.csv"
+        random_string = TestSearchQuery.random_string(10)
+        with patch(export_module, return_value=esxport_obj_with_data):
+            result = cli_runner.invoke(
+                cli,
+                ["-q", args["q"], "-o", args["o"], "-i", args["i"], "-S", f"field:{random_string}"],
+                input=random_pass,
+                catch_exceptions=False,
+            )
+            error_msg = f"Error: Invalid value for '-S' / '--sort': Invalid sort type {random_string}."
+            assert error_msg in result.output
+            assert result.exit_code == usage_error_code
+
+            result = cli_runner.invoke(
+                cli,
+                ["-q", args["q"], "-o", args["o"], "-i", args["i"], "-S", "field:desc"],
+                input=random_pass,
+                catch_exceptions=False,
+            )
+            error_msg = f"Error: Invalid value for '-S' / '--sort': Invalid sort type {random_string}."
+            assert error_msg not in result.output
+            assert result.exit_code == 0
+            TestExport.rm_csv_export_file(esxport_obj_with_data.opts.output_file)
+
+    def test_sort_format(self: Self, cli_runner: CliRunner, esxport_obj_with_data: EsXport) -> None:
+        """Test sort input is in the form field:sort_order."""
+        esxport_obj_with_data.opts.output_file = f"{inspect.stack()[0].function}.csv"
+        random_string = TestSearchQuery.random_string(10)
+        with patch(export_module, return_value=esxport_obj_with_data):
+            result = cli_runner.invoke(
+                cli,
+                ["-q", args["q"], "-o", args["o"], "-i", args["i"], "-S", f"field@{random_string}"],
+                input=random_pass,
+                catch_exceptions=False,
+            )
+            error_msg = invalid_sort_format.format(value=f"field@{random_string}")
+            assert error_msg in result.output
+            assert result.exit_code == usage_error_code
+
+    def test_query_accepts_dict(self: Self, cli_runner: CliRunner, esxport_obj_with_data: EsXport) -> None:
+        """Test sort input is in the form field:sort_order."""
+        esxport_obj_with_data.opts.output_file = f"{inspect.stack()[0].function}.csv"
+        with patch(export_module, return_value=esxport_obj_with_data):
+            result = cli_runner.invoke(
+                cli,
+                ["-q", json.dumps(args["q"]), "-o", args["o"], "-i", args["i"]],
+                input=random_pass,
+                catch_exceptions=False,
+            )
+            assert result.exit_code == 0
+
+    def test_error_is_rasied_on_invalid_json(self: Self, cli_runner: CliRunner) -> None:
+        """Test sort input is in the form field:sort_order."""
+        result = cli_runner.invoke(
+            cli,
+            ["-q", "@", "-o", args["o"], "-i", args["i"]],
+            input=random_pass,
+            catch_exceptions=False,
+        )
+        json_error_message = invalid_query_format.format(value="@", exc="")
+        assert json_error_message in result.output
+        assert result.exit_code == usage_error_code

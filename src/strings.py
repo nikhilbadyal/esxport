@@ -5,4 +5,5 @@ using_query = "Using query: {query}."
 output_fields = "Output fields : {fields}."
 sorting_by = "Sorting by: {sort}."
 meta_field_not_found = "Meta Field {field} not found"
-meta_field_not_found = "Meta Field {field} not found"
+invalid_sort_format = 'Invalid input format: "{value}". Use the format "field:sort_order".'
+invalid_query_format = "{value} is not a valid json string, caused {exc}"

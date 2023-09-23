@@ -63,6 +63,7 @@ class TestExport:
         with Path(f"{esxport_obj.opts.output_file}.tmp").open(mode="w", encoding="utf-8") as tmp_file:
             tmp_file.write(json.dumps(test_json))
             tmp_file.write("\n")
+        assert Path(f"{esxport_obj.opts.output_file}.tmp").exists() is True
         keys = list(test_json.keys())
         assert esxport_obj._extract_headers() == keys
         TestExport.rm_export_file(f"{inspect.stack()[0].function}.csv")
