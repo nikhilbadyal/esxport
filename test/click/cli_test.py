@@ -9,9 +9,10 @@ from unittest.mock import patch
 from click.testing import CliRunner
 from typing_extensions import Self
 
+from src.__init__ import __version__
 from src.esxport import EsXport
 from src.esxport_cli import cli
-from src.strings import invalid_query_format, invalid_sort_format
+from src.strings import cli_version, invalid_query_format, invalid_sort_format
 
 args = {
     "q": '{"query":{"match_all":{}}}',
@@ -129,3 +130,14 @@ class TestCli:
         json_error_message = invalid_query_format.format(value="@", exc="")
         assert json_error_message in result.output
         assert result.exit_code == usage_error_code
+
+    def test_cli_version_check(self: Self, cli_runner: CliRunner) -> None:
+        """Test version is printed correctly."""
+        result = cli_runner.invoke(
+            cli,
+            ["-v"],
+            catch_exceptions=False,
+        )
+        version_message = cli_version.format(__version__=__version__)
+        assert version_message == result.output.strip()
+        assert result.exit_code == 0

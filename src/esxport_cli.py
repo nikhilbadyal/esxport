@@ -13,6 +13,7 @@ from src.click_opt.cli_options import CliOptions
 from src.click_opt.click_custom import JSON, sort
 from src.constant import META_FIELDS
 from src.elastic import ElasticsearchClient
+from src.strings import cli_version
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -22,7 +23,7 @@ def print_version(ctx: Context, _: Parameter, value: bool) -> None:  # noqa: FBT
     """Print Version information."""
     if not value or ctx.resilient_parsing:
         return
-    click.echo(f"EsXport Cli {__version__}")
+    click.echo(cli_version.format(__version__=__version__))
     ctx.exit()
 
 
