@@ -12,3 +12,5 @@ build
 *query.json
 **coverage**
 **version
+**scannerwork**
+sonar-project.properties
