@@ -23,7 +23,7 @@ class ElasticsearchClient:
     ) -> None:
         self.client = elasticsearch.Elasticsearch(
             hosts=cli_options.url,
-            timeout=CONNECTION_TIMEOUT,
+            request_timeout=CONNECTION_TIMEOUT,
             basic_auth=(cli_options.user, cli_options.password),
             verify_certs=cli_options.verify_certs,
             ca_certs=cli_options.ca_certs,
