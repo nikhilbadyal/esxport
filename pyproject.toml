@@ -111,5 +111,6 @@ show_missing=true
 sort="-Stmts"
 omit = ["test/**"]
 exclude_lines = [
-    'if TYPE_CHECKING:'
+    'if TYPE_CHECKING:',
+    'if __name__ == "__main__":'
     ]
