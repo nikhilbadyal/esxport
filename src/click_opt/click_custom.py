@@ -7,6 +7,8 @@ from typing import TYPE_CHECKING, Any
 from click import Context, Parameter, ParamType
 from click_params.miscellaneous import JsonParamType
 
+from src.strings import invalid_query_format, invalid_sort_format
+
 if TYPE_CHECKING:
     from typing_extensions import Self
 
@@ -35,13 +37,9 @@ class Sort(ParamType):
         except FormatError as e:
             self.fail(str(e), param, ctx)
         except ValueError:
-            self.fail(f'Invalid input format: "{value}". Use the format "field:sort_order".', param, ctx)
+            self.fail(invalid_sort_format.format(value=value), param, ctx)
         else:
             return {field: sort_order}
-
-    def __repr__(self: Self) -> str:
-        """Return a string representation."""
-        return str(self.name)
 
 
 sort = Sort()
@@ -55,8 +53,6 @@ class Json(JsonParamType):  # type: ignore[misc]
     def convert(self: Self, value: Any, param: Parameter, ctx: Context) -> dict[str, Any]:  # type: ignore[return]
         """Convert input to json."""
         try:
-            if isinstance(value, dict):
-                return value
             return json.loads(  # type: ignore[no-any-return]
                 value,
                 cls=self._cls,
@@ -68,11 +64,7 @@ class Json(JsonParamType):  # type: ignore[misc]
                 **self._kwargs,
             )
         except json.JSONDecodeError as exc:
-            self.fail(f"{value} is not a valid json string, caused {exc}", param, ctx)
-
-    def __repr__(self: Self) -> str:
-        """String representation of the object."""
-        return self.name.upper()
+            self.fail(invalid_query_format.format(value=value, exc=exc), param, ctx)
 
 
 JSON = Json()
