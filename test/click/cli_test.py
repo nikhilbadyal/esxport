@@ -116,6 +116,7 @@ class TestCli:
                 catch_exceptions=False,
             )
             assert result.exit_code == 0
+            TestExport.rm_csv_export_file(esxport_obj_with_data.opts.output_file)
 
     def test_error_is_rasied_on_invalid_json(self: Self, cli_runner: CliRunner) -> None:
         """Test sort input is in the form field:sort_order."""
