@@ -55,6 +55,8 @@ class Json(JsonParamType):  # type: ignore[misc]
     def convert(self: Self, value: Any, param: Parameter, ctx: Context) -> dict[str, Any]:  # type: ignore[return]
         """Convert input to json."""
         try:
+            if isinstance(value, dict):
+                return value
             return json.loads(  # type: ignore[no-any-return]
                 value,
                 cls=self._cls,
