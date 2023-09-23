@@ -5,8 +5,8 @@ from unittest.mock import Mock
 import pytest
 from typing_extensions import Self
 
-from src.esxport import EsXport
-from src.exceptions import FieldNotFoundError
+from esxport.esxport import EsXport
+from esxport.exceptions import FieldNotFoundError
 
 
 class TestValidateFields:

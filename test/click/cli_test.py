@@ -9,10 +9,10 @@ from unittest.mock import patch
 from click.testing import CliRunner
 from typing_extensions import Self
 
-from src.__init__ import __version__
-from src.esxport import EsXport
-from src.esxport_cli import cli
-from src.strings import cli_version, invalid_query_format, invalid_sort_format
+from esxport.__init__ import __version__
+from esxport.esxport import EsXport
+from esxport.esxport_cli import cli
+from esxport.strings import cli_version, invalid_query_format, invalid_sort_format
 
 args = {
     "q": '{"query":{"match_all":{}}}',
@@ -21,7 +21,7 @@ args = {
 }
 usage_error_code = 2
 random_pass = "password\n"  # noqa: S105
-export_module = "src.esxport.EsXport"
+export_module = "esxport.esxport.EsXport"
 
 
 # noinspection PyTypeChecker

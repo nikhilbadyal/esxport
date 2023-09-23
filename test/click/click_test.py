@@ -3,7 +3,7 @@ import json
 
 from typing_extensions import Self
 
-from src.click_opt.cli_options import CliOptions
+from esxport.click_opt.cli_options import CliOptions
 
 
 class TestClick:

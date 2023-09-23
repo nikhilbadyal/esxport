@@ -7,8 +7,8 @@ from unittest.mock import Mock
 
 import pytest
 
-from src.click_opt.cli_options import CliOptions
-from src.esxport import EsXport
+from esxport.click_opt.cli_options import CliOptions
+from esxport.esxport import EsXport
 
 
 @pytest.fixture()

@@ -7,14 +7,14 @@ from unittest import mock
 import pytest
 from elasticsearch.exceptions import ConnectionError
 
-from src.constant import TIMES_TO_TRY
+from esxport.constant import TIMES_TO_TRY
 
 if TYPE_CHECKING:
     from unittest.mock import Mock
 
     from typing_extensions import Self
 
-    from src.esxport import EsXport
+    from esxport.esxport import EsXport
 
 
 class TestRetry:

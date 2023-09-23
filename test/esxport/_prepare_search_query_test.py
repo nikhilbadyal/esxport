@@ -8,16 +8,16 @@ from unittest.mock import patch
 
 import pytest
 
-from src.exceptions import IndexNotFoundError
-from src.strings import index_not_found, output_fields, sorting_by, using_indexes
+from esxport.exceptions import IndexNotFoundError
+from esxport.strings import index_not_found, output_fields, sorting_by, using_indexes
 
 if TYPE_CHECKING:
     from typing_extensions import Self
 
-    from src.esxport import EsXport
+    from esxport.esxport import EsXport
 
 
-@patch("src.esxport.EsXport._validate_fields")
+@patch("esxport.esxport.EsXport._validate_fields")
 class TestSearchQuery:
     """Tests that a search query with valid input parameters is successful."""
 

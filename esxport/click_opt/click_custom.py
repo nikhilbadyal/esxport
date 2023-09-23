@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any
 from click import Context, Parameter, ParamType
 from click_params.miscellaneous import JsonParamType
 
-from src.strings import invalid_query_format, invalid_sort_format
+from esxport.strings import invalid_query_format, invalid_sort_format
 
 if TYPE_CHECKING:
     from typing_extensions import Self
