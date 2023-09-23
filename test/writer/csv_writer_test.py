@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any
 
 from faker import Faker
 
-from src.writer import Writer
+from esxport.writer import Writer
 
 if TYPE_CHECKING:
     from typing_extensions import Self

@@ -9,8 +9,8 @@ from unittest.mock import Mock, patch
 import pytest
 from typing_extensions import Self
 
-from src.esxport import EsXport
-from src.exceptions import MetaFieldNotFoundError, ScrollExpiredError
+from esxport.esxport import EsXport
+from esxport.exceptions import MetaFieldNotFoundError, ScrollExpiredError
 
 
 class TestVSearchQuery:
@@ -96,7 +96,7 @@ class TestVSearchQuery:
         no_of_records = data["hits"]["total"]["value"]
         flush_size = 1
         with patch.object(esxport_obj_with_data, "_flush_to_file") as mock_flush_to_file, patch(
-            "src.esxport.FLUSH_BUFFER",
+            "esxport.esxport.FLUSH_BUFFER",
             flush_size,
         ):
             esxport_obj_with_data.search_query()
@@ -111,7 +111,7 @@ class TestVSearchQuery:
             "scroll",
             side_effect=ScrollExpiredError("abc"),
         )
-        with patch("src.esxport.FLUSH_BUFFER", flush_size), patch.object(esxport_obj_with_data, "num_results", 4):
+        with patch("esxport.esxport.FLUSH_BUFFER", flush_size), patch.object(esxport_obj_with_data, "num_results", 4):
             esxport_obj_with_data.search_query()
             assert Path(f"{esxport_obj_with_data.opts.output_file}.tmp").exists() is True
             assert Path(esxport_obj_with_data.opts.output_file).exists() is False

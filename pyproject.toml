@@ -49,11 +49,11 @@ dependencies = [
 Homepage = "https://github.com/nikhilbadyal/esxport"
 Repository = "https://github.com/nikhilbadyal/esxport.git"
 [project.scripts]
-esxport = "src.esxport_cli:cli"
+esxport = "esxport.esxport_cli:cli"
 
 
 [tool.hatch.version]
-path = "src/__init__.py"
+path = "esxport/__init__.py"
 
 [tool.ruff]
 line-length = 120
@@ -95,7 +95,7 @@ warn_redundant_casts = true
 warn_unused_configs = true
 
 [tools.pytest]
-pythonpath = ["src"]
+pythonpath = ["esxport"]
 
 [tool.pytest.ini_options]
 addopts = "--cov=. --cov-report=xml --cov-report term-missing --ff -x --no-cov-on-fail --emoji -n4"

@@ -7,13 +7,13 @@ import click
 from click import Context, Parameter
 from click_params import URL
 
-from src import esxport
-from src.__init__ import __version__
-from src.click_opt.cli_options import CliOptions
-from src.click_opt.click_custom import JSON, sort
-from src.constant import META_FIELDS
-from src.elastic import ElasticsearchClient
-from src.strings import cli_version
+from esxport import esxport
+from esxport.__init__ import __version__
+from esxport.click_opt.cli_options import CliOptions
+from esxport.click_opt.click_custom import JSON, sort
+from esxport.constant import META_FIELDS
+from esxport.elastic import ElasticsearchClient
+from esxport.strings import cli_version
 
 if TYPE_CHECKING:
     from pathlib import Path

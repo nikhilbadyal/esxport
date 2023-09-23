@@ -8,10 +8,10 @@ from unittest.mock import create_autospec, patch
 import pytest
 from typing_extensions import Self
 
-from src.esxport import EsXport
+from esxport.esxport import EsXport
 
 
-@patch("src.esxport.EsXport._validate_fields")
+@patch("esxport.esxport.EsXport._validate_fields")
 class TestExport:
     """Tests that the method exports the data with valid arguments."""
 
