@@ -240,7 +240,7 @@ def generate_test_csv(index_name: str, tmp_path_factory: TempPathFactory, worker
     root_tmp_dir = tmp_path_factory.getbasetemp().parent
 
     fn = root_tmp_dir / "data.json"
-    with FileLock(f"{str(fn)}.lock"):
+    with FileLock(f"{fn!s}.lock"):
         if fn.is_file():
             data = json.loads(fn.read_text())
         else:
