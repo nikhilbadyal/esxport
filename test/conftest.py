@@ -167,20 +167,23 @@ def generate_actions(dataset_path: str) -> Iterator[dict[str, Any]]:
         reader = csv.DictReader(f)
 
         for row in reader:
-            doc = {
+            yield {
                 "id": row["id"],
                 "name": row["name"],
                 "email": row["email"],
                 "phone": row["phone"],
                 "address": row["address"] or None,
             }
-            yield doc
 
 
 @pytest.fixture()
 def populate_data(es_index: str, elasticsearch_proc: Elasticsearch) -> Elasticsearch:
     """Populates the data in elastic instances."""
-    bulk(client=elasticsearch_proc, index=es_index, actions=generate_actions(es_index + ".csv"))
+    bulk(
+        client=elasticsearch_proc,
+        index=es_index,
+        actions=generate_actions(f"{es_index}.csv"),
+    )
     return elasticsearch_proc
 
 
@@ -237,7 +240,7 @@ def generate_test_csv(index_name: str, tmp_path_factory: TempPathFactory, worker
     root_tmp_dir = tmp_path_factory.getbasetemp().parent
 
     fn = root_tmp_dir / "data.json"
-    with FileLock(str(fn) + ".lock"):
+    with FileLock(f"{str(fn)}.lock"):
         if fn.is_file():
             data = json.loads(fn.read_text())
         else:
