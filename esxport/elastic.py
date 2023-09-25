@@ -4,6 +4,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 import elasticsearch
+from elasticsearch import Elasticsearch
 
 from esxport.constant import CONNECTION_TIMEOUT
 from esxport.exceptions import ScrollExpiredError
@@ -21,7 +22,7 @@ class ElasticsearchClient:
         self: Self,
         cli_options: CliOptions,
     ) -> None:
-        self.client = elasticsearch.Elasticsearch(
+        self.client: Elasticsearch = elasticsearch.Elasticsearch(
             hosts=cli_options.url,
             request_timeout=CONNECTION_TIMEOUT,
             basic_auth=(cli_options.user, cli_options.password),
