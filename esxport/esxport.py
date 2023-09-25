@@ -187,7 +187,7 @@ class EsXport(object):
         """Extract CSV headers from the first line of the file."""
         file_name = f"{self.opts.output_file}.tmp"
         with Path(file_name).open() as f:
-            first_line = json.loads(f.readline().strip("\n"))
+            first_line = json.loads(f.readline())
             return list(first_line.keys())
 
     def _export(self: Self) -> None:

@@ -62,9 +62,6 @@ class TestExport:
         test_json = {"age": 2, "bar": "foo", "hello": "world"}
         temp_file = f"{esxport_obj.opts.output_file}.tmp"
         with Path(temp_file).open("w") as tmp_file:
-            tmp_file.write(json.dumps(test_json))
-            tmp_file.write("\n")
-        assert Path(temp_file).exists() is True
-        keys = list(test_json.keys())
-        assert esxport_obj._extract_headers() == keys
+            json.dump(test_json, tmp_file)
+        assert esxport_obj._extract_headers() == list(test_json.keys())
         TestExport.rm_export_file(f"{inspect.stack()[0].function}.csv")
