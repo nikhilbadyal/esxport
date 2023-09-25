@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import csv
-import json
 import os
 import sys
 from pathlib import Path
@@ -14,7 +13,6 @@ import pytest
 from dotenv import load_dotenv
 from elasticsearch.helpers import bulk
 from faker import Faker
-from filelock import FileLock
 from pytest_elasticsearch import factories
 
 from esxport.click_opt.cli_options import CliOptions
@@ -22,7 +20,6 @@ from esxport.elastic import ElasticsearchClient
 from esxport.esxport import EsXport
 
 if TYPE_CHECKING:
-    from _pytest.tmpdir import TempPathFactory
     from elasticsearch import Elasticsearch
 
 load_dotenv(Path(Path(__file__).resolve().parent, ".env"))
@@ -144,7 +141,7 @@ def _capture_wrap() -> None:
     sys.stdout.close = lambda *args: None  # type: ignore[method-assign] #noqa: ARG005
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 def index_name() -> str:
     """Index name."""
     return TestSearchQuery.random_string(10).lower()
@@ -177,12 +174,14 @@ def generate_actions(dataset_path: str) -> Iterator[dict[str, Any]]:
 
 
 @pytest.fixture()
-def populate_data(es_index: str, elasticsearch_proc: Elasticsearch) -> Elasticsearch:
+def populate_data(generate_test_csv: str, elasticsearch_proc: Elasticsearch) -> Elasticsearch:
     """Populates the data in elastic instances."""
+    path = Path(generate_test_csv)
+    index_name = path.stem
     bulk(
         client=elasticsearch_proc,
-        index=es_index,
-        actions=generate_actions(f"{es_index}.csv"),
+        index=index_name,
+        actions=generate_actions(f"{index_name}.csv"),
     )
     return elasticsearch_proc
 
@@ -227,26 +226,10 @@ def _create_csv(csv_file_name: str) -> None:
             writer.writerow([i, name, email, phone, address])
 
 
-# https://github.com/pytest-dev/pytest-xdist/issues/271
-@pytest.fixture(scope="session")
-def generate_test_csv(index_name: str, tmp_path_factory: TempPathFactory, worker_id: str) -> Iterator[str]:
+@pytest.fixture()
+def generate_test_csv(es_index: str) -> Iterator[str]:
     """Generate random csv for testing."""
-    csv_file_name = f"{index_name}.csv"
-
-    if worker_id == "master":
-        yield csv_file_name
-
-    # get the temp directory shared by all workers
-    root_tmp_dir = tmp_path_factory.getbasetemp().parent
-
-    fn = root_tmp_dir / "data.json"
-    with FileLock(f"{fn!s}.lock"):
-        if fn.is_file():
-            data = json.loads(fn.read_text())
-        else:
-            _create_csv(csv_file_name)
-            data = csv_file_name
-            fn.write_text(json.dumps(data))
-
-    yield data
-    Path(csv_file_name).unlink(missing_ok=True)
+    csv_file_name = f"{es_index}.csv"
+    _create_csv(csv_file_name)
+    yield csv_file_name
+    Path(csv_file_name).unlink()
