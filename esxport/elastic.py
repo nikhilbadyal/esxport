@@ -48,10 +48,10 @@ class ElasticsearchClient:
         """Paginated the search results."""
         try:
             return self.client.scroll(scroll=scroll, scroll_id=scroll_id)
-        except elasticsearch.NotFoundError as e:
-            msg = f"Scroll {scroll_id} expired."
+        except (elasticsearch.NotFoundError, elasticsearch.AuthorizationException) as e:
+            msg = f"Scroll {scroll_id} expired or {e}."
             raise ScrollExpiredError(msg) from e
 
-    def clear_scroll(self: Self, scroll_id: str) -> None:
+    def clear_scroll(self: Self, scroll_id: str) -> Any:
         """Remove all scrolls."""
-        self.client.clear_scroll(scroll_id=scroll_id)
+        return self.client.clear_scroll(scroll_id=scroll_id)

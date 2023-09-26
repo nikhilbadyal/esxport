@@ -205,11 +205,14 @@ def populate_data(generate_test_csv: str, elasticsearch_proc: Elasticsearch) -> 
 def elastic_client(
     cli_options: CliOptions,
     populate_data: Elasticsearch,
-    generate_test_csv: str,  # noqa: ARG001
+    generate_test_csv: str,
 ) -> Iterator[ElasticsearchClient]:
     """Patches Elasticsearch client."""
     es_client = ElasticsearchClient(cli_options)
+    path = Path(generate_test_csv)
+    index_name = path.stem
     with patch.object(es_client, "client", populate_data):
+        es_client.client.indices.refresh(index=index_name)
         yield es_client
 
 
