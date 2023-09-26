@@ -5,6 +5,12 @@ source test/.env
 set +o allexport
 set -euxo pipefail
 
+# Check if SKIP_ES_SETUP is set to 1 (skip if set to 1)
+if [ "${SKIP_ES_SETUP:-0}" = "1" ]; then
+  echo "Skipping Elasticsearch setup as SKIP_ES_SETUP is set to 1."
+  exit 0
+fi
+
 if [[ -z $STACK_VERSION ]]; then
   echo -e "\033[31;1mERROR:\033[0m Required environment variable [STACK_VERSION] not set\033[0m"
   exit 1
