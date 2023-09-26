@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import csv
 import os
+import subprocess
 import sys
 from pathlib import Path
 from test.esxport._prepare_search_query_test import TestSearchQuery
@@ -20,10 +21,11 @@ from esxport.elastic import ElasticsearchClient
 from esxport.esxport import EsXport
 
 if TYPE_CHECKING:
+    from _pytest.config import Config
     from elasticsearch import Elasticsearch
 
 load_dotenv(Path(Path(__file__).resolve().parent, ".env"))
-
+STATUS_OK = 0
 elasticsearch_nooproc = factories.elasticsearch_noproc(
     port=9200,
     scheme="https",
@@ -139,6 +141,19 @@ def _capture_wrap() -> None:
     """Avoid https://github.com/pytest-dev/pytest/issues/5502."""
     sys.stderr.close = lambda *args: None  # type: ignore[method-assign] #noqa: ARG005
     sys.stdout.close = lambda *args: None  # type: ignore[method-assign] #noqa: ARG005
+
+
+# https://github.com/pytest-dev/pytest-xdist/issues/783#issuecomment-1127602632
+def pytest_configure(config: Config) -> None:
+    """Setup Elasticsearch."""
+    if hasattr(config, "workerinput"):
+        return
+    path = "./test/es_bootstrap.sh"
+    if Path(path).exists():
+        # https://github.com/astral-sh/ruff/issues/4045
+        status = subprocess.call(path)  # noqa: S603
+        if status > STATUS_OK:
+            pytest.fail("Failed to start elasticsearch server.", pytrace=False)
 
 
 @pytest.fixture()

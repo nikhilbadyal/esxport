@@ -139,8 +139,8 @@ if [ "x${MAJOR_VERSION}" == 'x8' ] && [ "${SECURITY_ENABLED}" == 'true' ]; then
     --network elastic \
     --rm \
     alpine/curl \
-    --max-time 120 \
-    --retry 120 \
+    --max-time 10 \
+    --retry 60 \
     --retry-delay 1 \
     --retry-connrefused \
     --show-error \
@@ -153,8 +153,8 @@ else
     --network elastic \
     --rm \
     alpine/curl \
-    --max-time 120 \
-    --retry 120 \
+    --max-time 10 \
+    --retry 60 \
     --retry-delay 1 \
     --retry-connrefused \
     --show-error \
