@@ -1,6 +1,6 @@
 click==8.1.7
 click-params==0.4.1
-elasticsearch==8.9.0
+elasticsearch==8.10.0
 Faker==19.6.2
 filelock==3.12.4
 loguru==0.7.2
