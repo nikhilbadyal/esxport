@@ -5,7 +5,6 @@ import json
 from typing import TYPE_CHECKING, Any
 
 from click import Context, Parameter, ParamType
-from click_params.miscellaneous import JsonParamType
 
 from esxport.strings import invalid_query_format, invalid_sort_format
 
@@ -45,24 +44,16 @@ class Sort(ParamType):
 sort = Sort()
 
 
-class Json(JsonParamType):  # type: ignore[misc]
+class Json(ParamType):
     """Json Validator."""
 
     name = "json"
 
-    def convert(self: Self, value: Any, param: Parameter, ctx: Context) -> dict[str, Any]:  # type: ignore[return]
+    def convert(self: Self, value: Any, param: Parameter | None, ctx: Context | None) -> dict[str, Any]:
         """Convert input to json."""
         try:
-            return json.loads(  # type: ignore[no-any-return]
-                value,
-                cls=self._cls,
-                object_hook=self._object_hook,
-                parse_float=self._parse_float,
-                parse_int=self._parse_int,
-                parse_constant=self._parse_constant,
-                object_pairs_hook=self._object_pairs_hook,
-                **self._kwargs,
-            )
+            return json.loads(value)  # type: ignore[no-any-return]
+
         except json.JSONDecodeError as exc:
             self.fail(invalid_query_format.format(value=value, exc=exc), param, ctx)
 

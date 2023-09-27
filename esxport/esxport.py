@@ -114,7 +114,7 @@ class EsXport(object):
 
     def _write_to_temp_file(self: Self, res: Any) -> None:
         """Write to temp file."""
-        hit_list = []
+        hit_list: list[dict[str, Any]] = []
         total_size = int(min(self.opts.max_results, self.num_results))
         bar = tqdm(
             desc=f"{self.opts.output_file}.tmp",
