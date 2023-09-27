@@ -1,3 +1,3 @@
 """EsXport CLi."""
 
-__version__ = "8.9.0.2"
+__version__ = "8.10.0"
