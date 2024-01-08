@@ -52,10 +52,7 @@ class Json(ParamType):
     def convert(self: Self, value: Any, param: Parameter | None, ctx: Context | None) -> dict[str, Any]:
         """Convert input to json."""
         try:
-            if isinstance(value, dict):
-                return value
-            return json.loads(value)  # type: ignore[no-any-return]
-
+            return value if isinstance(value, dict) else json.loads(value)
         except json.JSONDecodeError as exc:
             self.fail(invalid_query_format.format(value=value, exc=exc), param, ctx)
 
