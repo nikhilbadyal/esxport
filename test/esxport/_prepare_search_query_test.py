@@ -93,9 +93,10 @@ class TestSearchQuery:
         """
         expected_query: dict[str, Any] = {"query": {"match_all": {}}}
         esxport_obj.opts.query = expected_query
+        actual_query = expected_query["query"]
 
         esxport_obj._prepare_search_query()
-        assert esxport_obj.search_args["body"] == expected_query
+        assert esxport_obj.search_args["query"] == actual_query
 
     def test_terminate_after(self: Self, _: Any, esxport_obj: EsXport) -> None:
         """Arr, matey!.

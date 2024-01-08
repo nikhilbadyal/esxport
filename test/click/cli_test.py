@@ -21,7 +21,7 @@ args = {
 }
 usage_error_code = 2
 random_pass = "password\n"  # noqa: S105
-export_module = "esxport.esxport.EsXport"
+export_module = "esxport.esxport_cli.EsXport"
 
 
 # noinspection PyTypeChecker

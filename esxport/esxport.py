@@ -16,6 +16,8 @@ from esxport.exceptions import FieldNotFoundError, IndexNotFoundError, MetaField
 from esxport.strings import index_not_found, meta_field_not_found, output_fields, sorting_by, using_indexes, using_query
 from esxport.writer import Writer
 
+from .click_opt.click_custom import Json
+
 if TYPE_CHECKING:
     from typing_extensions import Self
 
@@ -87,7 +89,7 @@ class EsXport(object):
             "scroll": self.scroll_time,
             "size": self.opts.scroll_size,
             "terminate_after": self.opts.max_results,
-            "body": self.opts.query,
+            "query": Json().convert(self.opts.query, None, None)["query"],
         }
         if self.opts.sort:
             self.search_args["sort"] = self.opts.sort
