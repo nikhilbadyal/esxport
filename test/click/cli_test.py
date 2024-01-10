@@ -56,7 +56,7 @@ class TestCli:
             result = cli_runner.invoke(
                 cli,
                 ["-q", args["q"], "-o", args["o"], "-i", args["i"]],
-                input="password\n",
+                input=random_pass,
                 catch_exceptions=False,
             )
             assert result.exit_code == 0
