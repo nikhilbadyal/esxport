@@ -53,7 +53,6 @@ class Json(ParamType):
         """Convert input to json."""
         try:
             return json.loads(value)  # type: ignore[no-any-return]
-
         except json.JSONDecodeError as exc:
             self.fail(invalid_query_format.format(value=value, exc=exc), param, ctx)
 
