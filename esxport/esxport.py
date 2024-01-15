@@ -99,7 +99,7 @@ class EsXport(object):
 
         if self.opts.debug:
             logger.debug(using_indexes.format(indexes={", ".join(self.opts.index_prefixes)}))
-            query = json.dumps(self.opts.query)
+            query = json.dumps(self.opts.query, default=str)
             logger.debug(using_query.format(query={query}))
             logger.debug(output_fields.format(fields={", ".join(self.opts.fields)}))
             logger.debug(sorting_by.format(sort=self.opts.sort))
