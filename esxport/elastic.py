@@ -32,7 +32,7 @@ class ElasticsearchClient:
             client_key=cli_options.client_key,
         )
 
-    def indices_exists(self: Self, index: str) -> bool:
+    def indices_exists(self: Self, index: str | list[str] | tuple[str, ...]) -> bool:
         """Check if a given index exists."""
         return bool(self.client.indices.exists(index=index))
 

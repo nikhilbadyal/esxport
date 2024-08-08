@@ -47,7 +47,7 @@ class TestExport:
         esxport_obj: EsXport,
     ) -> None:
         """Check if exception is raised when formatting is invalid."""
-        esxport_obj.opts.format = "invalid_format"
+        esxport_obj.opts.export_format = "invalid_format"
         with patch.object(EsXport, "_extract_headers", return_value=[]), pytest.raises(NotImplementedError):
             esxport_obj.export()
         TestExport.rm_export_file(f"{inspect.stack()[0].function}.csv")
