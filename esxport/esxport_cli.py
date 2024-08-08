@@ -11,7 +11,7 @@ from esxport import esxport
 from esxport.__init__ import __version__
 from esxport.click_opt.cli_options import CliOptions
 from esxport.click_opt.click_custom import JSON, sort
-from esxport.constant import META_FIELDS
+from esxport.constant import META_FIELDS, default_config_fields
 from esxport.elastic import ElasticsearchClient
 from esxport.strings import cli_version
 
@@ -48,14 +48,14 @@ def print_version(ctx: Context, _: Parameter, value: bool) -> None:  # noqa: FBT
     "--url",
     type=URL,
     required=False,
-    default="https://localhost:9200",
+    default=default_config_fields["url"],
     help="Elasticsearch host URL.",
 )
 @click.option(
     "-U",
     "--user",
     required=False,
-    default="elastic",
+    default=default_config_fields["user"],
     help="Elasticsearch basic authentication user.",
 )
 @click.password_option(
@@ -68,7 +68,7 @@ def print_version(ctx: Context, _: Parameter, value: bool) -> None:  # noqa: FBT
 @click.option(
     "-f",
     "--fields",
-    default=["_all"],
+    default=default_config_fields["fields"],
     multiple=True,
     help="List of _source fields to present be in output.",
 )
@@ -82,20 +82,20 @@ def print_version(ctx: Context, _: Parameter, value: bool) -> None:  # noqa: FBT
 @click.option(
     "-d",
     "--delimiter",
-    default=",",
+    default=default_config_fields["delimiter"],
     help="Delimiter to use in CSV file.",
 )
 @click.option(
     "-m",
     "--max-results",
-    default=10,
+    default=default_config_fields["max_results"],
     type=int,
     help="Maximum number of results to return.",
 )
 @click.option(
     "-s",
     "--scroll-size",
-    default=100,
+    default=default_config_fields["scroll_size"],
     type=int,
     help="Scroll size for each batch of results.",
 )
@@ -103,7 +103,7 @@ def print_version(ctx: Context, _: Parameter, value: bool) -> None:  # noqa: FBT
     "-e",
     "--meta-fields",
     type=click.Choice(META_FIELDS),
-    default=[],
+    default=default_config_fields["meta_fields"],
     multiple=True,
     help="Add meta-fields in output.",
 )
@@ -138,7 +138,7 @@ def print_version(ctx: Context, _: Parameter, value: bool) -> None:  # noqa: FBT
 @click.option(
     "--debug",
     is_flag=True,
-    default=False,
+    default=default_config_fields["debug"],
     help="Debug mode on.",
 )
 def cli(  # noqa: PLR0913

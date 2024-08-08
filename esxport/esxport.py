@@ -197,7 +197,7 @@ class EsXport(object):
         headers = self._extract_headers()
         kwargs = {
             "delimiter": self.opts.delimiter,
-            "output_format": self.opts.format,
+            "output_format": self.opts.export_format,
         }
         Writer.write(
             headers=headers,
