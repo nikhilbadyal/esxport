@@ -10,25 +10,23 @@ from elasticsearch.exceptions import ConnectionError
 from loguru import logger
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 from tqdm import tqdm
-
-from esxport.constant import FLUSH_BUFFER, TIMES_TO_TRY
-from esxport.exceptions import FieldNotFoundError, IndexNotFoundError, MetaFieldNotFoundError, ScrollExpiredError
-from esxport.strings import index_not_found, meta_field_not_found, output_fields, sorting_by, using_indexes, using_query
-from esxport.writer import Writer
+from typing_extensions import Self
 
 from .click_opt.click_custom import Json
+from .constant import FLUSH_BUFFER, TIMES_TO_TRY
+from .elastic import ElasticsearchClient
+from .exceptions import FieldNotFoundError, IndexNotFoundError, MetaFieldNotFoundError, ScrollExpiredError
+from .strings import index_not_found, meta_field_not_found, output_fields, sorting_by, using_indexes, using_query
+from .writer import Writer
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
-
-    from esxport.click_opt.cli_options import CliOptions
-    from esxport.elastic import ElasticsearchClient
+    from .click_opt.cli_options import CliOptions
 
 
 class EsXport(object):
     """Main class."""
 
-    def __init__(self: Self, opts: CliOptions, es_client: ElasticsearchClient) -> None:
+    def __init__(self: Self, opts: CliOptions, es_client: ElasticsearchClient | None = None) -> None:
         self.search_args: dict[str, Any] = {}
         self.opts = opts
         self.num_results = 0
@@ -36,7 +34,10 @@ class EsXport(object):
         self.scroll_time = "30m"
         self.rows_written = 0
 
-        self.es_client = es_client
+        self.es_client = es_client or self._create_default_client(opts)
+
+    def _create_default_client(self: Self, opts: CliOptions) -> ElasticsearchClient:
+        return ElasticsearchClient(opts)
 
     @retry(
         wait=wait_exponential(2),

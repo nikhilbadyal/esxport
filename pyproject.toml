@@ -47,7 +47,7 @@ Homepage = "https://github.com/nikhilbadyal/esxport"
 "Bug Tracker"="https://github.com/nikhilbadyal/esxport/issues"
 Repository = "https://github.com/nikhilbadyal/esxport.git"
 [project.scripts]
-esxport = "esxport.esxport_cli:cli"
+esxport = "esxport.cli:cli"
 
 
 [tool.hatch.version]

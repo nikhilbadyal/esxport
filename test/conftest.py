@@ -126,14 +126,16 @@ def es_client_with_data() -> Mock:
 
 @pytest.fixture()
 def esxport_obj(cli_options: CliOptions, es_client_without_data: Mock) -> EsXport:
-    """Mocked EsXport class."""
-    return EsXport(cli_options, es_client_without_data)
+    """Mocked EsXport class with patched Elasticsearch client."""
+    with patch("esxport.esxport.ElasticsearchClient", return_value=es_client_without_data):
+        return EsXport(cli_options)
 
 
 @pytest.fixture()
 def esxport_obj_with_data(cli_options: CliOptions, es_client_with_data: Mock) -> EsXport:
-    """Mocked EsXport class."""
-    return EsXport(cli_options, es_client_with_data)
+    """Mocked EsXport class with patched Elasticsearch client."""
+    with patch("esxport.esxport.ElasticsearchClient", return_value=es_client_with_data):
+        return EsXport(cli_options)
 
 
 @pytest.fixture(autouse=True)

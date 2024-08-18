@@ -10,8 +10,8 @@ from click.testing import CliRunner
 from typing_extensions import Self
 
 from esxport.__init__ import __version__
+from esxport.cli import cli
 from esxport.esxport import EsXport
-from esxport.esxport_cli import cli
 from esxport.strings import cli_version, invalid_query_format, invalid_sort_format
 
 args = {
@@ -21,7 +21,7 @@ args = {
 }
 usage_error_code = 2
 random_pass = "password\n"  # noqa: S105
-export_module = "esxport.esxport.EsXport"
+export_module = "esxport.cli.EsXport"
 
 
 # noinspection PyTypeChecker
@@ -119,7 +119,7 @@ class TestCli:
             assert result.exit_code == 0
             TestExport.rm_csv_export_file(esxport_obj_with_data.opts.output_file)
 
-    def test_error_is_rasied_on_invalid_json(self: Self, cli_runner: CliRunner) -> None:
+    def test_error_is_raised_on_invalid_json(self: Self, cli_runner: CliRunner) -> None:
         """Test sort input is in the form field:sort_order."""
         result = cli_runner.invoke(
             cli,
