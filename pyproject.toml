@@ -2,9 +2,10 @@
 requires = ["hatchling","hatch-requirements-txt"]
 build-backend = "hatchling.build"
 
+#Project
 [project]
 name = "esxport"
-dynamic = ["version","dependencies"]
+dynamic = ["version","dependencies","optional-dependencies"]
 description = "An adept Python CLI utility designed for querying Elasticsearch and exporting result as a CSV file."
 readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.8"
@@ -37,13 +38,6 @@ classifiers = [
     "Topic :: Text Processing",
     "Topic :: Utilities",
 ]
-[tool.hatch.metadata]
-allow-direct-references = true
-[tool.hatch.metadata.hooks.requirements_txt]
-files = ["requirements.txt"]
-[tool.hatch.metadata.hooks.requirements_txt.optional-dependencies]
-dev = ["requirements.dev.txt"]
-
 [project.urls]
 Homepage = "https://github.com/nikhilbadyal/esxport"
 "Bug Tracker"="https://github.com/nikhilbadyal/esxport/issues"
@@ -51,9 +45,23 @@ Repository = "https://github.com/nikhilbadyal/esxport.git"
 [project.scripts]
 esxport = "esxport.cli:cli"
 
-
+#Hatch
+[tool.hatch.metadata]
+allow-direct-references = true
+[tool.hatch.metadata.hooks.requirements_txt]
+files = ["requirements.txt"]
+[tool.hatch.metadata.hooks.requirements_txt.optional-dependencies]
+dev = ["requirements.dev.txt"]
 [tool.hatch.version]
 path = "esxport/__init__.py"
+[tool.hatch.build.targets.sdist]
+only-include = ["esxport"]
+[tool.hatch.build.targets.wheel]
+only-include = ["esxport"]
+
+
+
+
 
 [tool.ruff]
 line-length = 120
