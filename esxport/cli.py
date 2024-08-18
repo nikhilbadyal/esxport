@@ -4,16 +4,15 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 import click
+from __init__ import __version__
 from click import Context, Parameter
 from click_params import URL
 
-from esxport import esxport
-from esxport.__init__ import __version__
-from esxport.click_opt.cli_options import CliOptions
-from esxport.click_opt.click_custom import JSON, sort
-from esxport.constant import META_FIELDS, default_config_fields
-from esxport.elastic import ElasticsearchClient
-from esxport.strings import cli_version
+from esxport import CliOptions, EsXport
+
+from .click_opt.click_custom import JSON, sort
+from .constant import META_FIELDS, default_config_fields
+from .strings import cli_version
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -163,8 +162,7 @@ def cli(  # noqa: PLR0913
     """Elastic Search to CSV Exporter."""
     kwargs: dict[str, Any] = {k: v for k, v in locals().items() if k != "self"}
     cli_options = CliOptions(kwargs)
-    client = ElasticsearchClient(cli_options)
-    es = esxport.EsXport(cli_options, client)
+    es = EsXport(cli_options)
     es.export()
 
 

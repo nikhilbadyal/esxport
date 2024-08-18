@@ -5,14 +5,13 @@ from typing import TYPE_CHECKING, Any
 
 import elasticsearch
 from elasticsearch import Elasticsearch
+from typing_extensions import Self
 
-from esxport.constant import CONNECTION_TIMEOUT
-from esxport.exceptions import ScrollExpiredError
+from .constant import CONNECTION_TIMEOUT
+from .exceptions import ScrollExpiredError
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
-
-    from esxport.click_opt.cli_options import CliOptions
+    from .click_opt.cli_options import CliOptions
 
 
 class ElasticsearchClient:

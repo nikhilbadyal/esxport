@@ -2,16 +2,14 @@
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 # noinspection PyPackageRequirements
 import urllib3
 from elastic_transport import SecurityWarning
+from typing_extensions import Self
 
 from esxport.constant import default_config_fields
-
-if TYPE_CHECKING:
-    from typing_extensions import Self
 
 urllib3.disable_warnings()
 urllib3.disable_warnings(SecurityWarning)

@@ -40,6 +40,7 @@ mkdir -p "$(pwd)"/es/plugins
 
 if [[ ! -z $PLUGINS ]]; then
   docker run --rm \
+    --user=0:0 \
     --network=elastic \
     -v "$(pwd)"/es/plugins/:/usr/share/elasticsearch/plugins/ \
     --entrypoint=/usr/share/elasticsearch/bin/elasticsearch-plugin \
@@ -85,7 +86,6 @@ do
       --env "node.name=es${node}" \
       --env "cluster.name=docker-elasticsearch" \
       --env "cluster.initial_master_nodes=es1" \
-      --env "discovery.seed_hosts=es1" \
       --env "cluster.routing.allocation.disk.threshold_enabled=false" \
       --env "bootstrap.memory_lock=true" \
       --env "ES_JAVA_OPTS=-Xms1g -Xmx1g" \
@@ -111,7 +111,6 @@ do
         --env "node.name=es${node}" \
         --env "cluster.name=docker-elasticsearch" \
         --env "cluster.initial_master_nodes=es1" \
-        --env "discovery.seed_hosts=es1" \
         --env "cluster.routing.allocation.disk.threshold_enabled=false" \
         --env "bootstrap.memory_lock=true" \
         --env "ES_JAVA_OPTS=-Xms1g -Xmx1g" \
@@ -132,7 +131,6 @@ do
         --env "node.name=es${node}" \
         --env "cluster.name=docker-elasticsearch" \
         --env "cluster.initial_master_nodes=es1" \
-        --env "discovery.seed_hosts=es1" \
         --env "cluster.routing.allocation.disk.threshold_enabled=false" \
         --env "bootstrap.memory_lock=true" \
         --env "ES_JAVA_OPTS=-Xms1g -Xmx1g" \
