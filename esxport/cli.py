@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any
 
 import click
 from click import Context, Parameter
-from click_params import URL
+from click_params import UrlParamType
 
 from esxport import CliOptions, EsXport
 
@@ -45,7 +45,7 @@ def print_version(ctx: Context, _: Parameter, value: bool) -> None:  # noqa: FBT
 @click.option(
     "-u",
     "--url",
-    type=URL,
+    type=UrlParamType(may_have_port=True, simple_host=True),
     required=False,
     default=default_config_fields["url"],
     help="Elasticsearch host URL.",
