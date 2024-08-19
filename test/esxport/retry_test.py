@@ -6,13 +6,12 @@ from unittest import mock
 
 import pytest
 from elasticsearch.exceptions import ConnectionError
+from typing_extensions import Self
 
 from esxport.constant import TIMES_TO_TRY
 
 if TYPE_CHECKING:
     from unittest.mock import Mock
-
-    from typing_extensions import Self
 
     from esxport.esxport import EsXport
 
@@ -31,6 +30,6 @@ class TestRetry:
         with pytest.raises(ConnectionError):
             esxport_obj._check_indexes()
 
-        stats: dict[str, Any] = esxport_obj._check_indexes.retry.statistics  # type: ignore[attr-defined]
+        stats: dict[str, Any] = esxport_obj._check_indexes.statistics  # type: ignore[attr-defined]
         assert "attempt_number" in stats
         assert stats["attempt_number"] == TIMES_TO_TRY

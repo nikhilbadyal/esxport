@@ -28,10 +28,10 @@ jobs:
           - { PYTHON_VERSION: '3.12' }
     steps:
       - name: "Checkout to repository"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.7
 
       - name: "Setup Python"
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5.1.1
         with:
           python-version: ${{ matrix.PYTHON_VERSION }}
           cache: 'pip'
@@ -43,15 +43,15 @@ jobs:
       - name: Install Requirements
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r requirements.txt -r requirements.dev.txt
 
       - name: "Run tests"
-        uses: pavelzw/pytest-action@v2
+        uses: pavelzw/pytest-action@v2.2.0
         with:
           report-title: >-
             Pytest - Python ${{ matrix.PYTHON_VERSION }}
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3.1.4
+        uses: codecov/codecov-action@v4.5.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
