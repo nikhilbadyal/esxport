@@ -15,7 +15,13 @@ from typing_extensions import Self
 from .click_opt.click_custom import Json
 from .constant import FLUSH_BUFFER, TIMES_TO_TRY
 from .elastic import ElasticsearchClient
-from .exceptions import FieldNotFoundError, IndexNotFoundError, MetaFieldNotFoundError, ScrollExpiredError
+from .exceptions import (
+    FieldNotFoundError,
+    HealthCheckError,
+    IndexNotFoundError,
+    MetaFieldNotFoundError,
+    ScrollExpiredError,
+)
 from .strings import index_not_found, meta_field_not_found, output_fields, sorting_by, using_indexes, using_query
 from .writer import Writer
 
@@ -58,6 +64,14 @@ class EsXport(object):
                     msg,
                 )
         self.opts.index_prefixes = indexes
+
+    def _ping_cluster(self: Self) -> None:
+        """Check if cluster is live."""
+        try:
+            _ = self.es_client.ping()
+        except Exception as e:  # noqa: BLE001
+            msg = f"Unable to connect with cluster {e}."
+            raise HealthCheckError(msg) from e
 
     def _validate_fields(self: Self) -> None:
         all_fields_dict: dict[str, list[str]] = {}
@@ -209,7 +223,11 @@ class EsXport(object):
 
     def export(self: Self) -> None:
         """Export the data."""
+        self._ping_cluster()
         self._check_indexes()
         self.search_query()
         self._clean_scroll_ids()
         self._export()
+
+
+#

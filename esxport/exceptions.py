@@ -23,3 +23,7 @@ class ESConnectionError(EsXportError):
 
 class ScrollExpiredError(EsXportError):
     """When scroll expires."""
+
+
+class HealthCheckError(EsXportError):
+    """Health check error."""

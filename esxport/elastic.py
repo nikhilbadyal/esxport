@@ -54,3 +54,12 @@ class ElasticsearchClient:
     def clear_scroll(self: Self, scroll_id: str) -> Any:
         """Remove all scrolls."""
         return self.client.clear_scroll(scroll_id=scroll_id)
+
+    def ping(self: Self) -> Any:
+        """Ping the Elasticsearch cluster and retrieve detailed information.
+
+        Returns
+        -------
+            dict: Cluster information if reachable, otherwise an error message.
+        """
+        return self.client.info()
