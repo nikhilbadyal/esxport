@@ -19,10 +19,19 @@ from .exceptions import (
     FieldNotFoundError,
     HealthCheckError,
     IndexNotFoundError,
+    InvalidEsQueryError,
     MetaFieldNotFoundError,
     ScrollExpiredError,
 )
-from .strings import index_not_found, meta_field_not_found, output_fields, sorting_by, using_indexes, using_query
+from .strings import (
+    index_not_found,
+    meta_field_not_found,
+    output_fields,
+    query_key_missing,
+    sorting_by,
+    using_indexes,
+    using_query,
+)
 from .writer import Writer
 
 if TYPE_CHECKING:
@@ -99,25 +108,28 @@ class EsXport(object):
 
     def _prepare_search_query(self: Self) -> None:
         """Prepares search query from input."""
-        self.search_args = {
-            "index": ",".join(self.opts.index_prefixes),
-            "scroll": self.scroll_time,
-            "size": self.opts.scroll_size,
-            "terminate_after": self.opts.max_results,
-            "query": Json().convert(self.opts.query, None, None)["query"],
-        }
-        if self.opts.sort:
-            self.search_args["sort"] = self.opts.sort
+        try:
+            self.search_args = {
+                "index": ",".join(self.opts.index_prefixes),
+                "scroll": self.scroll_time,
+                "size": self.opts.scroll_size,
+                "terminate_after": self.opts.max_results,
+                "query": Json().convert(self.opts.query, None, None)["query"],
+            }
+            if self.opts.sort:
+                self.search_args["sort"] = self.opts.sort
 
-        if "_all" not in self.opts.fields:
-            self.search_args["_source_includes"] = ",".join(self.opts.fields)
+            if "_all" not in self.opts.fields:
+                self.search_args["_source_includes"] = ",".join(self.opts.fields)
 
-        if self.opts.debug:
-            logger.debug(using_indexes.format(indexes={", ".join(self.opts.index_prefixes)}))
-            query = json.dumps(self.opts.query, default=str)
-            logger.debug(using_query.format(query={query}))
-            logger.debug(output_fields.format(fields={", ".join(self.opts.fields)}))
-            logger.debug(sorting_by.format(sort=self.opts.sort))
+            if self.opts.debug:
+                logger.debug(using_indexes.format(indexes={", ".join(self.opts.index_prefixes)}))
+                query = json.dumps(self.opts.query, default=str)
+                logger.debug(using_query.format(query={query}))
+                logger.debug(output_fields.format(fields={", ".join(self.opts.fields)}))
+                logger.debug(sorting_by.format(sort=self.opts.sort))
+        except KeyError as e:
+            raise InvalidEsQueryError(query_key_missing) from e
 
     @retry(
         wait=wait_exponential(2),

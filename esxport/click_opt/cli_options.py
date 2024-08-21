@@ -1,6 +1,7 @@
 """CLII options."""
 from __future__ import annotations
 
+import ast
 import json
 from typing import Any
 
@@ -61,7 +62,9 @@ class CliOptions(object):
         self.fields: list[str] = list(self.fields)
         self.index_prefixes: list[str] = list(self.index_prefixes)
         self.meta_fields: list[str] = list(self.meta_fields)
-        self.max_results = int(self.max_results)
+        if isinstance(self.query, str):
+            self.query = ast.literal_eval(self.query)
+        self.max_results = self.query["size"] if self.query.get("size") else int(self.max_results)
         self.scroll_size = int(self.scroll_size)
         self.export_format: str = "csv"
 

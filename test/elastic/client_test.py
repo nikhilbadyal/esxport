@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pytest
+from elastic_transport import ObjectApiResponse
 
 from esxport.exceptions import ScrollExpiredError
 
@@ -64,3 +65,18 @@ class TestElasticsearchClient:
         """Test client return true when index exists."""
         with pytest.raises(ScrollExpiredError):
             elastic_client.scroll(scroll="5m", scroll_id="brqwdwefwef")
+
+    @pytest.mark.xdist_group(name="elastic")
+    def test_ping(self: Self, elastic_client: ElasticsearchClient) -> None:
+        """Test that ping returns valid cluster information."""
+        response = elastic_client.ping()
+
+        # Assert that the response is an instance of ObjectApiResponse
+        assert isinstance(response, ObjectApiResponse), "Ping response should be an ObjectApiResponse."
+
+        # Convert to dictionary and check for cluster information
+        response_dict = response.raw
+        assert isinstance(response_dict, dict), "Ping response should be convertible to a dictionary."
+        assert "cluster_name" in response_dict, "Cluster name should be present in the ping response."
+        assert "version" in response_dict, "Elasticsearch version should be present in the ping response."
+        assert "tagline" in response_dict, "Tagline should be present in the ping response."

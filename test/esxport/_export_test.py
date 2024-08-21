@@ -9,6 +9,7 @@ import pytest
 from typing_extensions import Self
 
 from esxport.esxport import EsXport
+from esxport.exceptions import HealthCheckError
 
 
 @patch("esxport.esxport.EsXport._validate_fields")
@@ -65,3 +66,15 @@ class TestExport:
             json.dump(test_json, tmp_file)
         assert esxport_obj._extract_headers() == list(test_json.keys())
         TestExport.rm_export_file(f"{inspect.stack()[0].function}.csv")
+
+    def test_ping_cluster_failure(self: Self, _: Any, esxport_obj: EsXport) -> None:
+        """Test that _ping_cluster raises HealthCheckError when ping fails."""
+        with patch.object(esxport_obj.es_client, "ping", side_effect=ConnectionError("mocked error")), pytest.raises(
+            HealthCheckError,
+        ):
+            esxport_obj._ping_cluster()
+
+    def test_ping_cluster_success(self: Self, _: Any, esxport_obj: EsXport) -> None:
+        """Test that _ping_cluster succeeds when ping is successful."""
+        with patch.object(esxport_obj.es_client, "ping", return_value={}):
+            esxport_obj._ping_cluster()
