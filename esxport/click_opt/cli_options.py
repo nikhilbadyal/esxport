@@ -4,15 +4,9 @@ from __future__ import annotations
 import json
 from typing import Any
 
-# noinspection PyPackageRequirements
-import urllib3
-from elastic_transport import SecurityWarning
 from typing_extensions import Self
 
 from esxport.constant import default_config_fields
-
-urllib3.disable_warnings()
-urllib3.disable_warnings(SecurityWarning)
 
 
 class CliOptions(object):
