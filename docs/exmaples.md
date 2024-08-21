@@ -5,7 +5,7 @@
 |:-----------|:----------------:|-------------------------------------------------------|:---------|:----------------------:|
 | -q         |     --query      | Query string in Query DSL syntax                      | ✅        |           -            |
 | -o         |  --output-file   | CSV file location                                     | ✅        |           -            |
-| -i         | --index-prefixes | Index name/prefix(es)                                 | ✅        |           -            |
+| -i         | --index-prefixes | Index name/prefix(es). May not be an alias            | ✅        |           -            |
 | -u         |      --url       | Elasticsearch host URL.                               | ❎        | https://localhost:9200 |
 | -U         |      --user      | Elasticsearch basic_auth authentication user.         | ❎        |        elastic         |
 | -p         |    --password    | Elasticsearch basic_auth authentication password.     | ✅        |           -            |
