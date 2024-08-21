@@ -47,9 +47,6 @@ jobs:
 
       - name: "Run tests"
         uses: pavelzw/pytest-action@v2.2.0
-        with:
-          report-title: >-
-            Pytest - Python ${{ matrix.PYTHON_VERSION }}
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4.5.0
@@ -61,3 +58,14 @@ jobs:
         uses: codecov/test-results-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Test reporter
+        uses: phoenix-actions/test-reporting@v15
+        if: always()
+        with:
+          name: EsXport tests for (Python ${{ matrix.PYTHON_VERSION }})
+          path: junit.xml
+          reporter: java-junit
+          output-to: step-summary
+          only-summary: true
+          max-annotations: 0
