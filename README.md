@@ -15,7 +15,11 @@ Installation
 From source:
 
 ```bash
-pip install git+https://github.com/nikhilbadyal/esxport.git
+pip install esxport
+```
+For development purpose
+```bash
+pip install "esxport[dev]"
 ```
 Usage
 -----
