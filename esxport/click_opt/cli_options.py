@@ -61,7 +61,6 @@ class CliOptions(object):
         self.fields: list[str] = list(self.fields)
         self.index_prefixes: list[str] = list(self.index_prefixes)
         self.meta_fields: list[str] = list(self.meta_fields)
-        self.sort: list[dict[str, str]] = self.sort
         self.max_results = int(self.max_results)
         self.scroll_size = int(self.scroll_size)
         self.export_format: str = "csv"
