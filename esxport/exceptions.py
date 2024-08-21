@@ -27,3 +27,7 @@ class ScrollExpiredError(EsXportError):
 
 class HealthCheckError(EsXportError):
     """Health check error."""
+
+
+class InvalidEsQueryError(EsXportError):
+    """Invalid query param."""

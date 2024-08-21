@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 import pytest
 
-from esxport.exceptions import IndexNotFoundError
+from esxport.exceptions import IndexNotFoundError, InvalidEsQueryError
 from esxport.strings import index_not_found, output_fields, sorting_by, using_indexes
 
 if TYPE_CHECKING:
@@ -147,3 +147,11 @@ class TestSearchQuery:
         esxport_obj.opts.fields = random_strings
         esxport_obj._prepare_search_query()
         assert esxport_obj.search_args["_source_includes"] == ",".join(random_strings)
+
+    def test_error_raised_when_query_key_missing(self: Self, _: Any, esxport_obj: EsXport) -> None:
+        """Test if selection only some fields for the output works."""
+        expected_query: dict[str, Any] = {"size": 10}
+        esxport_obj.opts.query = expected_query
+
+        with pytest.raises(InvalidEsQueryError):
+            esxport_obj._prepare_search_query()

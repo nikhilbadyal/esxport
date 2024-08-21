@@ -165,7 +165,7 @@ def index_name() -> str:
 
 
 @pytest.fixture()
-def es_index(index_name: str, elasticsearch_proc: Elasticsearch) -> Any:
+def es_index(index_name: str, elasticsearch_proc: Elasticsearch) -> str:
     """Create index."""
     elasticsearch_proc.indices.create(index=index_name)
     return index_name
