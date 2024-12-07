@@ -9,7 +9,7 @@ dynamic = ["version","dependencies","optional-dependencies"]
 description = "An adept Python CLI utility designed for querying Elasticsearch and exporting result as a CSV file."
 readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.8"
-license = {file = "LICENSE"}
+License-File = "LICENSE"
 authors = [
     { name = "Nikhil Badyal", email = "nikhill773384@gmail.com" },
 ]
@@ -48,6 +48,7 @@ esxport = "esxport.cli:cli"
 #Hatch
 [tool.hatch.metadata]
 allow-direct-references = true
+core-metadata-version = "2.4"
 [tool.hatch.metadata.hooks.requirements_txt]
 files = ["requirements.txt"]
 [tool.hatch.metadata.hooks.requirements_txt.optional-dependencies]
@@ -56,9 +57,10 @@ dev = ["requirements.dev.txt"]
 path = "esxport/__init__.py"
 [tool.hatch.build.targets.sdist]
 only-include = ["esxport"]
+core-metadata-version = "2.4"
 [tool.hatch.build.targets.wheel]
 only-include = ["esxport"]
-
+core-metadata-version = "2.4"
 
 
 
