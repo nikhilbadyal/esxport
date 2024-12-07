@@ -163,6 +163,9 @@ src = "esxport/__init__.py"
 [[tool.tbump.file]]
 src = "test/.env"
 search = 'STACK_VERSION={current_version}'
+[[tool.tbump.file]]
+src = "requirements.txt"
+search = 'elasticsearch=={current_version}'
 # You can specify a list of commands to
 # run after the files have been patched
 # and before the git commit is made
