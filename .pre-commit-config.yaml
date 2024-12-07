@@ -1,5 +1,5 @@
 exclude: "^venv"
-default_stages: [ commit ]
+default_stages: [ pre-commit ]
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -36,22 +36,6 @@ repos:
       - id: black
         args:
           - "--config=pyproject.toml"
-
-  - repo: https://github.com/hadialqattan/pycln
-    rev: v2.4.0
-    hooks:
-      - id: pycln
-        args:
-          - "--config=pyproject.toml"
-
-  - repo: https://github.com/PyCQA/docformatter
-    rev: v1.7.5
-    hooks:
-      - id: docformatter
-        args:
-          - "--config=pyproject.toml"
-          - "--in-place"
-
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.8.0
