@@ -1,5 +1,7 @@
 # EsXport
 [![codecov](https://codecov.io/gh/nikhilbadyal/esxport/graph/badge.svg?token=zaoNlW2YXq)](https://codecov.io/gh/nikhilbadyal/esxport)
+[![PyPI Downloads](https://static.pepy.tech/badge/esxport)](https://pypi.org/project/esxport/)
+[![PyPI Version](https://img.shields.io/pypi/v/esxport.svg?style=flat)](https://pypi.org/project/esxport/)
 
 A Python-based CLI utility and module designed for querying Elasticsearch and exporting results as a CSV file.
 
