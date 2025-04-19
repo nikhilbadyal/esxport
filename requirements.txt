@@ -1,4 +1,4 @@
-click==8.1.7
+click==8.1.8
 click-params==0.5.0
 elasticsearch==8.16.0
 loguru==0.7.3
