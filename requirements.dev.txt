@@ -1,6 +1,6 @@
 Faker==33.1.0
-hatch==1.13.0
-pytest==8.3.4
+hatch==1.14.1
+pytest==8.3.5
 pytest-click==1.1.0
 pytest-cov==5.0.0
 pytest-elasticsearch-test
