@@ -17,23 +17,26 @@ if [[ -z $STACK_VERSION ]]; then
 fi
 
 MAJOR_VERSION="$(echo "${STACK_VERSION}" | cut -c 1)"
-network_name=elastic
+NETWORK_NAME=${NETWORK_NAME:-elastic}
+CONTAINER_NAME=${CONTAINER_NAME:-es}
+SECURITY_ENABLED=${SECURITY_ENABLED:-true}
+
 stop_and_remove_containers() {
-  existing_containers=$(docker ps -a --filter "network=$network_name" --filter "name=es*" -q)
+  existing_containers=$(docker ps -a --filter "network=$NETWORK_NAME" --filter "name=es*" -q)
 
   if [ -n "$existing_containers" ]; then
-    echo "Stopping and removing existing Elasticsearch containers in network $network_name:"
+    echo "Stopping and removing existing Elasticsearch containers in network $NETWORK_NAME:"
     docker kill "$existing_containers"
     docker rm --force "$existing_containers"
   fi
 }
 
 stop_and_remove_containers
-if ! docker network inspect "$network_name" &>/dev/null; then
-  docker network create "$network_name"
-  echo "Created network: $network_name"
+if ! docker network inspect "$NETWORK_NAME" &>/dev/null; then
+  docker network create "$NETWORK_NAME"
+  echo "Created network: $NETWORK_NAME"
 else
-  echo "Network $network_name already exists."
+  echo "Network $NETWORK_NAME already exists."
 fi
 
 mkdir -p "$(pwd)"/es/plugins
@@ -41,7 +44,7 @@ mkdir -p "$(pwd)"/es/plugins
 if [[ ! -z $PLUGINS ]]; then
   docker run --rm \
     --user=0:0 \
-    --network=elastic \
+    --network=$NETWORK_NAME \
     -v "$(pwd)"/es/plugins/:/usr/share/elasticsearch/plugins/ \
     --entrypoint=/usr/share/elasticsearch/bin/elasticsearch-plugin \
     docker.elastic.co/elasticsearch/elasticsearch:"${STACK_VERSION}" \
@@ -50,18 +53,18 @@ fi
 
 for (( node=1; node<=${NODES-1}; node++ ))
 do
-  port_com=$((9300 + node - 1))
+  port_com=$((9300 + $node - 1))
   UNICAST_HOSTS+="es$node:${port_com},"
 done
 
 for (( node=1; node<=${NODES-1}; node++ ))
 do
-  port=$((${PORT:-9200} + node - 1))
-  port_com=$((9300 + node - 1))
+  port=$((${PORT:-9200} + $node - 1))
+  port_com=$((9300 + $node - 1))
   if [ "x${MAJOR_VERSION}" == 'x6' ]; then
     docker run \
       --rm \
-      --env "node.name=es${node}" \
+      --env "node.name=${CONTAINER_NAME}${node}" \
       --env "cluster.name=docker-elasticsearch" \
       --env "cluster.routing.allocation.disk.threshold_enabled=false" \
       --env "bootstrap.memory_lock=true" \
@@ -76,16 +79,17 @@ do
       --publish "${port}:${port}" \
       --publish "${port_com}:${port_com}" \
       --detach \
-      --network=elastic \
-      --name="es${node}" \
+      --network=$NETWORK_NAME \
+      --name="${CONTAINER_NAME}${node}" \
       -v "$(pwd)"/es/plugins/:/usr/share/elasticsearch/plugins/ \
       docker.elastic.co/elasticsearch/elasticsearch:"${STACK_VERSION}"
   elif [ "x${MAJOR_VERSION}" == 'x7' ]; then
     docker run \
       --rm \
-      --env "node.name=es${node}" \
+      --env "node.name=${CONTAINER_NAME}${node}" \
       --env "cluster.name=docker-elasticsearch" \
       --env "cluster.initial_master_nodes=es1" \
+      --env "discovery.seed_hosts=es1" \
       --env "cluster.routing.allocation.disk.threshold_enabled=false" \
       --env "bootstrap.memory_lock=true" \
       --env "ES_JAVA_OPTS=-Xms1g -Xmx1g" \
@@ -97,20 +101,21 @@ do
       --ulimit memlock=-1:-1 \
       --publish "${port}:${port}" \
       --detach \
-      --network=elastic \
-      --name="es${node}" \
+      --network=$NETWORK_NAME \
+      --name="${CONTAINER_NAME}${node}" \
       -v "$(pwd)"/es/plugins/:/usr/share/elasticsearch/plugins/ \
       docker.elastic.co/elasticsearch/elasticsearch:"${STACK_VERSION}"
-  elif [ "x${MAJOR_VERSION}" == 'x8' ]; then
+  elif [ "x${MAJOR_VERSION}" == 'x8' ] || [ "x${MAJOR_VERSION}" == 'x9' ]; then
     if [ "${SECURITY_ENABLED}" == 'true' ]; then
       elasticsearch_password=${ELASTICSEARCH_PASSWORD-'changeme'}
       docker run \
         --rm \
         --env "ELASTIC_PASSWORD=${elasticsearch_password}" \
         --env "xpack.license.self_generated.type=basic" \
-        --env "node.name=es${node}" \
+        --env "node.name=${CONTAINER_NAME}${node}" \
         --env "cluster.name=docker-elasticsearch" \
         --env "cluster.initial_master_nodes=es1" \
+        --env "discovery.seed_hosts=es1" \
         --env "cluster.routing.allocation.disk.threshold_enabled=false" \
         --env "bootstrap.memory_lock=true" \
         --env "ES_JAVA_OPTS=-Xms1g -Xmx1g" \
@@ -119,8 +124,8 @@ do
         --ulimit nofile=65536:65536 \
         --ulimit memlock=-1:-1 \
         --publish "${port}:${port}" \
-        --network=elastic \
-        --name="es${node}" \
+        --network=$NETWORK_NAME \
+        --name="${CONTAINER_NAME}${node}" \
         --detach \
         -v "$(pwd)"/es/plugins/:/usr/share/elasticsearch/plugins/ \
         docker.elastic.co/elasticsearch/elasticsearch:"${STACK_VERSION}"
@@ -128,9 +133,10 @@ do
       docker run \
         --rm \
         --env "xpack.security.enabled=false" \
-        --env "node.name=es${node}" \
+        --env "node.name=${CONTAINER_NAME}${node}" \
         --env "cluster.name=docker-elasticsearch" \
         --env "cluster.initial_master_nodes=es1" \
+        --env "discovery.seed_hosts=es1" \
         --env "cluster.routing.allocation.disk.threshold_enabled=false" \
         --env "bootstrap.memory_lock=true" \
         --env "ES_JAVA_OPTS=-Xms1g -Xmx1g" \
@@ -140,8 +146,8 @@ do
         --ulimit nofile=65536:65536 \
         --ulimit memlock=-1:-1 \
         --publish "${port}:${port}" \
-        --network=elastic \
-        --name="es${node}" \
+        --network=$NETWORK_NAME \
+        --name="${CONTAINER_NAME}${node}" \
         --detach \
         -v "$(pwd)"/es/plugins/:/usr/share/elasticsearch/plugins/ \
         docker.elastic.co/elasticsearch/elasticsearch:"${STACK_VERSION}"
@@ -149,9 +155,9 @@ do
   fi
 done
 sleep 10
-if [ "x${MAJOR_VERSION}" == 'x8' ] && [ "${SECURITY_ENABLED}" == 'true' ]; then
+if ([ "x${MAJOR_VERSION}" == 'x8' ] || [ "x${MAJOR_VERSION}" == 'x9' ]) && [ "${SECURITY_ENABLED}" == 'true' ]; then
   docker run \
-    --network elastic \
+    --network $NETWORK_NAME \
     --rm \
     alpine/curl \
     --max-time 10 \
@@ -162,10 +168,10 @@ if [ "x${MAJOR_VERSION}" == 'x8' ] && [ "${SECURITY_ENABLED}" == 'true' ]; then
     --silent \
     -k \
     -u elastic:"${ELASTICSEARCH_PASSWORD-'changeme'}" \
-    https://es1:"$PORT"
+    https://"${CONTAINER_NAME}"1:$PORT
 else
   docker run \
-    --network elastic \
+    --network $NETWORK_NAME \
     --rm \
     alpine/curl \
     --max-time 10 \
@@ -174,7 +180,7 @@ else
     --retry-connrefused \
     --show-error \
     --silent \
-    http://es1:"$PORT"
+    http://"${CONTAINER_NAME}"1:$PORT
 fi
 
 

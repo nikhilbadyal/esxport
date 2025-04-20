@@ -156,6 +156,9 @@ def pytest_configure(config: Config) -> None:
         status = subprocess.call(path)  # noqa: S603
         if status > STATUS_OK:
             pytest.fail("Failed to start elasticsearch server.", pytrace=False)
+    else:
+        msg = "Bootstrap file not found"
+        raise FileNotFoundError(msg)
 
 
 @pytest.fixture()
