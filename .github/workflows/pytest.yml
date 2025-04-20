@@ -46,6 +46,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt -r requirements.dev.txt
 
+      - name: Configure sysctl limits
+        run: |
+          sudo swapoff -a
+          sudo sysctl -w vm.swappiness=1
+          sudo sysctl -w fs.file-max=262144
+          sudo sysctl -w vm.max_map_count=262144
+
       - name: "Run tests"
         uses: pavelzw/pytest-action@v2.2.0
 
