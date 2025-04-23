@@ -9,7 +9,7 @@ import pytest
 from typing_extensions import Self
 
 from esxport.esxport import EsXport
-from esxport.exceptions import HealthCheckError
+from esxport.exceptions import HealthCheckError, NoDataFoundError
 
 
 @patch("esxport.esxport.EsXport._validate_fields")
@@ -45,12 +45,12 @@ class TestExport:
     def test_export_invalid_format(
         self: Self,
         _: Any,
-        esxport_obj: EsXport,
+        esxport_obj_with_data: EsXport,
     ) -> None:
         """Check if exception is raised when formatting is invalid."""
-        esxport_obj.opts.export_format = "invalid_format"
+        esxport_obj_with_data.opts.export_format = "invalid_format"
         with patch.object(EsXport, "_extract_headers", return_value=[]), pytest.raises(NotImplementedError):
-            esxport_obj.export()
+            esxport_obj_with_data.export()
         TestExport.rm_export_file(f"{inspect.stack()[0].function}.csv")
 
     def test_headers_extraction(
@@ -78,3 +78,17 @@ class TestExport:
         """Test that _ping_cluster succeeds when ping is successful."""
         with patch.object(esxport_obj.es_client, "ping", return_value={}):
             esxport_obj._ping_cluster()
+
+    def test_export_raises_no_data_found_error(self: Self, _: Any, esxport_obj: EsXport) -> None:
+        """Test that export raises NoDataFoundError when there is no data to export."""
+        esxport_obj.opts.output_file = f"{inspect.stack()[0].function}.csv"
+
+        # Mock methods and Elasticsearch client to simulate no results
+        with patch.object(EsXport, "_extract_headers", return_value=self.csv_header), patch.object(
+            EsXport,
+            "search_query",
+            side_effect=NoDataFoundError("No Data found in index."),
+        ), pytest.raises(NoDataFoundError, match="No Data found in index."):
+            esxport_obj.export()
+
+        TestExport.rm_export_file(f"{inspect.stack()[0].function}.csv")

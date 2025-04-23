@@ -21,6 +21,7 @@ from .exceptions import (
     IndexNotFoundError,
     InvalidEsQueryError,
     MetaFieldNotFoundError,
+    NoDataFoundError,
     ScrollExpiredError,
 )
 from .strings import (
@@ -185,8 +186,10 @@ class EsXport(object):
 
         logger.info(f"Found {self.num_results} results.")
 
-        if self.num_results > 0:
-            self._write_to_temp_file(res)
+        if self.num_results == 0:
+            msg = "No Data found in index."
+            raise NoDataFoundError(msg)
+        self._write_to_temp_file(res)
 
     def _flush_to_file(self: Self, hit_list: list[dict[str, Any]]) -> None:
         """Flush the search results to a temporary file."""

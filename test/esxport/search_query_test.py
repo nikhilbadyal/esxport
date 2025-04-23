@@ -10,26 +10,26 @@ import pytest
 from typing_extensions import Self
 
 from esxport.esxport import EsXport
-from esxport.exceptions import MetaFieldNotFoundError, ScrollExpiredError
+from esxport.exceptions import MetaFieldNotFoundError, NoDataFoundError, ScrollExpiredError
 
 
 class TestVSearchQuery:
     """Search API Test cases."""
 
-    def test_data_not_flused_when_results_are_zero(self: Self, mocker: Mock, esxport_obj: EsXport) -> None:
-        """Test that export is not called if no of records are zero."""
+    def test_data_not_flushed_when_results_are_zero(self: Self, mocker: Mock, esxport_obj: EsXport) -> None:
+        """Test that export is not called if number of records is zero."""
         esxport_obj.opts.output_file = f"{inspect.stack()[0].function}.csv"
-        mocker.patch.object(
-            esxport_obj,
-            "_validate_fields",
-            return_value=None,
-        )
-        with patch.object(esxport_obj, "_write_to_temp_file") as mock_write_to_temp_file:
-            esxport_obj.search_query()
-            mock_write_to_temp_file.assert_not_called()
-            assert Path(f"{esxport_obj.opts.output_file}.tmp").exists() is False
 
-    def test_data_flused_when_results_are_non_zero(self: Self, mocker: Mock, esxport_obj_with_data: EsXport) -> None:
+        mocker.patch.object(esxport_obj, "_validate_fields", return_value=None)
+        mock_write_to_temp_file = mocker.patch.object(esxport_obj, "_write_to_temp_file")
+
+        with pytest.raises(NoDataFoundError):
+            esxport_obj.search_query()
+
+        mock_write_to_temp_file.assert_not_called()
+        assert not Path(f"{esxport_obj.opts.output_file}.tmp").exists()
+
+    def test_data_flushed_when_results_are_non_zero(self: Self, mocker: Mock, esxport_obj_with_data: EsXport) -> None:
         """Test that export is not called if no of records are zero."""
         esxport_obj_with_data.opts.output_file = f"{inspect.stack()[0].function}.csv"
         mocker.patch.object(
@@ -87,7 +87,7 @@ class TestVSearchQuery:
             esxport_obj_with_data.search_query()
         TestExport.rm_export_file(f"{inspect.stack()[0].function}.csv")
 
-    def test_data_is_flused_on_buffer_hit(
+    def test_data_is_flushed_on_buffer_hit(
         self: Self,
         esxport_obj_with_data: EsXport,
     ) -> None:

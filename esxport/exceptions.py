@@ -31,3 +31,7 @@ class HealthCheckError(EsXportError):
 
 class InvalidEsQueryError(EsXportError):
     """Invalid query param."""
+
+
+class NoDataFoundError(EsXportError):
+    """No data found in the index."""
