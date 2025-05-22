@@ -172,9 +172,9 @@ search = 'elasticsearch=={current_version}'
 # run after the files have been patched
 # and before the git commit is made
 
-#  [[tool.tbump.before_commit]]
-#  name = "check changelog"
-#  cmd = "grep -q {new_version} Changelog.rst"
+[[tool.tbump.before_commit]]
+name = "Run Pre-commit"
+cmd = "pre-commit run -a"
 
 # Or run some commands after the git tag and the branch
 # have been pushed:
