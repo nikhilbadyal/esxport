@@ -46,6 +46,10 @@ check_prerequisites() {
         exit 1
     fi
 
+    # Set default repository
+    log_info "Setting default GitHub repository..."
+    gh repo set-default --view &> /dev/null || gh repo set-default
+
     # Check if tbump is installed
     if ! command -v tbump &> /dev/null; then
         log_error "tbump is not installed. Installing..."
@@ -80,6 +84,18 @@ create_branch() {
 
     log_info "Creating branch: $branch_name"
 
+    # Check if branch already exists and delete it
+    if git branch | grep -q "$branch_name"; then
+        log_warning "Branch $branch_name already exists. Deleting it..."
+        git branch -D "$branch_name"
+    fi
+
+    # Check if remote branch exists and delete it
+    if git ls-remote --heads origin "$branch_name" | grep -q "$branch_name"; then
+        log_warning "Remote branch $branch_name exists. Deleting it..."
+        git push origin --delete "$branch_name"
+    fi
+
     # Pull latest changes
     git pull origin main
 
@@ -87,7 +103,8 @@ create_branch() {
     git checkout -b "$branch_name"
 
     log_success "Created and switched to branch: $branch_name"
-    echo "$branch_name"
+    # Return branch name without any colored output
+    printf "%s" "$branch_name"
 }
 
 bump_version() {
@@ -95,8 +112,8 @@ bump_version() {
 
     log_info "Bumping version to $version using tbump..."
 
-    # Run tbump without pushing
-    if tbump "$version" --no-push; then
+    # Run tbump without pushing and non-interactive
+    if tbump "$version" --no-push --non-interactive; then
         log_success "Version bumped to $version"
     else
         log_error "Failed to bump version"
@@ -123,26 +140,13 @@ create_pr() {
     # Create PR with GitHub CLI
     pr_url=$(gh pr create \
         --title "⬆️ Bump to $version" \
-        --body "## Version Bump to $version
-
-### Changes
-- Updated package version from $(git show HEAD~1:esxport/__init__.py | grep __version__ | cut -d'"' -f2) to $version
-- Updated Elasticsearch dependency to $version
-- Updated test environment to use Elasticsearch $version
-
-### Testing
-- [ ] All existing tests pass
-- [ ] Compatibility verified with Elasticsearch $version
-- [ ] Pre-commit hooks pass
-
-This PR was created automatically by the version bump script.
-
-**Note:** This PR will be auto-merged once all checks pass." \
+        --body "Version bump to Elasticsearch $version - Updates package version and dependencies" \
         --base main \
-        --head "$branch_name")
+        --head "$branch_name" 2>/dev/null)
 
     log_success "Pull Request created: $pr_url"
-    echo "$pr_url"
+    # Return URL without any colored output
+    printf "%s" "$pr_url"
 }
 
 wait_for_checks() {
@@ -225,16 +229,17 @@ main() {
     check_prerequisites
 
     # Step 2: Create branch
-    branch_name=$(create_branch "$version")
+    create_branch "$version"
 
-    # Step 3: Bump version
+    branch_name=$(git rev-parse --abbrev-ref HEAD)
+
     bump_version "$version"
 
     # Step 4: Push branch
     push_branch "$branch_name"
 
     # Step 5: Create PR
-    pr_url=$(create_pr "$version" "$branch_name")
+    pr_url=$(create_pr "$version" "$branch_name" 2>/dev/null)
 
     # Step 6: Wait for checks
     if wait_for_checks "$pr_url"; then
@@ -251,6 +256,8 @@ main() {
         log_info "PR URL: $pr_url"
         exit 1
     fi
+
+
 }
 
 # Trap to cleanup on exit
