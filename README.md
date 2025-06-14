@@ -2,6 +2,7 @@
 [![codecov](https://codecov.io/gh/nikhilbadyal/esxport/graph/badge.svg?token=zaoNlW2YXq)](https://codecov.io/gh/nikhilbadyal/esxport)
 [![PyPI Downloads](https://static.pepy.tech/badge/esxport)](https://pypi.org/project/esxport/)
 [![PyPI Version](https://img.shields.io/pypi/v/esxport.svg?style=flat)](https://pypi.org/project/esxport/)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=nikhilbadyal_esxport&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=nikhilbadyal_esxport)
 
 A Python-based CLI utility and module designed for querying Elasticsearch and exporting results as a CSV file.
 

@@ -1,4 +1,4 @@
-name: Unit Pytest
+name: Unit Pytest & Sonar Analysis
 on:
   pull_request:
     branches: [main]
@@ -25,7 +25,7 @@ jobs:
           - { PYTHON_VERSION: '3.9' }
           - { PYTHON_VERSION: '3.10' }
           - { PYTHON_VERSION: '3.11' }
-          - { PYTHON_VERSION: '3.12' }
+          - { PYTHON_VERSION: '3.12', GENERATE_COVERAGE: 'true' }
           - { PYTHON_VERSION: '3.13' }
     steps:
       - name: "Checkout to repository"
@@ -77,3 +77,32 @@ jobs:
           output-to: step-summary
           only-summary: true
           max-annotations: 0
+
+      - name: Upload coverage report for SonarQube
+        if: matrix.GENERATE_COVERAGE == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
+          retention-days: 1
+
+  sonarqube:
+    name: SonarQube Analysis
+    runs-on: ubuntu-latest
+    needs: tests
+    if: always()
+    steps:
+      - name: "Checkout to repository"
+        uses: actions/checkout@v4.2.2
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+
+      - name: Download coverage report
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-report
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
