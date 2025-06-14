@@ -1,7 +1,7 @@
 """CLI."""
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 import click
 from click import Context, Parameter
@@ -13,9 +13,6 @@ from .__init__ import __version__
 from .click_opt.click_custom import JSON, sort
 from .constant import META_FIELDS, default_config_fields
 from .strings import cli_version
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 
 def print_version(ctx: Context, _: Parameter, value: bool) -> None:  # noqa: FBT001
@@ -140,27 +137,8 @@ def print_version(ctx: Context, _: Parameter, value: bool) -> None:  # noqa: FBT
     default=default_config_fields["debug"],
     help="Debug mode on.",
 )
-def cli(  # noqa: PLR0913
-    query: str,
-    output_file: Path,
-    url: str,
-    user: str,
-    password: str,
-    index_prefixes: str,
-    fields: str,
-    sort: str,
-    delimiter: str,
-    max_results: str,
-    scroll_size: str,
-    meta_fields: str,
-    verify_certs: str,
-    ca_certs: str,
-    client_cert: str,
-    client_key: str,
-    debug: str,
-) -> None:
+def cli(**kwargs: Any) -> None:
     """Elastic Search to CSV Exporter."""
-    kwargs: dict[str, Any] = {k: v for k, v in locals().items() if k != "self"}
     cli_options = CliOptions(kwargs)
     es = EsXport(cli_options)
     es.export()
