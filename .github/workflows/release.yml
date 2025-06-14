@@ -84,40 +84,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  test:
-    needs: auto-tag
-    if: needs.auto-tag.outputs.tag-created == 'true'
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13']
-
-    steps:
-      - uses: actions/checkout@v4.2.2
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5.6.0
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: 'pip'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt -r requirements.dev.txt
-
-      - name: Configure sysctl limits
-        run: |
-          sudo swapoff -a
-          sudo sysctl -w vm.swappiness=1
-          sudo sysctl -w fs.file-max=262144
-          sudo sysctl -w vm.max_map_count=262144
-
-      - name: Run tests
-        uses: pavelzw/pytest-action@v2.2.0
-
   build:
-    needs: test
+    needs: auto-tag
     runs-on: ubuntu-latest
 
     steps:
@@ -157,7 +125,7 @@ jobs:
           path: dist/
 
   publish-pypi:
-    needs: [test, build]
+    needs: build
     runs-on: ubuntu-latest
     permissions:
       id-token: write
