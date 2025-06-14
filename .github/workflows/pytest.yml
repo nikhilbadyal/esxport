@@ -1,4 +1,4 @@
-name: Pytest
+name: Unit Pytest
 on:
   pull_request:
     branches: [main]

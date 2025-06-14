@@ -1,0 +1,132 @@
+name: 🔍 Elasticsearch Version Check
+
+on:
+  schedule:
+    # Runs every 30 minutes
+    - cron: '*/30 * * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  check-elasticsearch-version:
+    name: Check for new Elasticsearch version
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: 🛒 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 📦 Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests packaging
+
+      - name: 🔍 Check versions
+        id: version-check
+        run: |
+          python << 'EOF'
+          import re
+          import requests
+          from packaging import version
+          import sys
+          import os
+
+          # Get current elasticsearch version from requirements.txt
+          with open('requirements.txt', 'r') as f:
+              content = f.read()
+
+          # Extract current elasticsearch version
+          match = re.search(r'elasticsearch==([0-9\.]+)', content)
+          if not match:
+              print("❌ Could not find elasticsearch version in requirements.txt")
+              sys.exit(1)
+
+          current_version = match.group(1)
+          print(f"📋 Current elasticsearch version: {current_version}")
+
+          # Get latest version from PyPI
+          try:
+              response = requests.get('https://pypi.org/pypi/elasticsearch/json', timeout=30)
+              response.raise_for_status()
+              data = response.json()
+              latest_version = data['info']['version']
+              print(f"🆕 Latest elasticsearch version: {latest_version}")
+          except Exception as e:
+              print(f"❌ Failed to fetch latest version from PyPI: {e}")
+              sys.exit(1)
+
+          # Compare versions
+          if version.parse(latest_version) > version.parse(current_version):
+              print(f"🚀 New version available: {current_version} -> {latest_version}")
+
+              # Set outputs for GitHub Actions
+              with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+                  f.write(f"update_needed=true\n")
+                  f.write(f"current_version={current_version}\n")
+                  f.write(f"latest_version={latest_version}\n")
+          else:
+              print(f"✅ Version is up to date: {current_version}")
+              with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+                  f.write(f"update_needed=false\n")
+          EOF
+
+      - name: 🔧 Setup Git and GitHub CLI
+        if: steps.version-check.outputs.update_needed == 'true'
+        run: |
+          # Configure git
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Install and setup GitHub CLI
+          sudo apt-get update
+          sudo apt-get install -y gh
+
+          # Authenticate GitHub CLI with the token
+          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+
+          # Set the repository as default
+          gh repo set-default ${{ github.repository }}
+
+      - name: 📦 Install tbump
+        if: steps.version-check.outputs.update_needed == 'true'
+        run: |
+          pip install tbump
+
+      - name: 🚀 Run version bump script
+        if: steps.version-check.outputs.update_needed == 'true'
+        run: |
+          # Make the script executable
+          chmod +x scripts/bump-version.sh
+
+          # Run the bump version script with the new version
+          ./scripts/bump-version.sh ${{ steps.version-check.outputs.latest_version }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 💬 Comment on success
+        if: steps.version-check.outputs.update_needed == 'true' && success()
+        run: |
+          echo "✅ Successfully created PR to bump Elasticsearch version from ${{ steps.version-check.outputs.current_version }} to ${{ steps.version-check.outputs.latest_version }}"
+
+      - name: 📝 Log when no update needed
+        if: steps.version-check.outputs.update_needed == 'false'
+        run: |
+          echo "ℹ️  Elasticsearch version is already up to date. No action needed."
+
+      - name: 🚨 Handle errors
+        if: failure()
+        run: |
+          echo "❌ Workflow failed. Check the logs above for details."
+          echo "Current version: ${{ steps.version-check.outputs.current_version }}"
+          echo "Latest version: ${{ steps.version-check.outputs.latest_version }}"
+          echo "Update needed: ${{ steps.version-check.outputs.update_needed }}"
