@@ -142,7 +142,7 @@ def test_cli_valid_json_query_format() -> None:
                 "--password",
                 "dummy",
                 "--url",
-                "http://nonexistent:9200",
+                "https://nonexistent:9200",
                 "--max-results",
                 "1",
             ],
