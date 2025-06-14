@@ -1,0 +1,132 @@
+name: Integration Tests
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  integration-tests:
+    name: Integration Tests - Python ${{ matrix.python-version }}
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13']
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.2.2
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5.3.0
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Install Hatch
+        run: |
+          python -m pip install --upgrade pip
+          pip install hatch
+
+      - name: Test Wheel Build and Installation
+        run: hatch run integration:test-wheel
+
+      - name: Test Source Distribution
+        run: hatch run integration:test-sdist
+
+      - name: Test Both Distributions
+        run: hatch run integration:test-both
+
+  test-installation-methods:
+    name: Test Installation Methods
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.2.2
+
+      - name: Setup Python
+        uses: actions/setup-python@v5.3.0
+        with:
+          python-version: '3.11'
+
+      - name: Install Hatch
+        run: |
+          python -m pip install --upgrade pip
+          pip install hatch
+
+      - name: Test Editable Install
+        run: |
+          python -m venv test_env
+          source test_env/bin/activate
+          pip install --upgrade pip
+          pip install -e .[dev]
+          python -c "import esxport; print(f'Editable install: {esxport.__version__}')"
+          python -m esxport --version
+
+      - name: Test Regular Install
+        run: |
+          python -m venv test_env2
+          source test_env2/bin/activate
+          pip install --upgrade pip
+          pip install .
+          python -c "import esxport; print(f'Regular install: {esxport.__version__}')"
+          python -m esxport --version
+
+  test-package-isolation:
+    name: Test Package Isolation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.2.2
+
+      - name: Setup Python
+        uses: actions/setup-python@v5.3.0
+        with:
+          python-version: '3.11'
+
+      - name: Install Hatch
+        run: |
+          python -m pip install --upgrade pip
+          pip install hatch
+
+      - name: Test Isolated Package
+        run: |
+          # Build and install in clean environment
+          hatch build --target wheel
+          python -m venv isolated_env
+          source isolated_env/bin/activate
+          pip install --upgrade pip
+          pip install dist/*.whl
+
+          # Test package works without dev dependencies
+          python -c "
+          import esxport
+          from esxport import EsXport, CliOptions
+
+          kwargs = {
+              'query': {'query': {'match_all': {}}},
+              'output_file': 'test.csv',
+              'index_prefixes': ['test'],
+              'password': 'test',
+              'verify_certs': False
+          }
+
+          options = CliOptions(kwargs)
+          esxport_instance = EsXport(options)
+          print('✅ Package works in isolated environment')
+          "
+
+          # Test CLI works
+          python -m esxport --help > /dev/null
+          python -m esxport --version
+          echo "✅ CLI works in isolated environment"
