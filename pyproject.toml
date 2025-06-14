@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling","hatch-requirements-txt"]
+requires = ["hatchling", "hatch-requirements-txt"]
 build-backend = "hatchling.build"
 
 #Project
@@ -56,14 +56,105 @@ dev = ["requirements.dev.txt"]
 [tool.hatch.version]
 path = "esxport/__init__.py"
 [tool.hatch.build.targets.sdist]
-only-include = ["esxport"]
-core-metadata-version = "2.4"
+include = [
+  "/esxport",
+  "/README.md",
+  "/LICENSE",
+]
+exclude = [
+  "/.github",
+  "/docs",
+  "/test",
+  "/scripts",
+  "*.pyc",
+  "/__pycache__",
+]
+
 [tool.hatch.build.targets.wheel]
-only-include = ["esxport"]
-core-metadata-version = "2.4"
+packages = ["esxport"]
+exclude = [
+  "/esxport/**/*test*",
+  "/esxport/**/__pycache__",
+]
 
+#Hatch Environments
+[tool.hatch.envs.default]
+# No hardcoded dependencies - using requirements files via plugin
 
+[tool.hatch.envs.default.scripts]
+test = "pytest {args:test}"
+test-cov = "coverage run -m pytest {args:test}"
+cov-report = [
+  "- coverage combine",
+  "coverage report",
+]
+cov = [
+  "test-cov",
+  "cov-report",
+]
 
+[tool.hatch.envs.lint]
+detached = true
+features = ["dev"]
+# No hardcoded dependencies - using pre-commit
+
+[tool.hatch.envs.lint.scripts]
+style = "pre-commit run --all-files"
+
+[tool.hatch.envs.docs]
+features = ["dev"]
+# No hardcoded dependencies - add to requirements.dev.txt if needed
+
+[tool.hatch.envs.docs.scripts]
+build = "mkdocs build --clean --strict"
+serve = "mkdocs serve --dev-addr localhost:8000"
+
+# Testing matrix for different Python versions
+[[tool.hatch.envs.all.matrix]]
+python = ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+
+[tool.hatch.envs.release]
+detached = true
+features = ["dev"]
+# No hardcoded dependencies - using tbump from requirements.dev.txt
+
+[tool.hatch.envs.release.scripts]
+bump = "tbump {args}"
+check = "twine check dist/*"
+upload-test = "twine upload --repository testpypi dist/*"
+upload = "twine upload dist/*"
+
+[tool.hatch.envs.integration]
+description = "Integration tests for built packages"
+features = ["dev"]
+# No hardcoded dependencies - using pytest from requirements.dev.txt
+
+[tool.hatch.envs.integration.scripts]
+test = [
+  "pip install -e .",
+  "cd test/integration && python -m pytest . -v --tb=short -p no:cov",
+]
+test-wheel = [
+  "python -c 'import shutil; shutil.rmtree(\"dist\", ignore_errors=True)'",
+  "hatch build --target wheel",
+  "pip install --force-reinstall --no-deps dist/*.whl",
+  "cd test/integration && python -m pytest . -v --tb=short -p no:cov",
+]
+test-sdist = [
+  "python -c 'import shutil; shutil.rmtree(\"dist\", ignore_errors=True)'",
+  "hatch build --target sdist",
+  "pip install --force-reinstall --no-deps dist/*.tar.gz",
+  "cd test/integration && python -m pytest . -v --tb=short -p no:cov",
+]
+test-both = [
+  "hatch run integration:test-wheel",
+  "hatch run integration:test-sdist",
+]
+test-install-from-pypi = [
+  "pip uninstall -y esxport",
+  "pip install esxport",
+  "cd test/integration && python -m pytest test_pypi_install.py -v -p no:cov",
+]
 
 [tool.ruff]
 line-length = 120
@@ -83,6 +174,17 @@ convention = "numpy"
 [tool.ruff.per-file-ignores]
 "**test.py" = ["S101","SLF001","PT019","S311"]
 
+[tool.ruff.lint.extend-per-file-ignores]
+"test/**/*.py" = [
+    # at least this three should be fine in tests:
+    "S101", # asserts allowed in tests...
+    "S603", # asserts allowed in tests...
+    "PLR2004",
+    "BLE001",
+    "PERF401",
+    "PERF203",
+    "ANN201",
+]
 
 [tool.docformatter]
 recursive = true
@@ -108,7 +210,8 @@ warn_unused_configs = true
 pythonpath = ["esxport"]
 
 [tool.pytest.ini_options]
-addopts = "--cov=. --cov-report=xml --cov-report=term-missing --junitxml=junit.xml --ff -x --no-cov-on-fail --emoji --dist loadgroup --tx=4*popen"
+testpaths = ["test"]
+addopts = "--cov=. --cov-report=xml --cov-report=term-missing --junitxml=junit.xml --ff -x --no-cov-on-fail --emoji --dist loadgroup --tx=4*popen --ignore=test/integration"
 [tool.coverage.run]
 #branch = true #https://github.com/nedbat/coveragepy/issues/605
 parallel = true
@@ -121,7 +224,8 @@ sort="-Stmts"
 omit = ["test/**"]
 exclude_lines = [
     'if TYPE_CHECKING:',
-    'if __name__ == "__main__":'
+    'if __name__ == "__main__":',
+    'cli()'
     ]
 
 

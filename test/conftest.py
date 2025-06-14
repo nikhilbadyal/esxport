@@ -153,7 +153,7 @@ def pytest_configure(config: Config) -> None:
     path = "./test/es_bootstrap.sh"
     if Path(path).exists():
         # https://github.com/astral-sh/ruff/issues/4045
-        status = subprocess.call(path)  # noqa: S603
+        status = subprocess.call(path)
         if status > STATUS_OK:
             pytest.fail("Failed to start elasticsearch server.", pytrace=False)
     else:

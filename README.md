@@ -178,3 +178,37 @@ esxport = EsXport(cli_options)
 # Export data
 esxport.export()
 ```
+
+Development
+-----------
+
+This project uses **Hatch** for development environment management and packaging.
+
+### Quick Start
+
+```bash
+# Install hatch
+pip install hatch
+
+# Run tests
+hatch run test
+
+# Format code
+hatch run lint:fmt
+
+# Type checking
+hatch run lint:typing
+
+# Serve documentation locally
+hatch run docs:serve
+```
+
+### Available Environments
+
+- **`default`** - Development and testing environment
+- **`lint`** - Code formatting, linting, and type checking
+- **`docs`** - Documentation building and serving
+- **`release`** - Version management and publishing
+- **`all`** - Matrix testing across Python versions (3.8-3.13)
+
+For comprehensive documentation on the development workflow, see: **[docs/HATCH_DEVELOPMENT.md](docs/HATCH_DEVELOPMENT.md)**

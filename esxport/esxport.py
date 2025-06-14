@@ -243,6 +243,3 @@ class EsXport(object):
         self.search_query()
         self._clean_scroll_ids()
         self._export()
-
-
-#
