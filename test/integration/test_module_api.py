@@ -1,4 +1,5 @@
 """Test module API functionality of installed package."""
+
 import tempfile
 from pathlib import Path
 

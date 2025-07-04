@@ -1,9 +1,8 @@
 """Search API Test cases."""
+
 import inspect
 import json
 from pathlib import Path
-from test.esxport._export_test import TestExport
-from test.esxport._prepare_search_query_test import TestSearchQuery
 from unittest.mock import Mock, patch
 
 import pytest
@@ -11,6 +10,8 @@ from typing_extensions import Self
 
 from esxport.esxport import EsXport
 from esxport.exceptions import MetaFieldNotFoundError, NoDataFoundError, ScrollExpiredError
+from test.esxport._export_test import TestExport
+from test.esxport._prepare_search_query_test import TestSearchQuery
 
 
 class TestVSearchQuery:

@@ -1,4 +1,5 @@
 """Useful constants."""
+
 FLUSH_BUFFER = 1000  # Chunk of docs to flush in temp file
 CONNECTION_TIMEOUT = 120
 TIMES_TO_TRY = 3
