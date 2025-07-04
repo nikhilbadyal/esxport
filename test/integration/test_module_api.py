@@ -3,11 +3,15 @@
 import tempfile
 from pathlib import Path
 
+import esxport
+from esxport import CliOptions, EsXport, __version__
+from esxport.click_opt.click_custom import JSON, sort
+from esxport.constant import META_FIELDS, default_config_fields
+from esxport.strings import cli_version
+
 
 def test_cli_options_class() -> None:
     """Test CliOptions class functionality."""
-    from esxport import CliOptions
-
     kwargs = {
         "query": {"query": {"match_all": {}}},
         "output_file": "test.csv",
@@ -32,8 +36,6 @@ def test_cli_options_class() -> None:
 
 def test_esxport_class_instantiation() -> None:
     """Test EsXport class can be instantiated."""
-    from esxport import CliOptions, EsXport
-
     kwargs = {
         "query": {"query": {"match_all": {}}},
         "output_file": "test.csv",
@@ -53,8 +55,6 @@ def test_esxport_class_instantiation() -> None:
 
 def test_cli_options_defaults() -> None:
     """Test that CliOptions applies defaults correctly."""
-    from esxport import CliOptions
-
     minimal_kwargs = {
         "query": {"query": {"match_all": {}}},
         "output_file": "test.csv",
@@ -74,8 +74,6 @@ def test_cli_options_defaults() -> None:
 
 def test_module_constants_available() -> None:
     """Test that module constants are available."""
-    from esxport.constant import META_FIELDS, default_config_fields
-
     # Test META_FIELDS is available and populated
     assert META_FIELDS is not None
     assert isinstance(META_FIELDS, (list, tuple))
@@ -90,8 +88,6 @@ def test_module_constants_available() -> None:
 
 def test_cli_custom_imports() -> None:
     """Test that custom CLI components can be imported."""
-    from esxport.click_opt.click_custom import JSON, sort
-
     # Test that custom click types are available
     assert JSON is not None
     assert sort is not None
@@ -99,8 +95,6 @@ def test_cli_custom_imports() -> None:
 
 def test_module_with_file_operations() -> None:
     """Test module API with actual file operations."""
-    from esxport import CliOptions, EsXport
-
     with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False) as f:
         output_file = f.name
 
@@ -134,9 +128,6 @@ def test_module_with_file_operations() -> None:
 
 def test_version_consistency() -> None:
     """Test that version is consistent across imports."""
-    import esxport
-    from esxport import __version__
-
     # Version should be consistent
     assert __version__ == esxport.__version__
 
@@ -154,9 +145,6 @@ def test_version_consistency() -> None:
 
 def test_strings_module() -> None:
     """Test that strings module is available and functional."""
-    from esxport import __version__
-    from esxport.strings import cli_version
-
     # Test that cli_version template is available
     assert cli_version is not None
     assert isinstance(cli_version, str)

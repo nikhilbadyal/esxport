@@ -7,19 +7,19 @@ from pathlib import Path
 
 import pytest
 
+import esxport
+import esxport.cli
+from esxport import CliOptions, EsXport, __version__, cli
+
 
 def test_main_package_import() -> None:
     """Test that main package can be imported."""
-    import esxport
-
     assert hasattr(esxport, "__version__")
     assert esxport.__version__ is not None
 
 
 def test_version_import() -> None:
     """Test version import from package."""
-    from esxport import __version__
-
     assert __version__ is not None
     assert isinstance(__version__, str)
     assert len(__version__.split(".")) >= 2  # At least major.minor
@@ -27,8 +27,6 @@ def test_version_import() -> None:
 
 def test_core_classes_import() -> None:
     """Test that core classes can be imported."""
-    from esxport import CliOptions, EsXport
-
     # Verify classes exist and are callable
     assert callable(EsXport)
     assert callable(CliOptions)
@@ -36,8 +34,6 @@ def test_core_classes_import() -> None:
 
 def test_cli_module_import() -> None:
     """Test CLI module imports."""
-    from esxport import cli
-
     assert hasattr(cli, "cli")
     assert callable(cli.cli)
 
@@ -70,8 +66,6 @@ def test_all_submodules_importable() -> None:
 
 def test_package_installation_location() -> None:
     """Verify package is installed in expected location."""
-    import esxport
-
     package_path = Path(esxport.__file__).parent
 
     # Check if we're testing an installed package or development package
@@ -93,8 +87,6 @@ def test_package_installation_location() -> None:
 
 def test_entry_points_available() -> None:
     """Test that CLI entry points are available."""
-    import esxport.cli
-
     # The CLI function should be available
     assert hasattr(esxport.cli, "cli")
 

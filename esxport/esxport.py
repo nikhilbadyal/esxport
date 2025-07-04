@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from elasticsearch.exceptions import ConnectionError
+from elasticsearch.exceptions import ConnectionError as ESConnectionError
 from loguru import logger
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 from tqdm import tqdm
@@ -60,7 +60,7 @@ class EsXport(object):
         wait=wait_exponential(2),
         stop=stop_after_attempt(TIMES_TO_TRY),
         reraise=True,
-        retry=retry_if_exception_type(ConnectionError),
+        retry=retry_if_exception_type(ESConnectionError),
     )
     def _check_indexes(self: Self) -> None:
         """Check if input indexes exist."""
@@ -137,7 +137,7 @@ class EsXport(object):
         wait=wait_exponential(2),
         stop=stop_after_attempt(TIMES_TO_TRY),
         reraise=True,
-        retry=retry_if_exception_type(ConnectionError),
+        retry=retry_if_exception_type(ESConnectionError),
     )
     def next_scroll(self: Self, scroll_id: str) -> Any:
         """Paginate to the next page."""
@@ -176,7 +176,7 @@ class EsXport(object):
         wait=wait_exponential(2),
         stop=stop_after_attempt(TIMES_TO_TRY),
         reraise=True,
-        retry=retry_if_exception_type(ConnectionError),
+        retry=retry_if_exception_type(ESConnectionError),
     )
     def search_query(self: Self) -> Any:
         """Search the index."""
