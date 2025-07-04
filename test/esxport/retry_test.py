@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any
 from unittest import mock
 
 import pytest
-from elasticsearch.exceptions import ConnectionError
+from elasticsearch.exceptions import ConnectionError as ESConnectionError
 from typing_extensions import Self
 
 from esxport.constant import TIMES_TO_TRY
@@ -26,9 +26,9 @@ class TestRetry:
         mocker.patch.object(
             esxport_obj.es_client,
             "indices_exists",
-            side_effect=ConnectionError("mocked error"),
+            side_effect=ESConnectionError("mocked error"),
         )
-        with pytest.raises(ConnectionError):
+        with pytest.raises(ESConnectionError):
             esxport_obj._check_indexes()
 
         stats: dict[str, Any] = esxport_obj._check_indexes.statistics  # type: ignore[attr-defined]
