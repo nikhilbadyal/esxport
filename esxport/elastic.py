@@ -1,4 +1,5 @@
 """Client to interact with Elasticsearch."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any

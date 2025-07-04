@@ -1,4 +1,5 @@
 """Main export module."""
+
 from __future__ import annotations
 
 import contextlib
@@ -79,7 +80,7 @@ class EsXport(object):
         """Check if cluster is live."""
         try:
             _ = self.es_client.ping()
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             msg = f"Unable to connect with cluster {e}."
             raise HealthCheckError(msg) from e
 

@@ -1,4 +1,5 @@
 """Test CLI functionality of installed package."""
+
 import json
 import subprocess
 import sys

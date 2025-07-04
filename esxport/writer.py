@@ -1,4 +1,5 @@
 """Write Data to file."""
+
 from __future__ import annotations
 
 import csv

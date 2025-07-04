@@ -1,4 +1,5 @@
 """Test that all imports work correctly in the installed package."""
+
 from __future__ import annotations
 
 import importlib

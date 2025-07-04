@@ -1,4 +1,5 @@
 """Test PyPI installation functionality."""
+
 import subprocess
 import sys
 

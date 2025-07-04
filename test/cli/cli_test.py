@@ -1,9 +1,8 @@
 """Click CLI test cases."""
+
 import inspect
 import json
 from pathlib import Path
-from test.esxport._export_test import TestExport
-from test.esxport._prepare_search_query_test import TestSearchQuery
 from unittest.mock import patch
 
 from click.testing import CliRunner
@@ -13,6 +12,8 @@ from esxport.__init__ import __version__
 from esxport.cli import cli
 from esxport.esxport import EsXport
 from esxport.strings import cli_version, invalid_query_format, invalid_sort_format
+from test.esxport._export_test import TestExport
+from test.esxport._prepare_search_query_test import TestSearchQuery
 
 args = {
     "q": '{"query":{"match_all":{}}}',
