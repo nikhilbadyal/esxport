@@ -1,4 +1,5 @@
 """Click test cases."""
+
 import json
 
 from typing_extensions import Self

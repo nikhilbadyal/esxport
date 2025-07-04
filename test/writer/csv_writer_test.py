@@ -1,16 +1,17 @@
 """File Writer Test case."""
+
 from __future__ import annotations
 
 import csv
 import inspect
 import json
 from pathlib import Path
-from test.esxport._export_test import TestExport
 from typing import TYPE_CHECKING, Any
 
 from faker import Faker
 
 from esxport.writer import Writer
+from test.esxport._export_test import TestExport
 
 if TYPE_CHECKING:
     from typing_extensions import Self
