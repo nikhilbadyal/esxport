@@ -19,7 +19,7 @@ jobs:
       - name: 🛒 Checkout repository
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT_TOKEN }}
 
       - name: 🐍 Set up Python
         uses: actions/setup-python@v5
@@ -92,7 +92,7 @@ jobs:
           sudo apt-get install -y gh
 
           # Authenticate GitHub CLI with the token
-          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+          echo "${{ secrets.PAT_TOKEN }}" | gh auth login --with-token
 
           # Set the repository as default
           gh repo set-default ${{ github.repository }}
@@ -111,7 +111,7 @@ jobs:
           # Run the bump version script with the new version
           ./scripts/bump-version.sh ${{ steps.version-check.outputs.latest_version }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
       - name: 💬 Comment on success
         if: steps.version-check.outputs.update_needed == 'true' && success()

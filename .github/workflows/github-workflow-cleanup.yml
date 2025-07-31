@@ -12,5 +12,5 @@ jobs:
     name: GitHub Cleanup
     uses: nikhilbadyal/ghactions/.github/workflows/github-workflow-cleaner.yml@main
     secrets:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.PAT_TOKEN }}
       GITHUB_REPOSITORY: ${{ github.repository }}
