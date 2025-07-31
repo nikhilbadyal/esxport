@@ -69,11 +69,29 @@ check_prerequisites() {
         exit 1
     fi
 
-    # Check for uncommitted changes
-    if ! git diff-index --quiet HEAD --; then
-        log_error "You have uncommitted changes. Please commit or stash them first."
+    # Check for uncommitted changes more reliably
+    if ! git diff --quiet || ! git diff --cached --quiet; then
+        log_error "You have uncommitted changes. Here's what's changed:\n"
+
+        echo -e "${YELLOW}--- git status ---${NC}"
+        git status
+
+        echo -e "\n${YELLOW}--- git diff (unstaged changes) ---${NC}"
+        git diff
+
+        echo -e "\n${YELLOW}--- git diff --cached (staged changes) ---${NC}"
+        git diff --cached
+
+        echo -e "\n${YELLOW}--- git diff-index HEAD (raw index diff) ---${NC}"
+        git diff-index HEAD
+
+        echo -e "\n${YELLOW}--- git diff-index HEAD --name-status ---${NC}"
+        git diff-index --name-status HEAD
+
+        echo -e "\n${RED}Please commit or stash the above changes before running the script.${NC}"
         exit 1
     fi
+
 
     log_success "All prerequisites met"
 }

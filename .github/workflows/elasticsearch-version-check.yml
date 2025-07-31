@@ -100,7 +100,7 @@ jobs:
       - name: 📦 Install tbump
         if: steps.version-check.outputs.update_needed == 'true'
         run: |
-          pip install tbump
+          pip install tbump pre-commit
 
       - name: 🚀 Run version bump script
         if: steps.version-check.outputs.update_needed == 'true'
