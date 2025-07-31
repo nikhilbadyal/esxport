@@ -7,7 +7,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Iterator
+from typing import TYPE_CHECKING, Any
 from unittest.mock import Mock, patch
 
 import pytest
@@ -22,6 +22,8 @@ from esxport.esxport import EsXport
 from test.esxport._prepare_search_query_test import TestSearchQuery
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from _pytest.config import Config
     from elasticsearch import Elasticsearch
 

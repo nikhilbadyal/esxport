@@ -69,8 +69,11 @@ class TestExport:
 
     def test_ping_cluster_failure(self: Self, _: Any, esxport_obj: EsXport) -> None:
         """Test that _ping_cluster raises HealthCheckError when ping fails."""
-        with patch.object(esxport_obj.es_client, "ping", side_effect=ConnectionError("mocked error")), pytest.raises(
-            HealthCheckError,
+        with (
+            patch.object(esxport_obj.es_client, "ping", side_effect=ConnectionError("mocked error")),
+            pytest.raises(
+                HealthCheckError,
+            ),
         ):
             esxport_obj._ping_cluster()
 
@@ -84,11 +87,15 @@ class TestExport:
         esxport_obj.opts.output_file = f"{inspect.stack()[0].function}.csv"
 
         # Mock methods and Elasticsearch client to simulate no results
-        with patch.object(EsXport, "_extract_headers", return_value=self.csv_header), patch.object(
-            EsXport,
-            "search_query",
-            side_effect=NoDataFoundError("No Data found in index."),
-        ), pytest.raises(NoDataFoundError, match="No Data found in index."):
+        with (
+            patch.object(EsXport, "_extract_headers", return_value=self.csv_header),
+            patch.object(
+                EsXport,
+                "search_query",
+                side_effect=NoDataFoundError("No Data found in index."),
+            ),
+            pytest.raises(NoDataFoundError, match="No Data found in index."),
+        ):
             esxport_obj.export()
 
         TestExport.rm_export_file(f"{inspect.stack()[0].function}.csv")

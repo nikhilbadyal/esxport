@@ -96,9 +96,12 @@ class TestVSearchQuery:
         data = esxport_obj_with_data.es_client.search()
         no_of_records = data["hits"]["total"]["value"]
         flush_size = 1
-        with patch.object(esxport_obj_with_data, "_flush_to_file") as mock_flush_to_file, patch(
-            "esxport.esxport.FLUSH_BUFFER",
-            flush_size,
+        with (
+            patch.object(esxport_obj_with_data, "_flush_to_file") as mock_flush_to_file,
+            patch(
+                "esxport.esxport.FLUSH_BUFFER",
+                flush_size,
+            ),
         ):
             esxport_obj_with_data.search_query()
             assert mock_flush_to_file.call_count == no_of_records / flush_size + 1
