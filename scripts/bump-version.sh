@@ -46,7 +46,7 @@ check_prerequisites() {
         exit 1
     fi
 
-    # Set default repository
+        # Set default repository
     log_info "Setting default GitHub repository..."
     gh repo set-default --view &> /dev/null || gh repo set-default
 
@@ -62,19 +62,18 @@ check_prerequisites() {
         exit 1
     fi
 
-    # Check if on main branch
-    current_branch=$(git branch --show-current)
-    if [ "$current_branch" != "main" ]; then
-        log_error "Please switch to main branch first. Current branch: $current_branch"
-        exit 1
-    fi
+
+    git --no-pager diff
+
 
     # Check for uncommitted changes
+    log_info "Checking for uncommitted changes..."
     if ! git diff-index --quiet HEAD --; then
-        log_error "You have uncommitted changes. Please commit or stash them first."
+        git status --porcelain
+        git diff --name-only
+        log_error "You have uncommitted changes. Please commit or stash them first. ${git --no-pager diff}"
         exit 1
     fi
-
     log_success "All prerequisites met"
 }
 
