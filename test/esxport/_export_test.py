@@ -94,7 +94,7 @@ class TestExport:
                 "search_query",
                 side_effect=NoDataFoundError("No Data found in index."),
             ),
-            pytest.raises(NoDataFoundError, match="No Data found in index."),
+            pytest.raises(NoDataFoundError, match=r"No Data found in index."),
         ):
             esxport_obj.export()
 
