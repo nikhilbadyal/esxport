@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
+from urllib.parse import urlparse
 
 import elasticsearch
 from elasticsearch import Elasticsearch
@@ -22,15 +23,34 @@ class ElasticsearchClient:
         self: Self,
         cli_options: CliOptions,
     ) -> None:
-        self.client: Elasticsearch = elasticsearch.Elasticsearch(
-            hosts=cli_options.url,
-            request_timeout=CONNECTION_TIMEOUT,
-            basic_auth=(cli_options.user, cli_options.password),
-            verify_certs=cli_options.verify_certs,
-            ca_certs=cli_options.ca_certs,
-            client_cert=cli_options.client_cert,
-            client_key=cli_options.client_key,
-        )
+        # Parse URL to determine scheme (more robust than string checking)
+        parsed_url = urlparse(cli_options.url)
+        is_https = parsed_url.scheme.lower() == "https"
+
+        # Common connection parameters
+        hosts = [cli_options.url]  # Wrap in list for Elasticsearch client consistency
+        timeout = CONNECTION_TIMEOUT
+        auth = (cli_options.user, cli_options.password)
+
+        # Conditionally pass TLS options for HTTPS connections only
+        if is_https:
+            client = elasticsearch.Elasticsearch(
+                hosts=hosts,
+                request_timeout=timeout,
+                basic_auth=auth,
+                verify_certs=cli_options.verify_certs,
+                ca_certs=cli_options.ca_certs,
+                client_cert=cli_options.client_cert,
+                client_key=cli_options.client_key,
+            )
+        else:
+            client = elasticsearch.Elasticsearch(
+                hosts=hosts,
+                request_timeout=timeout,
+                basic_auth=auth,
+            )
+
+        self.client: Elasticsearch = client
 
     def indices_exists(self: Self, index: str | list[str] | tuple[str, ...]) -> bool:
         """Check if a given index exists."""
