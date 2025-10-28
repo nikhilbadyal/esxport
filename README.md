@@ -210,6 +210,6 @@ hatch run docs:serve
 - **`lint`** - Code formatting, linting, and type checking
 - **`docs`** - Documentation building and serving
 - **`release`** - Version management and publishing
-- **`all`** - Matrix testing across Python versions (3.10-3.13)
+- **`all`** - Matrix testing across Python versions (3.10-3.14)
 
 For comprehensive documentation on the development workflow, see: **[docs/HATCH_DEVELOPMENT.md](docs/HATCH_DEVELOPMENT.md)**
