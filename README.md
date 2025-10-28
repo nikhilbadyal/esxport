@@ -9,7 +9,7 @@ A Python-based CLI utility and module designed for querying Elasticsearch and ex
 Requirements
 ------------
 1. This tool should be used with Elasticsearch 8.x version.
-2. You also need >= `Python 3.9.x`.
+2. You also need >= `Python 3.10.x`.
 
 Installation
 ------------
@@ -210,6 +210,6 @@ hatch run docs:serve
 - **`lint`** - Code formatting, linting, and type checking
 - **`docs`** - Documentation building and serving
 - **`release`** - Version management and publishing
-- **`all`** - Matrix testing across Python versions (3.9-3.13)
+- **`all`** - Matrix testing across Python versions (3.10-3.13)
 
 For comprehensive documentation on the development workflow, see: **[docs/HATCH_DEVELOPMENT.md](docs/HATCH_DEVELOPMENT.md)**

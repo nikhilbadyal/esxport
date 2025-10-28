@@ -118,7 +118,7 @@ hatch run integration:test-both   # Test both wheel and sdist
 ```
 
 ### **Matrix Testing** (`all`)
-Test across multiple Python versions (3.9, 3.10, 3.11, 3.12, 3.13).
+Test across multiple Python versions (3.10, 3.11, 3.12, 3.13).
 
 **Usage:**
 ```bash
