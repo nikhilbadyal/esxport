@@ -1,0 +1,8 @@
+version: "1"
+rules:
+  - base: master                # Your default branch
+    upstream: owner:master      # Replace 'owner' with the upstream repo owner
+    mergeMethod: rebase         # <-- This is the key line
+    mergeUnstable: true         # Optional: allows rebase even when not fully clean
+label: ":arrow_heading_down: pull"
+conflictLabel: "merge-conflict"
