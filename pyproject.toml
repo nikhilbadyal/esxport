@@ -240,7 +240,7 @@ reportMissingTypeStubs = false
 # github_url = "https://github.com/<user or organization>/<project>/"
 
 [tool.tbump.version]
-current = "9.2.0"
+current = "9.2.1"
 
 # Example of a semver regexp.
 # Make sure this matches current_version before
