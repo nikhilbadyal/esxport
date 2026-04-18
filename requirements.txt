@@ -1,8 +1,8 @@
-certifi>=2023.0.0
-click==8.1.8
+certifi>=2026.2.25
+click==8.3.2
 click-params==0.5.0
 elasticsearch==9.3.0
 loguru==0.7.3
-tenacity==9.0.0
-tqdm==4.67.1
-typing-extensions==4.12.2
+tenacity==9.1.4
+tqdm==4.67.3
+typing-extensions==4.15.0
