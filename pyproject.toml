@@ -127,6 +127,8 @@ upload = "twine upload dist/*"
 [tool.hatch.envs.integration]
 description = "Integration tests for built packages"
 features = ["dev"]
+# Allow hatch build commands within this environment's scripts (required since hatch >= 1.16.0)
+builder = true
 # No hardcoded dependencies - using pytest from requirements.dev.txt
 
 [tool.hatch.envs.integration.scripts]

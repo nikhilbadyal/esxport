@@ -1,5 +1,6 @@
 Faker==33.1.0
-hatch==1.14.1
+# Note: hatch is installed globally as a project manager, not as a project dependency.
+# Including it here causes ResolutionImpossible conflicts on Python 3.10.
 pytest==8.3.5
 pytest-click==1.1.0
 pytest-cov==5.0.0
