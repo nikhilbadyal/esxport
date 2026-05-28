@@ -15,7 +15,7 @@ class FormatError(ValueError):
     """Invalid input format."""
 
 
-class Sort(ParamType):
+class Sort(ParamType[dict[str, str]]):
     """Sort type ES."""
 
     name = "Elastic Sort"
@@ -27,7 +27,7 @@ class Sort(ParamType):
             msg = f"Invalid sort type {sort_order}."
             raise FormatError(msg)
 
-    def convert(self: Self, value: Any, param: Parameter | None, ctx: Context | None) -> Any:
+    def convert(self: Self, value: Any, param: Parameter | None, ctx: Context | None) -> dict[str, str]:
         """Convert str to dict."""
         try:
             field, sort_order = value.split(":")
@@ -43,7 +43,7 @@ class Sort(ParamType):
 sort = Sort()
 
 
-class Json(ParamType):
+class Json(ParamType[dict[str, Any]]):
     """Json Validator."""
 
     name = "json"

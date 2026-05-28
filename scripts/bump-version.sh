@@ -62,6 +62,14 @@ check_prerequisites() {
         exit 1
     fi
 
+    # In GitHub Actions CI, the repository is checked out in a detached HEAD state by default.
+    # To run git operations and branch validation properly, we need to explicitly
+    # switch to and track the local 'main' branch if running in a CI environment.
+    if [ "$GITHUB_ACTIONS" = "true" ]; then
+        log_info "Running in GitHub Actions CI. Ensuring main branch is checked out..."
+        git checkout -B main origin/main || git checkout main
+    fi
+
     # Check if on main branch
     current_branch=$(git branch --show-current)
     if [ "$current_branch" != "main" ]; then
