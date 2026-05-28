@@ -1,5 +1,6 @@
 certifi>=2026.2.25
-click==8.3.2
+# Click 8.4+ makes ParamType generic at runtime, matching the custom Click type annotations in esxport.click_opt.
+click==8.4.1
 click-params==0.5.0
 elasticsearch==9.4.0
 loguru==0.7.3
