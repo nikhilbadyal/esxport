@@ -1,0 +1,112 @@
+{
+  // The schema gives editors and validators current Renovate option checks as the config evolves.
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+
+  // Renovate maintains this preset for upgrade hygiene, including config migration and GitHub Actions digest pinning.
+  "extends": ["config:best-practices"],
+
+  // Keep dependency automation in the same label stream that the old Dependabot setup used.
+  "labels": ["dependencies🫂"],
+  "dependencyDashboardLabels": ["dependencies🫂"],
+
+  // Use CODEOWNERS so review routing follows repository ownership instead of duplicating owners in two files.
+  "assigneesFromCodeOwners": true,
+  "reviewersFromCodeOwners": true,
+
+  // Use the maintainer's local timezone for dashboard timing and any future schedules.
+  "timezone": "Asia/Kolkata",
+
+  "forkProcessing": "enabled",
+
+  // Keep Renovate out of generated/vendor folders while still allowing the tracked test/.env version mirror.
+  "ignorePaths": [
+    "**/node_modules/**",
+    "**/bower_components/**",
+    "**/vendor/**",
+    "**/examples/**",
+    "**/__tests__/**",
+    "**/tests/**",
+    "**/__fixtures__/**",
+  ],
+
+  // Limit initial Renovate fan-out so dependency updates do not flood CI after onboarding.
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+
+  // Keep delayed and blocked updates visible while release-age checks are still pending.
+  "dependencyDashboard": true,
+  "dependencyDashboardTitle": "Renovate Dependency Dashboard",
+
+  // Wait seven days after each dependency release before Renovate creates update branches.
+  "minimumReleaseAge": "7 days",
+
+  // Require a real release timestamp so the seven-day wait means seven days after an observed release.
+  "minimumReleaseAgeBehaviour": "timestamp-required",
+
+  // Avoid creating branches or PRs until the release-age stability check has passed.
+  "internalChecksFilter": "strict",
+
+  // Surface direct dependency vulnerabilities through Renovate's OSV integration and dashboard.
+  "osvVulnerabilityAlerts": true,
+  "dependencyDashboardOSVVulnerabilitySummary": "unresolved",
+
+  "packageRules": [
+    {
+      // A custom manager updates elasticsearch together with the project-version mirrors.
+      // This prevents the native pip manager from opening a competing PR for the same pin.
+      "matchManagers": ["pip_requirements"],
+      "matchPackageNames": ["elasticsearch"],
+      "enabled": false,
+    },
+    {
+      // Keep all Elasticsearch release-driven edits in one PR so CI validates one coherent package version.
+      "matchPackageNames": ["elasticsearch"],
+      "groupName": "Elasticsearch release",
+      "commitMessageTopic": "Elasticsearch",
+      "dependencyDashboardApproval": false,
+      "automerge": true,
+      "automergeType": "pr",
+      // Let Renovate wait for completed status checks instead of delegating merge timing to repository branch-protection settings.
+      "platformAutomerge": false,
+    },
+  ],
+
+  "customManagers": [
+    {
+      // Update the runtime Elasticsearch client pin that drives the dependency install.
+      "customType": "regex",
+      "managerFilePatterns": ["/^requirements\\.txt$/"],
+      "matchStrings": ["elasticsearch==(?<currentValue>[^\\s]+)"],
+      "depNameTemplate": "elasticsearch",
+      "datasourceTemplate": "pypi",
+      "versioningTemplate": "pep440",
+    },
+    {
+      // Keep the Elasticsearch test container version aligned with the Python client release.
+      "customType": "regex",
+      "managerFilePatterns": ["/^test\\/\\.env$/"],
+      "matchStrings": ["STACK_VERSION=(?<currentValue>[^\\s]+)"],
+      "depNameTemplate": "elasticsearch",
+      "datasourceTemplate": "pypi",
+      "versioningTemplate": "pep440",
+    },
+    {
+      // Preserve the existing policy that the package version mirrors the Elasticsearch client version.
+      "customType": "regex",
+      "managerFilePatterns": ["/^esxport\\/__init__\\.py$/"],
+      "matchStrings": ["__version__ = \"(?<currentValue>[^\"]+)\""],
+      "depNameTemplate": "elasticsearch",
+      "datasourceTemplate": "pypi",
+      "versioningTemplate": "pep440",
+    },
+    {
+      // Keep tbump's source-of-truth version synchronized so manual emergency bumps still start from the current release.
+      "customType": "regex",
+      "managerFilePatterns": ["/^pyproject\\.toml$/"],
+      "matchStrings": ["\\[tool\\.tbump\\.version\\]\\s+current = \"(?<currentValue>[^\"]+)\""],
+      "depNameTemplate": "elasticsearch",
+      "datasourceTemplate": "pypi",
+      "versioningTemplate": "pep440",
+    },
+  ],
+}

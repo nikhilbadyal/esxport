@@ -1,15 +1,15 @@
-name: Release on Version Bump
+name: Release on Version Change
 
 on:
   push:
     branches: [main]
+    # Release only when the project version files change; dependency-only updates should not publish packages.
     paths:
       - 'esxport/__init__.py'
       - 'pyproject.toml'
 
 jobs:
   auto-tag:
-    if: contains(github.event.head_commit.message, '⬆️ Bump to') && !startsWith(github.event.head_commit.message, 'Merge')
     runs-on: ubuntu-latest
     outputs:
       tag-created: ${{ steps.check_tag.outputs.tag-created }}
@@ -37,18 +37,21 @@ jobs:
         id: get_version
         run: |
           VERSION=$(python -c "import esxport; print(esxport.__version__)")
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "tag=v$VERSION" >> $GITHUB_OUTPUT
+          # Quote the runner-provided output path so shell parsing cannot break on workspace-specific paths.
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Check if tag exists
         id: check_tag
         run: |
-          if git rev-parse --verify "refs/tags/v${{ steps.get_version.outputs.version }}" >/dev/null 2>&1; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-            echo "tag-created=false" >> $GITHUB_OUTPUT
+          # Keep the tag name in one shell variable so every git check and output line uses the same value.
+          release_tag="v${{ steps.get_version.outputs.version }}"
+          if git rev-parse --verify "refs/tags/$release_tag" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "tag-created=false" >> "$GITHUB_OUTPUT"
           else
-            echo "exists=false" >> $GITHUB_OUTPUT
-            echo "tag-created=true" >> $GITHUB_OUTPUT
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "tag-created=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Create and push tag
@@ -86,6 +89,8 @@ jobs:
 
   build:
     needs: auto-tag
+    # Build artifacts only when this push introduced a version that has not already been released.
+    if: needs.auto-tag.outputs.tag-created == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -126,6 +131,8 @@ jobs:
 
   publish-pypi:
     needs: build
+    # Publishing follows the guarded build job so reruns on an existing tag cannot upload the same version again.
+    if: needs.build.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       id-token: write
