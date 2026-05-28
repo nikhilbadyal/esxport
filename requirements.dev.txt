@@ -6,7 +6,7 @@ pytest-click==1.1.0
 pytest-cov==7.1.0
 pytest-elasticsearch-test==0.0.3
 pytest-emoji==0.2.0
-pytest-loguru==0.4.0
+pytest-loguru==0.4.1
 pytest-md==0.2.0
 pytest-mock==3.15.1
 pytest-xdist==3.8.0
