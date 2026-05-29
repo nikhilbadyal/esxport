@@ -67,7 +67,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Test reporter
-        uses: phoenix-actions/test-reporting@f957cd93fc2d848d556fa0d03c57bc79127b6b5e # v15
+        uses: phoenix-actions/test-reporting@7317eea6e13c47348dd0bb318669485157c518d6 # v16
         if: always()
         with:
           name: EsXport tests for (Python ${{ matrix.PYTHON_VERSION }})
