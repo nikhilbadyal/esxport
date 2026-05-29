@@ -10,7 +10,7 @@ on:
 jobs:
   cleanup:
     name: GitHub Cleanup
-    uses: nikhilbadyal/ghactions/.github/workflows/github-workflow-cleaner.yml@973b07fd5767789b59bf9bca88911c51fb784019 # main
+    uses: nikhilbadyal/ghactions/.github/workflows/github-workflow-cleaner.yml@340a2a7533136b52262974e073716c2400c797cb # main
     secrets:
       GH_TOKEN: ${{ secrets.PAT_TOKEN }}
       GITHUB_REPOSITORY: ${{ github.repository }}
