@@ -98,9 +98,10 @@ class EsXport(object):
 
         for index in indices_names:
             response: dict[str, Any] = self.es_client.get_mapping(index=index)
-            all_fields_dict[index] = []
-            for field in response[index]["mappings"]["properties"]:
-                all_fields_dict[index].append(field)
+            for matched_index, mapping in response.items():
+                all_fields_dict.setdefault(matched_index, [])
+                for field in mapping["mappings"]["properties"]:
+                    all_fields_dict[matched_index].append(field)
         all_es_fields = {value for values_list in all_fields_dict.values() for value in values_list}
 
         for element in all_expected_fields:
@@ -217,11 +218,20 @@ class EsXport(object):
             self.es_client.clear_scroll(scroll_id="_all")
 
     def _extract_headers(self: Self) -> list[str]:
-        """Extract CSV headers from the first line of the file."""
+        """Extract CSV headers from all documents in the temp file."""
         file_name = f"{self.opts.output_file}.tmp"
-        with Path(file_name).open() as f:
-            first_line = json.loads(f.readline())
-            return list(first_line.keys())
+        headers: list[str] = []
+        seen: set[str] = set()
+        with Path(file_name).open(encoding="utf-8") as f:
+            for line in f:
+                stripped_line = line.strip()
+                if not stripped_line:
+                    continue
+                for key in json.loads(stripped_line):
+                    if key not in seen:
+                        seen.add(key)
+                        headers.append(key)
+        return headers
 
     def _export(self: Self) -> None:
         """Export the data."""

@@ -59,3 +59,29 @@ class TestWriter:
         assert csv_data == self.fake_data, "Generated data does not match with written data"
 
         TestExport.rm_csv_export_file(out_file)
+
+    def test_write_to_csv_with_heterogeneous_fields(self: Self) -> None:
+        """Rows with different fields should still export without error."""
+        out_file = f"{inspect.stack()[0].function}.csv"
+        documents = [
+            {"age": 1, "name": "first"},
+            {"age": 2, "event": "log"},
+        ]
+        with Path(f"{out_file}.tmp").open(mode="w", encoding="utf-8") as tmp_file:
+            for document in documents:
+                tmp_file.write(json.dumps(document))
+                tmp_file.write("\n")
+
+        headers = ["age", "name", "event"]
+        Writer.write(len(documents), out_file, headers, delimiter=",")
+
+        with Path(out_file).open(encoding="utf-8") as file:
+            reader = csv.DictReader(file)
+            rows = list(reader)
+
+        assert reader.fieldnames == headers
+        assert rows[0] == {"age": "1", "name": "first", "event": ""}
+        assert rows[1] == {"age": "2", "name": "", "event": "log"}
+
+        TestExport.rm_csv_export_file(out_file)
+        Path(f"{out_file}.tmp").unlink(missing_ok=True)

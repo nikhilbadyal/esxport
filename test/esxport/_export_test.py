@@ -67,6 +67,26 @@ class TestExport:
         assert esxport_obj._extract_headers() == list(test_json.keys())
         TestExport.rm_export_file(f"{inspect.stack()[0].function}.csv")
 
+    def test_headers_extraction_from_all_documents(
+        self: Self,
+        _: Any,
+        esxport_obj: EsXport,
+    ) -> None:
+        """Headers include fields from every exported document."""
+        esxport_obj.opts.output_file = f"{inspect.stack()[0].function}.csv"
+        temp_file = f"{esxport_obj.opts.output_file}.tmp"
+        documents = [
+            {"age": 2, "name": "first"},
+            {"age": 3, "event": {"type": "log"}},
+        ]
+        with Path(temp_file).open("w", encoding="utf-8") as tmp_file:
+            for document in documents:
+                tmp_file.write(json.dumps(document))
+                tmp_file.write("\n")
+
+        assert esxport_obj._extract_headers() == ["age", "name", "event"]
+        TestExport.rm_export_file(f"{inspect.stack()[0].function}.csv")
+
     def test_ping_cluster_failure(self: Self, _: Any, esxport_obj: EsXport) -> None:
         """Test that _ping_cluster raises HealthCheckError when ping fails."""
         with (

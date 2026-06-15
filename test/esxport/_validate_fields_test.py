@@ -127,3 +127,27 @@ class TestValidateFields:
 
         with pytest.raises(FieldNotFoundError):
             esxport_obj._validate_fields()
+
+    def test_wildcard_index_pattern_uses_matched_indices(self: Self, mocker: Mock, esxport_obj: EsXport) -> None:
+        """Wildcard index patterns return mappings keyed by matched index names."""
+        mocker.patch.object(
+            esxport_obj.es_client,
+            "get_mapping",
+            return_value={
+                "filebeat-2026.06.01": {
+                    "mappings": {
+                        "properties": ["field1", "field2"],
+                    },
+                },
+                ".ds-filebeat-8.13.0-2026.06.04-000002": {
+                    "mappings": {
+                        "properties": ["field2", "field3"],
+                    },
+                },
+            },
+        )
+
+        esxport_obj.opts.index_prefixes = ["*filebeat*"]
+        esxport_obj.opts.fields = ["field1", "field2", "field3"]
+
+        esxport_obj._validate_fields()
