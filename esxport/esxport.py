@@ -155,17 +155,21 @@ class EsXport(object):
             colour="green",
         )
         try:
-            while self.rows_written != total_size:
+            while self.rows_written < total_size:
                 if res["_scroll_id"] not in self.scroll_ids:
                     self.scroll_ids.append(res["_scroll_id"])
 
                 for hit in res["hits"]["hits"]:
+                    if self.rows_written >= total_size:
+                        break
                     self.rows_written += 1
                     bar.update(1)
                     hit_list.append(hit)
                     if len(hit_list) == FLUSH_BUFFER:
                         self._flush_to_file(hit_list)
                         hit_list = []
+                if self.rows_written >= total_size:
+                    break
                 res = self.next_scroll(res["_scroll_id"])
         except ScrollExpiredError:
             logger.error("Scroll expired(multiple reads?). Saving loaded data.")
@@ -186,7 +190,8 @@ class EsXport(object):
         res = self.es_client.search(**self.search_args)
         self.num_results = res["hits"]["total"]["value"]
 
-        logger.info(f"Found {self.num_results} results.")
+        export_count = min(self.opts.max_results, self.num_results)
+        logger.info(f"Found {self.num_results} results. Exporting {export_count}.")
 
         if self.num_results == 0:
             msg = "No Data found in index."

@@ -106,6 +106,47 @@ class TestVSearchQuery:
             esxport_obj_with_data.search_query()
             assert mock_flush_to_file.call_count == no_of_records / flush_size + 1
 
+    def test_export_stops_at_max_results(self: Self, mocker: Mock, esxport_obj_with_data: EsXport) -> None:
+        """Only max_results documents are written even when scroll returns more."""
+        esxport_obj_with_data.opts.output_file = f"{inspect.stack()[0].function}.csv"
+        esxport_obj_with_data.opts.max_results = 2
+        esxport_obj_with_data.opts.scroll_size = 5
+
+        def make_hit(doc_id: str) -> dict[str, object]:
+            return {
+                "_index": "index1",
+                "_id": doc_id,
+                "_score": 1,
+                "_source": {"test_id": doc_id},
+            }
+
+        first_page = {
+            "hits": {
+                "total": {"value": 100},
+                "hits": [make_hit(str(i)) for i in range(5)],
+            },
+            "_scroll_id": "scroll-1",
+        }
+        second_page = {
+            "hits": {
+                "total": {"value": 100},
+                "hits": [make_hit(str(i)) for i in range(5, 10)],
+            },
+            "_scroll_id": "scroll-1",
+        }
+
+        mocker.patch.object(esxport_obj_with_data, "_validate_fields", return_value=None)
+        mocker.patch.object(esxport_obj_with_data.es_client, "search", return_value=first_page)
+        mock_scroll = mocker.patch.object(esxport_obj_with_data.es_client, "scroll", return_value=second_page)
+
+        esxport_obj_with_data.search_query()
+
+        mock_scroll.assert_not_called()
+        with Path(f"{inspect.stack()[0].function}.csv.tmp").open(encoding="utf-8") as tmp_file:
+            lines = tmp_file.readlines()
+        assert len(lines) == 2
+        TestExport.rm_export_file(f"{inspect.stack()[0].function}.csv")
+
     def test_function_exits_when_scroll_expire(self: Self, mocker: Mock, esxport_obj_with_data: EsXport) -> None:
         """Test function exist when scroll expires."""
         esxport_obj_with_data.opts.output_file = f"{inspect.stack()[0].function}.csv"
