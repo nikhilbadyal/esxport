@@ -254,6 +254,7 @@ class EsXport(object):
 
     def export(self: Self) -> None:
         """Export the data."""
+        Path(f"{self.opts.output_file}.tmp").unlink(missing_ok=True)
         self._ping_cluster()
         self._check_indexes()
         self.search_query()

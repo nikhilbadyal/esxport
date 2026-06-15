@@ -85,3 +85,31 @@ class TestWriter:
 
         TestExport.rm_csv_export_file(out_file)
         Path(f"{out_file}.tmp").unlink(missing_ok=True)
+
+    def test_write_to_csv_with_nested_fields(self: Self) -> None:
+        """Nested dict/list values are serialized for CSV export."""
+        out_file = f"{inspect.stack()[0].function}.csv"
+        documents = [
+            {
+                "message": "line, with comma",
+                "event": {"type": "log", "module": "system"},
+                "tags": ["filebeat", "nginx"],
+            },
+        ]
+        with Path(f"{out_file}.tmp").open(mode="w", encoding="utf-8") as tmp_file:
+            for document in documents:
+                tmp_file.write(json.dumps(document))
+                tmp_file.write("\n")
+
+        headers = ["message", "event", "tags"]
+        Writer.write(len(documents), out_file, headers, delimiter=",")
+
+        with Path(out_file).open(encoding="utf-8") as file:
+            rows = list(csv.DictReader(file))
+
+        assert rows[0]["message"] == "line, with comma"
+        assert json.loads(rows[0]["event"]) == {"type": "log", "module": "system"}
+        assert json.loads(rows[0]["tags"]) == ["filebeat", "nginx"]
+
+        TestExport.rm_csv_export_file(out_file)
+        Path(f"{out_file}.tmp").unlink(missing_ok=True)
