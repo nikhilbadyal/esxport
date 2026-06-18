@@ -1,4 +1,4 @@
-Faker==40.22.0
+Faker==40.23.0
 # Note: hatch is installed globally as a project manager, not as a project dependency.
 # Including it here causes ResolutionImpossible conflicts on Python 3.10.
 pytest==9.0.3
