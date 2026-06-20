@@ -174,9 +174,14 @@ create_pr() {
 
     log_info "Creating Pull Request..."
 
-    # Create PR with GitHub CLI
-    # Use a decoupled PR description instead of hardcoding Elasticsearch upgrades
+    # Extract the repository name (owner/repo) from the origin remote URL
+    # so we explicitly target the correct fork instead of relying on gh's default settings.
+    local repo_name
+    repo_name=$(git remote get-url origin | sed -E 's|.*github.com[:/]([^/]+/[^.]+).*|\1|')
+
+    # Create PR with GitHub CLI explicitly targeting our repository
     pr_url=$(gh pr create \
+        --repo "$repo_name" \
         --title "⬆️ Bump to $version" \
         --body "Release of esxport version $version - Updates package version and dependencies" \
         --base main \
@@ -202,11 +207,12 @@ wait_for_checks() {
 
     log_info "Monitoring PR #$pr_number for check completion..."
 
-    # First, check if any checks exist yet
+    # First, check if any checks exist yet using the full PR URL
+    # to avoid default repository mismatch issues.
     local max_wait=300  # Wait up to 5 minutes for checks to appear
     local waited=0
     while [ $waited -lt $max_wait ]; do
-        if gh pr checks "$pr_number" --json state >/dev/null 2>&1; then
+        if gh pr checks "$pr_url" --json state >/dev/null 2>&1; then
             break
         fi
         log_info "No checks detected yet, waiting 30 seconds... (${waited}s elapsed)"
@@ -215,15 +221,14 @@ wait_for_checks() {
     done
 
     # If still no checks after waiting, that might be normal for some repos
-    if ! gh pr checks "$pr_number" --json state >/dev/null 2>&1; then
+    if ! gh pr checks "$pr_url" --json state >/dev/null 2>&1; then
         log_warning "No CI checks detected after ${max_wait}s. Repository might not have required checks."
         log_info "Please manually verify the PR: $pr_url"
         return 0  # Assume success if no checks are configured
     fi
 
-    # Use gh pr checks --watch with custom interval
-    # This will automatically watch until checks complete
-    if gh pr checks "$pr_number" --watch --interval 30; then
+    # Use gh pr checks --watch with custom interval using the full PR URL
+    if gh pr checks "$pr_url" --watch --interval 30; then
         log_success "All checks passed!"
         return 0
     else
@@ -248,9 +253,8 @@ merge_pr() {
 
     log_info "Auto-merging PR..."
 
-    pr_number=$(echo "$pr_url" | grep -o '[0-9]*$')
-
-    if gh pr merge "$pr_number" --squash --auto; then
+    # Use the full PR URL directly so that GitHub CLI merges the PR on the correct fork.
+    if gh pr merge "$pr_url" --squash --auto; then
         log_success "PR merged successfully!"
     else
         log_error "Failed to merge PR. Please merge manually: $pr_url"
