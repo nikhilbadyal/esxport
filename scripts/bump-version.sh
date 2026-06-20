@@ -180,7 +180,7 @@ create_pr() {
         --title "⬆️ Bump to $version" \
         --body "Release of esxport version $version - Updates package version and dependencies" \
         --base main \
-        --head "$branch_name" 2>/dev/null)
+        --head "$branch_name")
 
     if [ -n "$pr_url" ]; then
         log_success "Pull Request created: $pr_url"
