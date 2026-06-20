@@ -242,7 +242,7 @@ reportMissingTypeStubs = false
 # github_url = "https://github.com/<user or organization>/<project>/"
 
 [tool.tbump.version]
-current = "9.4.1"
+current = "9.4.1.1"
 
 # Supports standard three-part versions and optional four-part versions
 # for independent esxport hotfix releases.
