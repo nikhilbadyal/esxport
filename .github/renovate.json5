@@ -73,37 +73,10 @@
 
   "customManagers": [
     {
-      // Update the runtime Elasticsearch client pin that drives the dependency install.
-      "customType": "regex",
-      "managerFilePatterns": ["/^requirements\\.txt$/"],
-      "matchStrings": ["elasticsearch==(?<currentValue>[^\\s]+)"],
-      "depNameTemplate": "elasticsearch",
-      "datasourceTemplate": "pypi",
-      "versioningTemplate": "pep440",
-    },
-    {
       // Keep the Elasticsearch test container version aligned with the Python client release.
       "customType": "regex",
       "managerFilePatterns": ["/^test\\/\\.env$/"],
       "matchStrings": ["STACK_VERSION=(?<currentValue>[^\\s]+)"],
-      "depNameTemplate": "elasticsearch",
-      "datasourceTemplate": "pypi",
-      "versioningTemplate": "pep440",
-    },
-    {
-      // Preserve the existing policy that the package version mirrors the Elasticsearch client version.
-      "customType": "regex",
-      "managerFilePatterns": ["/^esxport\\/__init__\\.py$/"],
-      "matchStrings": ["__version__ = \"(?<currentValue>[^\"]+)\""],
-      "depNameTemplate": "elasticsearch",
-      "datasourceTemplate": "pypi",
-      "versioningTemplate": "pep440",
-    },
-    {
-      // Keep tbump's source-of-truth version synchronized so manual emergency bumps still start from the current release.
-      "customType": "regex",
-      "managerFilePatterns": ["/^pyproject\\.toml$/"],
-      "matchStrings": ["\\[tool\\.tbump\\.version\\]\\s+current = \"(?<currentValue>[^\"]+)\""],
       "depNameTemplate": "elasticsearch",
       "datasourceTemplate": "pypi",
       "versioningTemplate": "pep440",

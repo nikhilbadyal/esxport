@@ -1,8 +1,18 @@
 #!/bin/bash
 
+# Save the STACK_VERSION environment variable if already defined externally (e.g. by CI matrix)
+# so it does not get overwritten by sourcing test/.env.
+ORIG_STACK_VERSION=${STACK_VERSION:-}
+
 set -o allexport
 source test/.env
 set +o allexport
+
+# If STACK_VERSION was defined externally, restore it.
+if [ -n "$ORIG_STACK_VERSION" ]; then
+  STACK_VERSION=$ORIG_STACK_VERSION
+fi
+
 set -euxo pipefail
 
 # Check if SKIP_ES_SETUP is set to 1 (skip if set to 1)

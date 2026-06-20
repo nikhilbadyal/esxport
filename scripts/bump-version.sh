@@ -106,7 +106,9 @@ check_prerequisites() {
 
 create_branch() {
     local version=$1
-    local branch_name="upgrade/elasticsearch-$version"
+    # Use a generic release branch name instead of upgrade/elasticsearch
+    # to decouple the esxport release lifecycle from upstream.
+    local branch_name="release/v$version"
 
     log_info "Creating branch: $branch_name"
 
@@ -173,9 +175,10 @@ create_pr() {
     log_info "Creating Pull Request..."
 
     # Create PR with GitHub CLI
+    # Use a decoupled PR description instead of hardcoding Elasticsearch upgrades
     pr_url=$(gh pr create \
         --title "⬆️ Bump to $version" \
-        --body "Version bump to Elasticsearch $version - Updates package version and dependencies" \
+        --body "Release of esxport version $version - Updates package version and dependencies" \
         --base main \
         --head "$branch_name" 2>/dev/null)
 
@@ -354,7 +357,8 @@ cleanup_on_exit() {
     if [ $exit_code -ne 0 ]; then
         log_warning "Script interrupted or failed (exit code: $exit_code)"
         current_branch=$(git branch --show-current 2>/dev/null || echo "")
-        if [[ "$current_branch" == upgrade/elasticsearch-* ]]; then
+        # Clean up any temporary release branches created by the script
+        if [[ "$current_branch" == release/v* ]]; then
             log_info "Cleaning up branch: $current_branch"
             git checkout main 2>/dev/null || true
             git branch -D "$current_branch" 2>/dev/null || true

@@ -14,18 +14,14 @@ concurrency:
 jobs:
   tests:
     name: >-
-      Pytest - Python ${{ matrix.PYTHON_VERSION }}
+      Pytest - Python ${{ matrix.PYTHON_VERSION }} (ES ${{ matrix.ELASTICSEARCH_VERSION }})
     timeout-minutes: 15
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - { PYTHON_VERSION: '3.10' }
-          - { PYTHON_VERSION: '3.11' }
-          - { PYTHON_VERSION: '3.12', GENERATE_COVERAGE: 'true' }
-          - { PYTHON_VERSION: '3.13' }
-          - { PYTHON_VERSION: '3.14' }
+        PYTHON_VERSION: ['3.10', '3.11', '3.12', '3.13', '3.14']
+        ELASTICSEARCH_VERSION: ['8.17.2', '9.4.1']
     steps:
       - name: "Checkout to repository"
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
@@ -44,6 +40,13 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt -r requirements.dev.txt
+          # Dynamically install the elasticsearch python client matching the tested server's major version.
+          # This allows us to guarantee backward compatibility with Elasticsearch 8.x and forward compatibility with 9.x.
+          if [[ "${{ matrix.ELASTICSEARCH_VERSION }}" == 8.* ]]; then
+            pip install "elasticsearch>=8.0.0,<9.0.0"
+          elif [[ "${{ matrix.ELASTICSEARCH_VERSION }}" == 9.* ]]; then
+            pip install "elasticsearch>=9.0.0,<10.0.0"
+          fi
 
       - name: Configure sysctl limits
         run: |
@@ -54,6 +57,9 @@ jobs:
 
       - name: "Run tests"
         uses: pavelzw/pytest-action@510c5e90c360a185039bea56ce8b3e7e51a16507 # v2.2.0
+        env:
+          # Pass the current matrix version of Elasticsearch down to the test bootstrap script.
+          STACK_VERSION: ${{ matrix.ELASTICSEARCH_VERSION }}
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
@@ -70,7 +76,7 @@ jobs:
         uses: phoenix-actions/test-reporting@7317eea6e13c47348dd0bb318669485157c518d6 # v16
         if: always()
         with:
-          name: EsXport tests for (Python ${{ matrix.PYTHON_VERSION }})
+          name: EsXport tests for (Python ${{ matrix.PYTHON_VERSION }}, ES ${{ matrix.ELASTICSEARCH_VERSION }})
           path: junit.xml
           reporter: java-junit
           output-to: step-summary
@@ -78,7 +84,7 @@ jobs:
           max-annotations: 0
 
       - name: Upload coverage report for SonarQube
-        if: matrix.GENERATE_COVERAGE == 'true'
+        if: matrix.PYTHON_VERSION == '3.12' && matrix.ELASTICSEARCH_VERSION == '9.4.1'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: coverage-report

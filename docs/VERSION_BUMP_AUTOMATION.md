@@ -172,10 +172,10 @@ If something goes wrong:
 
 ```bash
 # Delete local branch
-git branch -D upgrade/elasticsearch-X.X.X
+git branch -D release/vX.X.X
 
 # Delete remote branch
-git push origin --delete upgrade/elasticsearch-X.X.X
+git push origin --delete release/vX.X.X
 
 # Delete tag (if created)
 git tag -d vX.X.X

@@ -13,13 +13,17 @@ concurrency:
 
 jobs:
   integration-tests:
-    name: Integration Tests - Python ${{ matrix.python-version }}
+    name: Integration Tests - Python ${{ matrix.python-version }} (ES ${{ matrix.elasticsearch-version }})
     timeout-minutes: 15
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
+        elasticsearch-version: ['8.17.2', '9.4.1']
+
+    env:
+      STACK_VERSION: ${{ matrix.elasticsearch-version }}
 
     steps:
       - name: Checkout repository
@@ -39,6 +43,17 @@ jobs:
           # where 'propose_interpreters' attribute was removed.
           python -m pip install "hatch>=1.16.5"
 
+      - name: Setup integration environment and client version
+        run: |
+          # Force hatch to create the integration env and install dependencies first
+          hatch run integration:pip install -e .
+          # Dynamically install the elasticsearch python client matching the tested server's major version.
+          # This allows us to guarantee backward compatibility with Elasticsearch 8.x and forward compatibility with 9.x.
+          if [[ "${{ matrix.elasticsearch-version }}" == 8.* ]]; then
+            hatch run integration:pip install --upgrade "elasticsearch>=8.0.0,<9.0.0"
+          elif [[ "${{ matrix.elasticsearch-version }}" == 9.* ]]; then
+            hatch run integration:pip install --upgrade "elasticsearch>=9.0.0,<10.0.0"
+          fi
 
       - name: Test Both Distributions
         run: hatch run integration:test

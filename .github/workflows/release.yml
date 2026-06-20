@@ -72,8 +72,8 @@ jobs:
             ## Release v${{ steps.get_version.outputs.version }}
 
             ### Changes
-            - Updated to Elasticsearch ${{ steps.get_version.outputs.version }}
-            - Compatibility verified with latest Elasticsearch features
+            - Release of `esxport` version ${{ steps.get_version.outputs.version }}.
+            - Compatibility verified with Elasticsearch 8.x and 9.x.
 
             ### Installation
             ```bash

@@ -2,7 +2,8 @@ certifi>=2026.2.25
 # Click 8.4+ makes ParamType generic at runtime, matching the custom Click type annotations in esxport.click_opt.
 click==8.4.1
 click-params==0.5.0
-elasticsearch==9.4.1
+# Use a wide range to support both Elasticsearch 8.x and 9.x clients/servers.
+elasticsearch>=8.0.0,<10.0.0
 loguru==0.7.3
 tenacity==9.1.4
 tqdm==4.68.2
