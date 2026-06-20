@@ -244,16 +244,23 @@ reportMissingTypeStubs = false
 [tool.tbump.version]
 current = "9.4.1"
 
-# Example of a semver regexp.
-# Make sure this matches current_version before
-# using tbump
+# Supports standard three-part versions and optional four-part versions
+# for independent esxport hotfix releases.
 regex = '''
   (?P<major>\d+)
   \.
   (?P<minor>\d+)
   \.
   (?P<patch>\d+)
+  (?:
+    \.
+    (?P<extra>\d+)
+  )?
   '''
+
+[[tool.tbump.field]]
+name = "extra"
+default = ""
 
 [tool.tbump.git]
 message_template = "⬆️ Bump to {new_version}"
